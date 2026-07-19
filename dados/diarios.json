@@ -1,0 +1,23 @@
+{
+  "lancamentos": [
+    {
+      "id": 1,
+      "data": "2026-07-17",
+      "descricao": "Venda a vista",
+      "debito": "1.01.01.01.01",
+      "credito": "4.01.01",
+      "valor": 1500.0,
+      "data_lancamento": "2026-07-17 18:53:27"
+    },
+    {
+      "id": 2,
+      "data": "2026-07-17",
+      "descricao": "Pagamento fornecedor",
+      "debito": "2.01",
+      "credito": "1.01.01.02.01",
+      "valor": 850.0,
+      "data_lancamento": "2026-07-17 18:53:27"
+    }
+  ],
+  "total": 2
+}

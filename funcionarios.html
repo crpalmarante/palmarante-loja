@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funcionarios - Palmarante Loja</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',Arial,sans-serif; background:#f0f2f5; color:#333; }
+header { background:#1a237e; color:#fff; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; }
+header h1 { font-size:1.4rem; }
+header a { color:#ffd54f; text-decoration:none; font-size:.9rem; }
+main { padding:20px; max-width:1200px; margin:0 auto; }
+.card { background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.1); padding:20px; margin-bottom:20px; }
+.card h2 { font-size:1.1rem; margin-bottom:16px; color:#1a237e; }
+table { width:100%; border-collapse:collapse; font-size:.85rem; }
+th { background:#e8eaf6; text-align:left; padding:8px 10px; font-weight:600; border-bottom:2px solid #c5cae9; white-space:nowrap; }
+td { padding:6px 10px; border-bottom:1px solid #eee; }
+tr:hover td { background:#f5f5f5; }
+.form-row { display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap; align-items:center; }
+.form-row label { min-width:110px; font-weight:500; font-size:.9rem; }
+.form-row input, .form-row select { flex:1; padding:7px 10px; border:1px solid #ccc; border-radius:4px; font-size:.9rem; min-width:120px; }
+.form-row input:focus { border-color:#1a237e; outline:none; }
+.form-row .small { font-size:.75rem; color:#888; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media(max-width:700px){.form-grid{grid-template-columns:1fr;}}
+.btn { padding:8px 20px; border:none; border-radius:4px; cursor:pointer; font-size:.9rem; font-weight:500; }
+.btn-primary { background:#1a237e; color:#fff; }
+.btn-primary:hover { background:#283593; }
+.btn-success { background:#2e7d32; color:#fff; }
+.btn-success:hover { background:#388e3c; }
+.btn-danger { background:#c62828; color:#fff; }
+.btn-danger:hover { background:#d32f2f; }
+.btn-warning { background:#f9a825; color:#333; }
+.btn-sm { padding:4px 10px; font-size:.8rem; }
+.toast { position:fixed; bottom:20px; right:20px; padding:12px 24px; border-radius:6px; color:#fff; font-weight:500; display:none; z-index:999; }
+.toast.success { background:#2e7d32; }
+.toast.error { background:#c62828; }
+.toast.info { background:#1565c0; }
+.schedule-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:6px; margin-top:8px; }
+.schedule-grid .day-card { background:#fafafa; border:1px solid #e0e0e0; border-radius:6px; padding:8px; text-align:center; }
+.schedule-grid .day-card h4 { font-size:.8rem; color:#1a237e; margin-bottom:6px; }
+.schedule-grid .day-card input { width:100%; padding:4px 6px; border:1px solid #ccc; border-radius:3px; font-size:.8rem; text-align:center; margin-bottom:3px; }
+.schedule-grid .day-card input:disabled { background:#eee; color:#999; }
+.schedule-grid .day-card label { font-size:.65rem; color:#666; display:block; margin-bottom:1px; }
+@media(max-width:900px){.schedule-grid{grid-template-columns:1fr 1fr 1fr;}}
+.switch-row { display:flex; gap:20px; align-items:center; margin:10px 0 6px; }
+.switch-row label { font-size:.85rem; font-weight:500; display:flex; align-items:center; gap:6px; cursor:pointer; }
+.switch-row input[type=checkbox] { width:auto; margin:0; cursor:pointer; }
+.photo-preview { width:80px; height:80px; object-fit:cover; border-radius:50%; border:2px solid #e0e0e0; margin-right:10px; }
+.photo-upload { display:flex; align-items:center; gap:10px; }
+.photo-upload input[type=file] { max-width:200px; }
+</style>
+</head>
+<body>
+
+<header>
+<h1>Funcionarios</h1>
+<a href="/index.html">&larr; Menu Principal</a>
+</header>
+
+<main>
+
+<div class="card">
+<h2 id="form-titulo">Cadastrar Funcionario</h2>
+<div class="form-grid">
+<div>
+<div class="form-row" style="flex-wrap:nowrap;">
+<div class="photo-upload">
+<img id="foto-preview" class="photo-preview" src="/img/sem-foto.png" alt="Foto">
+<div>
+<label style="font-size:.8rem;display:block;margin-bottom:4px;">Foto:</label>
+<input type="file" id="f-foto-input" accept="image/*" onchange="uploadFoto(this)">
+<input type="hidden" id="f-foto" value="">
+</div>
+</div>
+</div>
+<div class="form-row"><label>Nome:</label><input type="text" id="f-nome" placeholder="Nome completo"></div>
+<div class="form-row"><label>CPF:</label><input type="text" id="f-cpf" placeholder="000.000.000-00" maxlength="14"></div>
+<div class="form-row"><label>RG:</label><input type="text" id="f-rg" placeholder="RG / Identidade"></div>
+<div class="form-row"><label>Data Nasc.:</label><input type="date" id="f-data-nasc"></div>
+<div class="form-row"><label>Tipo Sanguineo:</label>
+<select id="f-tipo-sanguineo">
+<option value="">Selecionar...</option>
+<option value="A+">A+</option><option value="A-">A-</option>
+<option value="B+">B+</option><option value="B-">B-</option>
+<option value="AB+">AB+</option><option value="AB-">AB-</option>
+<option value="O+">O+</option><option value="O-">O-</option>
+</select></div>
+<div class="form-row"><label>PIS/NIS:</label><input type="text" id="f-pis" placeholder="000.00000.00-0"></div>
+<div class="form-row"><label>CTPS:</label><input type="text" id="f-ctps" placeholder="Numero"></div>
+<div class="form-row" style="grid-column:1/-1;display:flex;gap:10px;">
+<label style="min-width:auto;">CTPS Serie:</label><input type="text" id="f-ctps-serie" style="flex:none;width:120px;">
+<label style="min-width:auto;margin-left:10px;">UF:</label><input type="text" id="f-ctps-uf" style="flex:none;width:60px;" maxlength="2" placeholder="SP">
+</div>
+<div class="form-row"><label>CBO:</label><input type="text" id="f-cbo" maxlength="6" placeholder="0000-00"></div>
+<div class="form-row"><label>Grau Instrucao:</label>
+<select id="f-grau-instrucao"><option value="">Selecionar...</option>
+<option value="Analfabeto">Analfabeto</option><option value="Fundamental">Fundamental</option>
+<option value="Medio">Medio</option><option value="Superior">Superior</option>
+<option value="Pos-Graduacao">Pos-Graduacao</option>
+</select></div>
+<div class="form-row"><label>Tipo Contrato:</label>
+<select id="f-tipo-contrato"><option value="">Selecionar...</option>
+<option value="CLT">CLT</option><option value="Estagio">Estagio</option>
+<option value="Experiencia">Experiencia</option><option value="Temporario">Temporario</option>
+<option value="PJ">PJ</option>
+</select></div>
+<div class="form-row"><label>Motivo Deslig.:</label>
+<select id="f-motivo-deslig"><option value="">N/A</option>
+<option value="Pediu Demissao">Pediu Demissao</option>
+<option value="Demitido sem justa">Demitido sem justa</option>
+<option value="Demitido com justa">Demitido com justa</option>
+<option value="APosentadoria">APosentadoria</option>
+<option value="Fim de contrato">Fim de contrato</option>
+<option value="Acordo">Acordo</option>
+</select></div>
+<div class="form-row"><label>Celular:</label><input type="text" id="f-celular" placeholder="(11) 99999-9999"></div>
+<div class="form-row"><label>Tel. Comercial:</label><input type="text" id="f-tel-comercial" placeholder="(11) 3333-4444"></div>
+<div class="form-row"><label>Email Particular:</label><input type="email" id="f-email-particular" placeholder="pessoal@email.com"></div>
+<div class="form-row"><label>Email Comercial:</label><input type="email" id="f-email" placeholder="comercial@empresa.com"></div>
+<div class="form-row"><label>Endereco:</label><input type="text" id="f-endereco" placeholder="Rua, numero, bairro"></div>
+</div>
+<div>
+<div class="form-row"><label>Emerg. Nome:</label><input type="text" id="f-contato-emerg-nome" placeholder="Nome do contato"></div>
+<div class="form-row"><label>Emerg. Tel.:</label><input type="text" id="f-contato-emerg-tel" placeholder="(11) 99999-9999"></div>
+<div class="form-row"><label>Banco:</label><input type="text" id="f-banco" placeholder="Ex: Banco do Brasil"></div>
+<div class="form-row"><label>Agencia:</label><input type="text" id="f-agencia" placeholder="Ex: 1234-5"></div>
+<div class="form-row"><label>Conta:</label><input type="text" id="f-conta" placeholder="Ex: 12345-6"></div>
+<div class="form-row" style="grid-column:1/-1;display:flex;gap:10px;">
+<label style="min-width:auto;">Digito:</label><input type="text" id="f-conta-digito" style="width:60px;flex:none;" maxlength="3" placeholder="0">
+<label style="min-width:auto;margin-left:10px;">Tipo:</label>
+<select id="f-conta-tipo" style="width:150px;flex:none;">
+<option value="">Selecione</option><option value="corrente">Corrente</option><option value="poupanca">Poupanca</option><option value="pagamento">Pagamento</option>
+</select>
+</div>
+<div class="form-row"><label>Pix:</label><input type="text" id="f-pix" placeholder="CPF, CNPJ, email ou telefone"></div>
+<div class="form-row"><label>Curriculo:</label>
+<div style="display:flex;gap:6px;flex:1;align-items:center;">
+<input type="file" id="f-curriculo-input" accept=".pdf,.doc,.docx" onchange="uploadCurriculo(this)">
+<input type="hidden" id="f-curriculo" value="">
+<span id="curriculo-nome" style="font-size:.8rem;color:#666;"></span>
+</div>
+</div>
+<div class="form-row"><label>Usuario:</label><input type="text" id="f-usuario" placeholder="Usuario de login"></div>
+<div class="form-row"><label>Senha:</label><input type="password" id="f-senha" placeholder="********"></div>
+<div class="form-row"><label>Cargo:</label>
+<select id="f-cargo"><option value="">Selecionar...</option>
+<option value="caixa">Caixa</option><option value="vendedor">Vendedor</option><option value="gerente">Gerente</option>
+</select></div>
+<div class="form-row"><label>Filial:</label>
+<select id="f-filial-id"><option value="0">Matriz</option></select></div>
+<div class="form-row"><label>Data Adm.:</label><input type="date" id="f-data-adm"></div>
+<div class="form-row"><label>Data Dem.:</label><input type="date" id="f-data-dem"></div>
+<div class="form-row"><label>Salario (R$):</label><input type="number" id="f-salario" step="0.01" min="0" placeholder="0.00"></div>
+<h3 style="font-size:.95rem;color:#1a237e;margin:14px 0 6px;">Beneficios</h3>
+<div class="form-row"><label>Vale-Transporte (R$):</label><input type="number" id="f-vt-desconto" step="0.01" min="0" value="0" placeholder="0.00"></div>
+<div class="form-row"><label>VT Dias/mes:</label><input type="number" id="f-vt-dias" min="0" max="31" value="22" placeholder="22"></div>
+<div class="form-row"><label>Vale-Refeicao (R$):</label><input type="number" id="f-vr" step="0.01" min="0" value="0" placeholder="0.00"></div>
+<div class="form-row"><label>Plano Saude:</label><input type="text" id="f-plano-saude" placeholder="Nome do plano"></div>
+<div class="form-row"><label>Plano Saude (R$):</label><input type="number" id="f-plano-saude-valor" step="0.01" min="0" value="0" placeholder="0.00"></div>
+</div>
+</div>
+
+<h3 style="font-size:.95rem;color:#1a237e;margin:14px 0 6px;">Horarios Semanais</h3>
+<div class="switch-row">
+<label><input type="checkbox" id="f-trab-sab" onchange="toggleFimDeSemana()"> Trabalha Sabado</label>
+<label><input type="checkbox" id="f-trab-dom" onchange="toggleFimDeSemana()"> Trabalha Domingo</label>
+</div>
+<div class="schedule-grid" id="schedule-grid">
+<div class="day-card">
+<h4>Segunda</h4>
+<label>Entrada</label><input type="time" id="f-seg-ent" value="08:00">
+<label>Almoco</label><input type="time" id="f-seg-alm" value="12:00">
+<label>Saida</label><input type="time" id="f-seg-sai" value="18:00">
+</div>
+<div class="day-card">
+<h4>Terca</h4>
+<label>Entrada</label><input type="time" id="f-ter-ent" value="08:00">
+<label>Almoco</label><input type="time" id="f-ter-alm" value="12:00">
+<label>Saida</label><input type="time" id="f-ter-sai" value="18:00">
+</div>
+<div class="day-card">
+<h4>Quarta</h4>
+<label>Entrada</label><input type="time" id="f-qua-ent" value="08:00">
+<label>Almoco</label><input type="time" id="f-qua-alm" value="12:00">
+<label>Saida</label><input type="time" id="f-qua-sai" value="18:00">
+</div>
+<div class="day-card">
+<h4>Quinta</h4>
+<label>Entrada</label><input type="time" id="f-qui-ent" value="08:00">
+<label>Almoco</label><input type="time" id="f-qui-alm" value="12:00">
+<label>Saida</label><input type="time" id="f-qui-sai" value="18:00">
+</div>
+<div class="day-card">
+<h4>Sexta</h4>
+<label>Entrada</label><input type="time" id="f-sex-ent" value="08:00">
+<label>Almoco</label><input type="time" id="f-sex-alm" value="12:00">
+<label>Saida</label><input type="time" id="f-sex-sai" value="18:00">
+</div>
+<div class="day-card">
+<h4>Sabado</h4>
+<label>Entrada</label><input type="time" id="f-sab-ent" value="08:00">
+<label>Saida</label><input type="time" id="f-sab-sai" value="12:00">
+</div>
+<div class="day-card">
+<h4>Domingo</h4>
+<label>Entrada</label><input type="time" id="f-dom-ent" value="08:00">
+<label>Saida</label><input type="time" id="f-dom-sai" value="12:00">
+</div>
+</div>
+
+<input type="hidden" id="f-id" value="">
+<div style="display:flex;gap:8px;margin-top:14px;">
+<button class="btn btn-success" onclick="salvarFuncionario()">Salvar</button>
+<button class="btn" style="background:#f5f5f5;" onclick="limparForm()">Limpar</button>
+</div>
+</div>
+
+<div class="card">
+<h2>Lista de Funcionarios</h2>
+<div style="overflow-x:auto;">
+<table>
+<thead><tr>
+<th>ID</th><th></th><th>Nome</th><th>Cargo</th><th>Celular</th><th>Email</th><th>Tipo S.</th><th>Admissao</th><th>Salario</th><th>Banco</th><th>Pix</th><th>Horarios</th><th>Acoes</th>
+</tr></thead>
+<tbody id="tabela-funcionarios"></tbody>
+</table>
+</div>
+</div>
+<div class="card" id="card-dependentes" style="display:none;">
+<h2>Dependentes</h2>
+<div style="margin-bottom:10px;">
+<select id="dp-funcionario-id" onchange="carregarDependentes()"><option value="">Selecionar funcionario...</option></select>
+</div>
+<div style="overflow-x:auto;">
+<table><thead><tr><th>ID</th><th>Nome</th><th>CPF</th><th>Data Nasc</th><th>Tipo</th><th>Acoes</th></tr></thead>
+<tbody id="tabela-dependentes"></tbody>
+</table>
+</div>
+<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;" id="dp-form">
+<input type="hidden" id="dp-id" value="">
+<input type="text" id="dp-nome" placeholder="Nome" style="padding:6px;border:1px solid #ccc;border-radius:4px;">
+<input type="text" id="dp-cpf" placeholder="CPF" style="padding:6px;border:1px solid #ccc;border-radius:4px;width:140px;">
+<input type="date" id="dp-data-nasc" style="padding:6px;border:1px solid #ccc;border-radius:4px;">
+<select id="dp-tipo" style="padding:6px;border:1px solid #ccc;border-radius:4px;">
+<option value="">Tipo</option><option value="filho">Filho(a)</option><option value="conjuge">Conjuge</option><option value="pai">Pai</option><option value="mae">Mae</option><option value="outro">Outro</option>
+</select>
+<button class="btn btn-sm btn-success" onclick="salvarDependente()">Salvar</button>
+</div>
+</div>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const CARGO_LABEL = {caixa:'Caixa', vendedor:'Vendedor', gerente:'Gerente'};
+const DAYS = ['seg','ter','qua','qui','sex','sab','dom'];
+let filiais = [];
+
+function mostrarToast(msg, tipo) {
+const t = document.getElementById('toast');
+t.textContent = msg;
+t.className = 'toast ' + tipo;
+t.style.display = 'block';
+setTimeout(() => t.style.display = 'none', 3000);
+}
+
+function toggleFimDeSemana() {
+const trabSab = document.getElementById('f-trab-sab').checked;
+const trabDom = document.getElementById('f-trab-dom').checked;
+['f-sab-ent','f-sab-sai'].forEach(id => document.getElementById(id).disabled = !trabSab);
+['f-dom-ent','f-dom-sai'].forEach(id => document.getElementById(id).disabled = !trabDom);
+}
+
+function getTime(id) { return document.getElementById(id).value || ''; }
+
+async function uploadFoto(input) {
+const file = input.files[0];
+if (!file) return;
+const ext = file.name.split('.').pop() || 'jpg';
+const reader = new FileReader();
+reader.onload = async function(e) {
+const base64 = e.target.result.split(',')[1];
+try {
+const r = await fetch('/api/funcionario/upload', {
+method:'POST', headers:{'Content-Type':'application/json'},
+body:JSON.stringify({type:'foto',data:base64,ext:ext})
+});
+const data = await r.json();
+if (data.status === 'ok') {
+document.getElementById('f-foto').value = data.filename;
+document.getElementById('foto-preview').src = data.url;
+} else mostrarToast(data.mensagem||'Erro upload', 'error');
+} catch(e) { mostrarToast('Erro ao enviar foto', 'error'); }
+};
+reader.readAsDataURL(file);
+}
+
+async function uploadCurriculo(input) {
+const file = input.files[0];
+if (!file) return;
+const ext = file.name.split('.').pop() || 'pdf';
+const reader = new FileReader();
+reader.onload = async function(e) {
+const base64 = e.target.result.split(',')[1];
+try {
+const r = await fetch('/api/funcionario/upload', {
+method:'POST', headers:{'Content-Type':'application/json'},
+body:JSON.stringify({type:'curriculo',data:base64,ext:ext})
+});
+const data = await r.json();
+if (data.status === 'ok') {
+document.getElementById('f-curriculo').value = data.filename;
+document.getElementById('curriculo-nome').textContent = file.name;
+} else mostrarToast(data.mensagem||'Erro upload', 'error');
+} catch(e) { mostrarToast('Erro ao enviar curriculo', 'error'); }
+};
+reader.readAsDataURL(file);
+}
+
+function limparForm() {
+['f-id','f-nome','f-cpf','f-rg','f-data-nasc','f-celular','f-tel-comercial','f-email','f-email-particular',
+'f-endereco','f-usuario','f-senha','f-data-adm','f-data-dem','f-salario','f-foto','f-contato-emerg-nome','f-contato-emerg-tel','f-curriculo','f-tipo-sanguineo','f-banco','f-agencia','f-conta','f-conta-digito','f-conta-tipo','f-pix','f-pis','f-ctps','f-ctps-serie','f-ctps-uf','f-cbo','f-grau-instrucao','f-tipo-contrato','f-motivo-deslig','f-vt-desconto','f-vt-dias','f-vr','f-plano-saude','f-plano-saude-valor'].forEach(id => {
+const el = document.getElementById(id);
+if (el) el.value = '';
+});
+document.getElementById('foto-preview').src = '/img/sem-foto.png';
+document.getElementById('curriculo-nome').textContent = '';
+document.getElementById('f-filial-id').value = '0';
+document.getElementById('f-cargo').value = '';
+document.getElementById('f-trab-sab').checked = false;
+document.getElementById('f-trab-dom').checked = false;
+['f-seg-ent','f-seg-alm','f-seg-sai','f-ter-ent','f-ter-alm','f-ter-sai',
+'f-qua-ent','f-qua-alm','f-qua-sai','f-qui-ent','f-qui-alm','f-qui-sai',
+'f-sex-ent','f-sex-alm','f-sex-sai'].forEach(id => document.getElementById(id).value = '08:00');
+['f-sab-ent','f-dom-ent'].forEach(id => document.getElementById(id).value = '08:00');
+['f-sab-sai','f-dom-sai'].forEach(id => document.getElementById(id).value = '12:00');
+document.getElementById('form-titulo').textContent = 'Cadastrar Funcionario';
+toggleFimDeSemana();
+}
+
+async function carregarFiliais() {
+try {
+const r = await fetch('/api/filiais');
+const data = await r.json();
+filiais = data.filiais || [];
+const sel = document.getElementById('f-filial-id');
+sel.innerHTML = '<option value="0">Matriz</option>' + filiais.map(f =>
+'<option value="' + f.id + '">' + f.nome + '</option>'
+).join('');
+} catch(e) {}
+}
+
+function formatHorario(func) {
+if (!func) return '-';
+const dias = [];
+DAYS.forEach(d => {
+const ent = func[d + '_ent'];
+const sai = func[d + '_sai'];
+if (ent || sai) {
+const label = {seg:'2',ter:'3',qua:'4',qui:'5',sex:'6',sab:'S',dom:'D'}[d];
+dias.push(label + ' ' + (ent || '--') + '-' + (sai || '--'));
+}
+});
+if (dias.length === 0) return '2-6 08:00-18:00';
+return dias.join(' ');
+}
+
+async function carregarFuncionarios() {
+try {
+const r = await fetch('/api/funcionarios');
+const data = await r.json();
+const tbody = document.getElementById('tabela-funcionarios');
+const funcs = data.funcionarios || [];
+if (funcs.length === 0) {
+tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;color:#888;padding:30px;">Nenhum funcionario cadastrado</td></tr>';
+return;
+}
+tbody.innerHTML = funcs.map(f => {
+const cargo = CARGO_LABEL[f.permissoes] || f.permissoes || '---';
+const salario = f.salario ? 'R$ ' + parseFloat(f.salario).toFixed(2) : '-';
+const horario = formatHorario(f);
+const fotoUrl = f.foto ? '/uploads/funcionarios/' + f.foto : '/img/sem-foto.png';
+const tipoS = f.tipo_sanguineo || '-';
+const bancoLabel = f.banco ? (f.conta ? f.banco.substr(0,10) : f.banco.substr(0,10)) : '-';
+const pixLabel = f.pix ? (f.pix.length > 12 ? f.pix.substr(0,10)+'...' : f.pix) : '-';
+return '<tr>' +
+'<td>' + f.id + '</td>' +
+'<td><img src="' + fotoUrl + '" style="width:32px;height:32px;object-fit:cover;border-radius:50%;border:1px solid #ddd;"></td>' +
+'<td>' + (f.nome || '') + '</td>' +
+'<td>' + cargo + '</td>' +
+'<td>' + (f.celular || '') + '</td>' +
+'<td>' + (f.email || '') + '</td>' +
+'<td>' + tipoS + '</td>' +
+'<td>' + (f.data_adm || '') + '</td>' +
+'<td>' + salario + '</td>' +
+'<td style="font-size:.75rem;">' + bancoLabel + '</td>' +
+'<td style="font-size:.75rem;">' + pixLabel + '</td>' +
+'<td style="font-size:.75rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + horario + '">' + horario + '</td>' +
+'<td style="white-space:nowrap;">' +
+'<button class="btn btn-sm btn-primary" onclick="editarFuncionario(' + f.id + ')">Editar</button> ' +
+'<button class="btn btn-sm btn-danger" onclick="excluirFuncionario(' + f.id + ')">Excluir</button>' +
+'</td></tr>';
+}).join('');
+} catch(e) { mostrarToast('Erro ao carregar funcionarios', 'error'); }
+}
+
+async function salvarFuncionario() {
+const id = document.getElementById('f-id').value;
+const isEdit = id !== '';
+const nome = document.getElementById('f-nome').value.trim();
+const usuario = document.getElementById('f-usuario').value.trim();
+const senha = document.getElementById('f-senha').value;
+const cargo = document.getElementById('f-cargo').value;
+
+if (!nome) { mostrarToast('Nome obrigatorio', 'error'); return; }
+if (!usuario) { mostrarToast('Usuario obrigatorio', 'error'); return; }
+if (!cargo) { mostrarToast('Selecione um cargo', 'error'); return; }
+if (!isEdit && !senha) { mostrarToast('Senha obrigatoria para novo funcionario', 'error'); return; }
+
+const params = new URLSearchParams();
+params.set('nome', nome);
+params.set('usuario', usuario);
+params.set('permissoes', cargo);
+params.set('cpf', document.getElementById('f-cpf').value.trim());
+params.set('rg', document.getElementById('f-rg').value.trim());
+params.set('data_nasc', document.getElementById('f-data-nasc').value);
+params.set('celular', document.getElementById('f-celular').value.trim());
+params.set('email_particular', document.getElementById('f-email-particular').value.trim());
+params.set('tel_comercial', document.getElementById('f-tel-comercial').value.trim());
+params.set('email', document.getElementById('f-email').value.trim());
+params.set('endereco', document.getElementById('f-endereco').value.trim());
+params.set('data_adm', document.getElementById('f-data-adm').value);
+params.set('data_dem', document.getElementById('f-data-dem').value);
+params.set('salario', document.getElementById('f-salario').value || '0');
+params.set('filial_id', document.getElementById('f-filial-id').value);
+params.set('trab_sab', document.getElementById('f-trab-sab').checked ? 'S' : 'N');
+params.set('trab_dom', document.getElementById('f-trab-dom').checked ? 'S' : 'N');
+params.set('foto', document.getElementById('f-foto').value);
+params.set('contato_emerg_nome', document.getElementById('f-contato-emerg-nome').value.trim());
+params.set('contato_emerg_tel', document.getElementById('f-contato-emerg-tel').value.trim());
+params.set('curriculo', document.getElementById('f-curriculo').value);
+params.set('tipo_sanguineo', document.getElementById('f-tipo-sanguineo').value);
+params.set('banco', document.getElementById('f-banco').value.trim());
+params.set('agencia', document.getElementById('f-agencia').value.trim());
+params.set('conta', document.getElementById('f-conta').value.trim());
+params.set('conta_digito', document.getElementById('f-conta-digito').value.trim());
+params.set('conta_tipo', document.getElementById('f-conta-tipo').value);
+params.set('pix', document.getElementById('f-pix').value.trim());
+params.set('pis', document.getElementById('f-pis').value.trim());
+params.set('ctps', document.getElementById('f-ctps').value.trim());
+params.set('ctps_serie', document.getElementById('f-ctps-serie').value.trim());
+params.set('ctps_uf', document.getElementById('f-ctps-uf').value.trim());
+params.set('cbo', document.getElementById('f-cbo').value.trim());
+params.set('grau_instrucao', document.getElementById('f-grau-instrucao').value);
+params.set('tipo_contrato', document.getElementById('f-tipo-contrato').value);
+params.set('motivo_deslig', document.getElementById('f-motivo-deslig').value);
+params.set('vt_desconto', document.getElementById('f-vt-desconto').value);
+params.set('vt_dias', document.getElementById('f-vt-dias').value || '0');
+params.set('vr', document.getElementById('f-vr').value || '0');
+params.set('plano_saude', document.getElementById('f-plano-saude').value.trim());
+params.set('plano_saude_valor', document.getElementById('f-plano-saude-valor').value || '0');
+['seg','ter','qua','qui','sex'].forEach(d => {
+params.set(d + '_ent', getTime('f-' + d + '-ent'));
+params.set(d + '_alm', getTime('f-' + d + '-alm'));
+params.set(d + '_sai', getTime('f-' + d + '-sai'));
+});
+params.set('sab_ent', getTime('f-sab-ent'));
+params.set('sab_sai', getTime('f-sab-sai'));
+params.set('dom_ent', getTime('f-dom-ent'));
+params.set('dom_sai', getTime('f-dom-sai'));
+if (senha) params.set('senha', senha);
+
+const endpoint = isEdit ? '/api/funcionario/alterar' : '/api/funcionario/incluir';
+if (isEdit) params.set('id', id);
+
+try {
+const r = await fetch(endpoint, {
+method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params
+});
+const data = await r.json();
+if (data.status === 'ok' || data.id) {
+mostrarToast(isEdit ? 'Funcionario atualizado!' : 'Funcionario cadastrado!', 'success');
+limparForm();
+carregarFuncionarios();
+} else {
+mostrarToast(data.mensagem || 'Erro', 'error');
+}
+} catch(e) { mostrarToast('Erro de conexao', 'error'); }
+}
+
+async function editarFuncionario(id) {
+try {
+const r = await fetch('/api/funcionarios');
+const data = await r.json();
+const func = (data.funcionarios || []).find(f => f.id === id);
+if (!func) { mostrarToast('Funcionario nao encontrado', 'error'); return; }
+
+document.getElementById('f-id').value = id;
+document.getElementById('f-nome').value = func.nome || '';
+document.getElementById('f-cpf').value = func.cpf || '';
+document.getElementById('f-rg').value = func.rg || '';
+document.getElementById('f-data-nasc').value = func.data_nasc || '';
+document.getElementById('f-celular').value = func.celular || '';
+document.getElementById('f-email-particular').value = func.email_particular || '';
+document.getElementById('f-tel-comercial').value = func.tel_comercial || '';
+document.getElementById('f-email').value = func.email || '';
+document.getElementById('f-endereco').value = func.endereco || '';
+document.getElementById('f-usuario').value = func.usuario || '';
+document.getElementById('f-senha').value = '';
+document.getElementById('f-cargo').value = func.permissoes || '';
+document.getElementById('f-filial-id').value = func.filial_id || '0';
+document.getElementById('f-data-adm').value = func.data_adm || '';
+document.getElementById('f-data-dem').value = func.data_dem || '';
+document.getElementById('f-salario').value = func.salario || '';
+document.getElementById('f-foto').value = func.foto || '';
+document.getElementById('f-contato-emerg-nome').value = func.contato_emerg_nome || '';
+document.getElementById('f-contato-emerg-tel').value = func.contato_emerg_tel || '';
+document.getElementById('f-curriculo').value = func.curriculo || '';
+document.getElementById('f-tipo-sanguineo').value = func.tipo_sanguineo || '';
+document.getElementById('f-banco').value = func.banco || '';
+document.getElementById('f-agencia').value = func.agencia || '';
+document.getElementById('f-conta').value = func.conta || '';
+document.getElementById('f-conta-digito').value = func.conta_digito || '';
+document.getElementById('f-conta-tipo').value = func.conta_tipo || '';
+document.getElementById('f-pix').value = func.pix || '';
+document.getElementById('f-pis').value = func.pis || '';
+document.getElementById('f-ctps').value = func.ctps || '';
+document.getElementById('f-ctps-serie').value = func.ctps_serie || '';
+document.getElementById('f-ctps-uf').value = func.ctps_uf || '';
+document.getElementById('f-cbo').value = func.cbo || '';
+document.getElementById('f-grau-instrucao').value = func.grau_instrucao || '';
+document.getElementById('f-tipo-contrato').value = func.tipo_contrato || '';
+document.getElementById('f-motivo-deslig').value = func.motivo_deslig || '';
+document.getElementById('f-vt-desconto').value = func.vt_desconto || '';
+document.getElementById('f-vt-dias').value = func.vt_dias || '22';
+document.getElementById('f-vr').value = func.vr || '';
+document.getElementById('f-plano-saude').value = func.plano_saude || '';
+document.getElementById('f-plano-saude-valor').value = func.plano_saude_valor || '';
+document.getElementById('foto-preview').src = func.foto ? '/uploads/funcionarios/' + func.foto : '/img/sem-foto.png';
+document.getElementById('curriculo-nome').textContent = func.curriculo ? 'Curriculo anexado' : '';
+document.getElementById('f-trab-sab').checked = func.trab_sab === 'S';
+document.getElementById('f-trab-dom').checked = func.trab_dom === 'S';
+['seg','ter','qua','qui','sex'].forEach(d => {
+document.getElementById('f-' + d + '-ent').value = func[d + '_ent'] || '08:00';
+document.getElementById('f-' + d + '-alm').value = func[d + '_alm'] || '12:00';
+document.getElementById('f-' + d + '-sai').value = func[d + '_sai'] || '18:00';
+});
+document.getElementById('f-sab-ent').value = func.sab_ent || '08:00';
+document.getElementById('f-sab-sai').value = func.sab_sai || '12:00';
+document.getElementById('f-dom-ent').value = func.dom_ent || '08:00';
+document.getElementById('f-dom-sai').value = func.dom_sai || '12:00';
+document.getElementById('form-titulo').textContent = 'Editar Funcionario #' + id;
+toggleFimDeSemana();
+} catch(e) { mostrarToast('Erro ao carregar dados', 'error'); }
+}
+
+async function excluirFuncionario(id) {
+if (!confirm('Excluir funcionario #' + id + '?')) return;
+const params = new URLSearchParams();
+params.set('id', String(id));
+try {
+const r = await fetch('/api/funcionario/excluir', {
+method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params
+});
+const data = await r.json();
+if (data.status === 'ok') { mostrarToast('Funcionario excluido!', 'success'); carregarFuncionarios(); }
+else { mostrarToast(data.mensagem || 'Erro', 'error'); }
+} catch(e) { mostrarToast('Erro de conexao', 'error'); }
+}
+
+function verificarAcesso() {
+try {
+const saved = localStorage.getItem('pos_usuario');
+if (saved) {
+const user = JSON.parse(saved);
+if (user.tipo === 'usuario') return;
+if ((user.permissoes || '').trim() !== 'gerente') {
+document.querySelector('.card h2').textContent = 'Acesso restrito';
+document.getElementById('tabela-funcionarios').innerHTML = '<tr><td colspan="13" style="text-align:center;color:#888;padding:40px;">Apenas gerentes podem gerenciar funcionarios</td></tr>';
+document.querySelector('.card:first-child').style.display = 'none';
+}
+}
+} catch(e) {}
+}
+
+toggleFimDeSemana();
+carregarFiliais();
+verificarAcesso();
+carregarFuncionarios();
+
+// ---- Dependentes ----
+let dependentesFuncId = '';
+
+async function carregarDependentes() {
+    dependentesFuncId = document.getElementById('dp-funcionario-id').value;
+    if (!dependentesFuncId) { document.getElementById('tabela-dependentes').innerHTML = ''; return; }
+    document.getElementById('card-dependentes').style.display = 'block';
+    try {
+        const r = await fetch('/api/dependentes?funcionario_id=' + dependentesFuncId);
+        const data = await r.json();
+        const deps = data.dependentes || [];
+        const tbody = document.getElementById('tabela-dependentes');
+        if (deps.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;padding:20px;">Nenhum dependente</td></tr>';
+        } else {
+            tbody.innerHTML = deps.map(d =>
+                '<tr><td>' + d.id + '</td><td>' + (d.nome || '') + '</td><td>' + (d.cpf || '') + '</td><td>' + (d.data_nasc || '') + '</td><td>' + (d.tipo || '') + '</td>' +
+                '<td><button class="btn btn-sm btn-primary" onclick="editarDependente(' + d.id + ')">Editar</button> ' +
+                '<button class="btn btn-sm btn-danger" onclick="excluirDependente(' + d.id + ')">Excluir</button></td></tr>'
+            ).join('');
+        }
+    } catch(e) {}
+}
+
+function editarDependente(id) {
+    fetch('/api/dependentes?funcionario_id=' + dependentesFuncId).then(r=>r.json()).then(data => {
+        const d = (data.dependentes||[]).find(x => x.id == id);
+        if (!d) return;
+        document.getElementById('dp-id').value = d.id;
+        document.getElementById('dp-nome').value = d.nome || '';
+        document.getElementById('dp-cpf').value = d.cpf || '';
+        document.getElementById('dp-data-nasc').value = d.data_nasc || '';
+        document.getElementById('dp-tipo').value = d.tipo || '';
+    });
+}
+
+async function salvarDependente() {
+    const id = document.getElementById('dp-id').value;
+    const isEdit = id !== '';
+    const params = new URLSearchParams();
+    if (!dependentesFuncId) { mostrarToast('Selecione funcionario','error'); return; }
+    params.set('funcionario_id', dependentesFuncId);
+    params.set('nome', document.getElementById('dp-nome').value.trim());
+    params.set('cpf', document.getElementById('dp-cpf').value.trim());
+    params.set('data_nasc', document.getElementById('dp-data-nasc').value);
+    params.set('tipo', document.getElementById('dp-tipo').value);
+    if (isEdit) params.set('id', id);
+    const endpoint = isEdit ? '/api/dependente/alterar' : '/api/dependente/incluir';
+    try {
+        const r = await fetch(endpoint, {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:params});
+        const data = await r.json();
+        if (data.status === 'ok' || data.id) { mostrarToast('Dependente salvo!','success'); document.getElementById('dp-id').value=''; document.getElementById('dp-nome').value=''; document.getElementById('dp-cpf').value=''; document.getElementById('dp-data-nasc').value=''; document.getElementById('dp-tipo').value=''; carregarDependentes(); }
+        else mostrarToast(data.mensagem||'Erro','error');
+    } catch(e) { mostrarToast('Erro','error'); }
+}
+
+async function excluirDependente(id) {
+    if (!confirm('Excluir dependente #' + id + '?')) return;
+    const params = new URLSearchParams(); params.set('id', id);
+    try {
+        const r = await fetch('/api/dependente/excluir', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:params});
+        const data = await r.json();
+        if (data.status === 'ok') { mostrarToast('Dependente excluido!','success'); carregarDependentes(); }
+        else mostrarToast(data.mensagem||'Erro','error');
+    } catch(e) { mostrarToast('Erro','error'); }
+}
+
+// populate dependentes selector
+setTimeout(() => {
+    const sel = document.getElementById('dp-funcionario-id');
+    if (sel) {
+        fetch('/api/funcionarios').then(r=>r.json()).then(data => {
+            sel.innerHTML = '<option value="">Selecionar funcionario...</option>' + (data.funcionarios||[]).map(f => '<option value="'+f.id+'">#'+f.id+' - '+f.nome+'</option>').join('');
+        });
+    }
+}, 500);
+</script>
+</body>
+</html>

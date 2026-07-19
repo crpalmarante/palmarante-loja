@@ -1,0 +1,81 @@
+{
+  "emprestimo": {
+    "label": "Emprestimos",
+    "states": [
+      {"code": "D", "label": "Rascunho",     "color": "#9e9e9e", "icon": "📝"},
+      {"code": "S", "label": "Enviado",      "color": "#ff9800", "icon": "📤"},
+      {"code": "A", "label": "Aprovado",     "color": "#4caf50", "icon": "✅"},
+      {"code": "B", "label": "Desembolsado", "color": "#2196f3", "icon": "💰"},
+      {"code": "C", "label": "Encerrado",    "color": "#1a237e", "icon": "🔒"},
+      {"code": "R", "label": "Recusado",     "color": "#c62828", "icon": "❌"}
+    ],
+    "transitions": {
+      "D": {"S": {"roles": ["employee"], "label": "Enviar para Aprovacao"}},
+      "S": {"A": {"roles": ["manager","rh","admin"], "label": "Aprovar"},
+            "R": {"roles": ["manager","rh","admin"], "label": "Recusar"}},
+      "A": {"B": {"roles": ["financial","admin"], "label": "Desembolsar"},
+            "R": {"roles": ["admin"], "label": "Recusar"}},
+      "B": {"C": {"roles": ["financial","admin","rh"], "label": "Encerrar"},
+            "R": {"roles": ["admin"], "label": "Recusar"}},
+      "R": {},
+      "C": {}
+    }
+  },
+  "licenca": {
+    "label": "Licencas",
+    "states": [
+      {"code": "D", "label": "Rascunho",     "color": "#9e9e9e", "icon": "📝"},
+      {"code": "S", "label": "Enviado",      "color": "#ff9800", "icon": "📤"},
+      {"code": "A", "label": "Aprovado",     "color": "#4caf50", "icon": "✅"},
+      {"code": "C", "label": "Concluido",    "color": "#1a237e", "icon": "🔒"},
+      {"code": "R", "label": "Recusado",     "color": "#c62828", "icon": "❌"}
+    ],
+    "transitions": {
+      "D": {"S": {"roles": ["employee"], "label": "Enviar para Aprovacao"}},
+      "S": {"A": {"roles": ["manager","rh","admin"], "label": "Aprovar"},
+            "R": {"roles": ["manager","rh","admin"], "label": "Recusar"}},
+      "A": {"C": {"roles": ["rh","admin"], "label": "Concluir"}},
+      "R": {},
+      "C": {}
+    }
+  },
+  "despesa": {
+    "label": "Despesas",
+    "states": [
+      {"code": "D", "label": "Rascunho",     "color": "#9e9e9e", "icon": "📝"},
+      {"code": "S", "label": "Enviado",      "color": "#ff9800", "icon": "📤"},
+      {"code": "A", "label": "Aprovado",     "color": "#4caf50", "icon": "✅"},
+      {"code": "B", "label": "Reembolsado",  "color": "#2196f3", "icon": "💰"},
+      {"code": "C", "label": "Encerrado",    "color": "#1a237e", "icon": "🔒"},
+      {"code": "R", "label": "Recusado",     "color": "#c62828", "icon": "❌"}
+    ],
+    "transitions": {
+      "D": {"S": {"roles": ["employee"], "label": "Enviar para Aprovacao"}},
+      "S": {"A": {"roles": ["manager","rh","admin"], "label": "Aprovar"},
+            "R": {"roles": ["manager","rh","admin"], "label": "Recusar"}},
+      "A": {"B": {"roles": ["financial","admin"], "label": "Reembolsar"},
+            "R": {"roles": ["admin"], "label": "Recusar"}},
+      "B": {"C": {"roles": ["financial","admin","rh"], "label": "Encerrar"}},
+      "R": {},
+      "C": {}
+    }
+  },
+  "acao_disciplinar": {
+    "label": "Acoes Disciplinares",
+    "states": [
+      {"code": "D", "label": "Rascunho",     "color": "#9e9e9e", "icon": "📝"},
+      {"code": "S", "label": "Enviado",      "color": "#ff9800", "icon": "📤"},
+      {"code": "A", "label": "Aprovado",     "color": "#4caf50", "icon": "✅"},
+      {"code": "C", "label": "Concluido",    "color": "#1a237e", "icon": "🔒"},
+      {"code": "R", "label": "Recusado",     "color": "#c62828", "icon": "❌"}
+    ],
+    "transitions": {
+      "D": {"S": {"roles": ["rh"], "label": "Enviar para Aprovacao"}},
+      "S": {"A": {"roles": ["manager","admin"], "label": "Aprovar"},
+            "R": {"roles": ["manager","admin"], "label": "Recusar"}},
+      "A": {"C": {"roles": ["rh","admin"], "label": "Concluir"}},
+      "R": {},
+      "C": {}
+    }
+  }
+}

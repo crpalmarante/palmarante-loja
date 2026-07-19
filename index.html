@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palmarante Loja</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.login-screen { text-align: center; }
+.login-screen h1 { color: #1a237e; margin-bottom: 8px; }
+.login-screen .sub { color: #888; margin-bottom: 32px; }
+.login-box { background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,.1); max-width: 360px; margin: 0 auto; }
+.login-box input { width: 100%; padding: 12px 16px; border: 1px solid #ccc; border-radius: 6px; font-size: .95rem; margin-bottom: 12px; }
+.login-box input:focus { border-color: #1a237e; outline: none; box-shadow: 0 0 0 2px rgba(26,35,126,.2); }
+.login-box button { width: 100%; padding: 12px; background: #1a237e; color: #fff; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; font-weight: 600; }
+.login-box button:hover { background: #283593; }
+.login-erro { color: #c62828; font-size: .85rem; margin-top: 8px; display: none; }
+.loading { color: #666; font-size: .85rem; margin-top: 8px; display: none; }
+.menu-screen { display: none; width: 100%; max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+.menu-screen.ativo { display: block; }
+.menu-header { text-align: center; margin-bottom: 40px; }
+.menu-header h1 { color: #1a237e; font-size: 1.6rem; }
+.menu-header .sub { color: #888; margin-top: 4px; }
+.menu-header .user-info { color: #666; font-size: .85rem; margin-top: 8px; }
+.menu-header .tipo-info { color: #1a237e; font-size: .8rem; font-weight: 600; margin-top: 2px; }
+.menu-header .logout { display: inline-block; margin-top: 8px; color: #c62828; cursor: pointer; font-size: .85rem; text-decoration: underline; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+.menu-item { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 28px 16px; text-align: center; cursor: pointer; transition: .2s; text-decoration: none; color: #333; display: block; border: 2px solid transparent; }
+.menu-item:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(0,0,0,.12); border-color: #1a237e; }
+.menu-item.oculto { display: none; }
+.menu-item .icon { font-size: 2.4rem; margin-bottom: 8px; }
+.menu-item .label { font-weight: 600; font-size: 1rem; color: #1a237e; }
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="login-screen">
+<h1>Palmarante Loja</h1>
+<div class="sub">Sistema de Gestao</div>
+<div class="login-box">
+<input type="text" id="login-user" placeholder="Usuario" autocomplete="off">
+<input type="password" id="login-pass" placeholder="Senha" onkeydown="if(event.key==='Enter')logar()">
+<button onclick="logar()" id="btn-entrar">Entrar</button>
+<div class="loading" id="login-loading">A autenticar...</div>
+<div class="login-erro" id="login-erro">Usuario ou senha incorretos</div>
+</div>
+</div>
+
+<div class="menu-screen" id="menu-screen">
+<div class="menu-header">
+<h1>Palmarante Loja</h1>
+<div class="sub">Sistema de Gestao</div>
+<div class="user-info" id="user-info"></div>
+<div class="tipo-info" id="tipo-info"></div>
+<div class="logout" onclick="sair()">Sair</div>
+</div>
+<div class="menu-grid" id="menu-grid">
+<a class="menu-item" id="menu-ponto_vendas" href="pos.html" onclick="return abrirPOS()">
+<div class="icon">🛒</div>
+<div class="label">Ponto de Vendas</div>
+</a>
+<div class="menu-item" id="menu-vendas" onclick="alert('Em breve')">
+<div class="icon">📋</div>
+<div class="label">Vendas</div>
+</div>
+<div class="menu-item" id="menu-compras" onclick="alert('Em breve')">
+<div class="icon">📦</div>
+<div class="label">Compras</div>
+</div>
+<div class="menu-item" id="menu-inventario" onclick="alert('Em breve')">
+<div class="icon">📊</div>
+<div class="label">Inventario</div>
+</div>
+<div class="menu-item" id="menu-fiscal" onclick="alert('Em breve')">
+<div class="icon">🧾</div>
+<div class="label">Fiscal</div>
+</div>
+<a href="/faturamento.html" class="menu-item" id="menu-faturamento">
+<div class="icon">💰</div>
+<div class="label">Faturamento</div>
+</a>
+<a href="funcionarios.html" class="menu-item" id="menu-funcionarios">
+<div class="icon">👥</div>
+<div class="label">Funcionarios</div>
+</a>
+<a href="folha.html" class="menu-item" id="menu-folha">
+<div class="icon">📋</div>
+<div class="label">Folha Pagto</div>
+</a>
+<a href="ponto.html" class="menu-item" id="menu-ponto">
+<div class="icon">⏰</div>
+<div class="label">Ponto</div>
+</a>
+<a href="relatorios_rh.html" class="menu-item" id="menu-relatorios-rh">
+<div class="icon">📊</div>
+<div class="label">Relatorios RH</div>
+</a>
+<a href="portal-funcionario.html" class="menu-item" id="menu-portal-func">
+<div class="icon">👤</div>
+<div class="label">Portal Func.</div>
+</a>
+<a href="contabilidade.html" class="menu-item" id="menu-contabilidade">
+<div class="icon">📒</div>
+<div class="label">Contabilidade</div>
+</a>
+<a href="estrutura_salarial.html" class="menu-item" id="menu-estrutura-salarial">
+<div class="icon">🏗️</div>
+<div class="label">Estrut. Salarial</div>
+</a>
+<a href="rh_dashboard.html" class="menu-item" id="menu-rh-dashboard">
+<div class="icon">📊</div>
+<div class="label">RH Dashboard</div>
+</a>
+<a href="directory.html" class="menu-item" id="menu-directory">
+<div class="icon">📇</div>
+<div class="label">Diretorio</div>
+</a>
+<a href="emprestimos.html" class="menu-item" id="menu-emprestimos">
+<div class="icon">💰</div>
+<div class="label">Emprestimos</div>
+</a>
+<a href="disciplinar.html" class="menu-item" id="menu-disciplinar">
+<div class="icon">⚠️</div>
+<div class="label">Disciplinar</div>
+</a>
+<div class="menu-item" id="menu-configuracoes" onclick="alert('Em breve')">
+<div class="icon">⚙️</div>
+<div class="label">Configuracoes</div>
+</div>
+</div>
+</div>
+
+<script>
+let usuarioLogado = null;
+
+function logar() {
+const u = document.getElementById('login-user').value.trim();
+const p = document.getElementById('login-pass').value.trim();
+if (!u || !p) { document.getElementById('login-erro').style.display = 'block'; return; }
+
+document.getElementById('login-erro').style.display = 'none';
+document.getElementById('login-loading').style.display = 'block';
+document.getElementById('btn-entrar').disabled = true;
+
+const params = new URLSearchParams();
+params.set('usuario', u);
+params.set('senha', p);
+
+fetch('/api/login', {
+method: 'POST',
+headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+body: params
+})
+.then(r => r.json())
+.then(data => {
+document.getElementById('login-loading').style.display = 'none';
+document.getElementById('btn-entrar').disabled = false;
+if (data.status === 'ok') {
+usuarioLogado = data;
+document.getElementById('user-info').textContent = data.nome + ' (' + data.usuario + ')';
+document.getElementById('tipo-info').textContent = data.tipo === 'usuario' ? 'Administrador' : 'Funcionario';
+document.getElementById('login-screen').style.display = 'none';
+document.getElementById('menu-screen').classList.add('ativo');
+aplicarPermissoes(data);
+} else {
+document.getElementById('login-erro').textContent = data.mensagem || 'Usuario ou senha incorretos';
+document.getElementById('login-erro').style.display = 'block';
+}
+})
+.catch(() => {
+document.getElementById('login-loading').style.display = 'none';
+document.getElementById('btn-entrar').disabled = false;
+document.getElementById('login-erro').textContent = 'Erro de conexao';
+document.getElementById('login-erro').style.display = 'block';
+});
+}
+
+function aplicarPermissoes(data) {
+const items = document.querySelectorAll('.menu-item:not(#menu-ponto_vendas)');
+if (data.tipo === 'usuario') {
+items.forEach(el => el.classList.remove('oculto'));
+return;
+}
+const perms = (data.permissoes || '').split(',').map(s => s.trim()).filter(Boolean);
+items.forEach(el => {
+const id = el.id.replace('menu-', '');
+if (perms.includes(id)) {
+el.classList.remove('oculto');
+} else {
+el.classList.add('oculto');
+}
+});
+}
+
+function abrirPOS() {
+if (usuarioLogado) {
+localStorage.setItem('pos_usuario', JSON.stringify(usuarioLogado));
+}
+return true;
+}
+
+function sair() {
+usuarioLogado = null;
+localStorage.removeItem('pos_usuario');
+document.getElementById('login-screen').style.display = '';
+document.getElementById('menu-screen').classList.remove('ativo');
+document.getElementById('login-user').value = '';
+document.getElementById('login-pass').value = '';
+}
+</script>
+</body>
+</html>

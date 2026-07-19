@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faturamento - Palmarante Loja</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',Arial,sans-serif; background:#f0f2f5; color:#333; }
+header { background:#1a237e; color:#fff; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; }
+header h1 { font-size:1.4rem; }
+header .sub { font-size:.85rem; opacity:.8; }
+header a { color:#ffd54f; text-decoration:none; font-size:.9rem; }
+nav.menu-principal { background:#283593; display:flex; gap:0; padding:0 24px; }
+nav.menu-principal button { background:transparent; color:#ccc; border:none; padding:12px 20px; cursor:pointer; font-size:.9rem; border-bottom:3px solid transparent; position:relative; }
+nav.menu-principal button:hover { color:#fff; background:rgba(255,255,255,.1); }
+nav.menu-principal button.ativo { color:#fff; border-bottom-color:#ffd54f; }
+.submenu { display:none; background:#fff; box-shadow:0 4px 16px rgba(0,0,0,.15); border-radius:0 0 8px 8px; padding:8px 0; position:absolute; top:100%; left:0; z-index:100; min-width:200px; }
+.submenu.ativo { display:block; }
+.submenu button { display:block; width:100%; text-align:left; background:none; border:none; padding:10px 20px; cursor:pointer; font-size:.85rem; color:#333; white-space:nowrap; }
+.submenu button:hover { background:#e8eaf6; color:#1a237e; }
+.submenu button.ativo-sub { background:#e8eaf6; color:#1a237e; font-weight:600; }
+main { padding:20px; max-width:1400px; margin:0 auto; }
+.tab { display:none; }
+.tab.ativo { display:block; }
+.card { background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.1); padding:20px; margin-bottom:20px; }
+.card h2 { font-size:1.1rem; margin-bottom:16px; color:#1a237e; }
+.tabela { width:100%; border-collapse:collapse; font-size:.9rem; }
+.tabela th { background:#1a237e; color:#fff; padding:8px 10px; text-align:left; font-weight:500; }
+.tabela td { padding:8px 10px; border-bottom:1px solid #eee; }
+.tabela tr:hover td { background:#f5f5f5; }
+.btn { border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:.85rem; }
+.btn-sm { padding:5px 12px; font-size:.8rem; }
+.summary-box{background:#f5f5f5;border-radius:6px;padding:12px;text-align:center;border-left:4px solid #1a237e}
+.summary-box .value{font-size:1.2rem;font-weight:700;color:#1a237e;font-family:'Courier New',monospace}
+.summary-box .label{font-size:.75rem;color:#666}
+.toast { visibility:hidden; min-width:280px; background:#333; color:#fff; text-align:center; border-radius:8px; padding:12px 20px; position:fixed; z-index:9999; bottom:30px; left:50%; transform:translateX(-50%); opacity:0; transition:.3s; font-size:.9rem; }
+.toast.show { visibility:visible; opacity:1; }
+.toast.success { background:#2e7d32; }
+.toast.error { background:#c62828; }
+.toast.info { background:#1565c0; }
+.sub-conteudo { display:none; }
+.sub-conteudo.ativo { display:block; }
+.subsub-conteudo { display:none; }
+.subsub-conteudo.ativo { display:block; }
+</style>
+</head>
+<body>
+
+<header>
+<div>
+<h1>Faturamento</h1>
+<div class="sub">Gestao de Faturas, Fornecedores e Contas</div>
+</div>
+<a href="/index.html">&larr; Menu Principal</a>
+</header>
+
+<nav class="menu-principal" id="menu-principal">
+<button class="ativo" data-menu="clientes" onclick="abrirMenu('clientes',this)">Clientes</button>
+<button data-menu="fornecedores" onclick="abrirMenu('fornecedores',this)">Fornecedores</button>
+<button data-menu="relatorios" onclick="abrirMenu('relatorios',this)">Relatorios</button>
+<button data-menu="fiscal" onclick="abrirMenu('fiscal',this)">Fiscal</button>
+<button data-menu="folha" onclick="abrirMenu('folha',this)">Folha</button>
+<button data-menu="configuracoes" onclick="abrirMenu('configuracoes',this)">Configuracoes</button>
+</nav>
+
+<main>
+
+<div id="tab-clientes" class="tab ativo">
+<div class="card">
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+<button class="btn btn-sm ativo-sub" data-sub="faturas-cli" onclick="abrirSubMenu('faturas-cli',this,'clientes')">Faturas</button>
+<button class="btn btn-sm" data-sub="credito-cli" onclick="abrirSubMenu('credito-cli',this,'clientes')">Notas de Credito</button>
+<button class="btn btn-sm" data-sub="pagamentos-cli" onclick="abrirSubMenu('pagamentos-cli',this,'clientes')">Pagamentos</button>
+<button class="btn btn-sm" data-sub="produtos-cli" onclick="abrirSubMenu('produtos-cli',this,'clientes')">Produtos</button>
+<button class="btn btn-sm" data-sub="clientes-cli" onclick="abrirSubMenu('clientes-cli',this,'clientes')">Clientes</button>
+</div>
+<div id="sub-faturas-cli" class="sub-conteudo ativo"><h2>Faturas (NF-e Emitidas)</h2><div id="faturas-cli-list"></div></div>
+<div id="sub-credito-cli" class="sub-conteudo"><h2>Notas de Credito</h2><p style="color:#888;">Nenhum cancelamento registrado.</p></div>
+<div id="sub-pagamentos-cli" class="sub-conteudo"><h2>Pagamentos de Clientes</h2><p style="color:#888;">Em breve.</p></div>
+<div id="sub-produtos-cli" class="sub-conteudo"><h2>Produtos</h2><div id="produtos-cli-list"></div></div>
+<div id="sub-clientes-cli" class="sub-conteudo"><h2>Clientes</h2><div id="clientes-list"></div></div>
+</div>
+</div>
+
+<div id="tab-fornecedores" class="tab">
+<div class="card">
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+<button class="btn btn-sm ativo-sub" data-sub="contas-forn" onclick="abrirSubMenu('contas-forn',this,'fornecedores')">Contas</button>
+<button class="btn btn-sm" data-sub="reembolsos-forn" onclick="abrirSubMenu('reembolsos-forn',this,'fornecedores')">Reembolsos</button>
+<button class="btn btn-sm" data-sub="pagamentos-forn" onclick="abrirSubMenu('pagamentos-forn',this,'fornecedores')">Pagamentos</button>
+<button class="btn btn-sm" data-sub="produtos-forn" onclick="abrirSubMenu('produtos-forn',this,'fornecedores')">Produtos</button>
+<button class="btn btn-sm" data-sub="fornecedores-forn" onclick="abrirSubMenu('fornecedores-forn',this,'fornecedores')">Fornecedores</button>
+</div>
+<div id="sub-contas-forn" class="sub-conteudo ativo"><h2>Contas a Pagar</h2><div id="contas-forn-list"></div></div>
+<div id="sub-reembolsos-forn" class="sub-conteudo"><h2>Reembolsos</h2><p style="color:#888;">Em breve.</p></div>
+<div id="sub-pagamentos-forn" class="sub-conteudo"><h2>Pagamentos a Fornecedores</h2><p style="color:#888;">Em breve.</p></div>
+<div id="sub-produtos-forn" class="sub-conteudo"><h2>Produtos em Estoque</h2><div id="produtos-forn-list"></div></div>
+<div id="sub-fornecedores-forn" class="sub-conteudo"><h2>Fornecedores</h2>
+<div style="background:#f5f5f5;border-radius:6px;padding:12px;margin-bottom:12px;border:1px solid #e0e0e0;">
+<div style="font-weight:600;margin-bottom:6px;">Cadastrar por CNPJ:</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+<input type="text" id="f-cnpj" placeholder="CNPJ" maxlength="18" style="padding:6px;border:1px solid #ccc;border-radius:4px;width:160px;">
+<button class="btn btn-sm" style="background:#1a237e;color:#fff;" onclick="buscarCNPJFornecedor()">Consultar CNPJ</button>
+<button class="btn btn-sm" style="background:#4caf50;color:#fff;" onclick="importarNfeFornecedor()">+ Importar NF-e</button>
+</div>
+<div id="f-cnpj-result" style="margin-top:8px;"></div>
+</div>
+<div id="fornecedores-list"></div></div>
+</div>
+</div>
+
+<div id="tab-relatorios" class="tab">
+<div class="card">
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+<button class="btn btn-sm ativo-sub" data-sub="analise-rel" onclick="abrirSubMenu('analise-rel',this,'relatorios')">Analise de Faturas</button>
+</div>
+<div id="sub-analise-rel" class="sub-conteudo ativo">
+<h2>Analise de Faturas</h2>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+<button class="btn btn-sm" style="background:#1a237e;color:#fff;" onclick="gerarRelatorio()">Atualizar Relatorio</button>
+<button class="btn btn-sm" style="background:#1a237e;color:#fff;" onclick="exportarSpedFiscal()">SPED Fiscal</button>
+<button class="btn btn-sm" style="background:#1a237e;color:#fff;" onclick="exportarSpedPis()">SPED PIS/COFINS</button>
+</div>
+<div id="relatorio-list"></div>
+</div>
+</div>
+</div>
+
+<div id="tab-fiscal" class="tab">
+<div class="card">
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+<button class="btn btn-sm ativo-sub" data-sub="apuracao-fis" onclick="abrirSubMenu('apuracao-fis',this,'fiscal')">Apuração ICMS</button>
+<button class="btn btn-sm" data-sub="pis-cofins-fis" onclick="abrirSubMenu('pis-cofins-fis',this,'fiscal')">PIS/COFINS</button>
+<button class="btn btn-sm" data-sub="completo-fis" onclick="abrirSubMenu('completo-fis',this,'fiscal')">Relatório Completo</button>
+</div>
+<div id="sub-apuracao-fis" class="sub-conteudo ativo">
+<h2>Apuração ICMS</h2>
+<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+<input type="date" id="fis-inicio" style="padding:6px;border:1px solid #ccc;border-radius:4px;">
+<input type="date" id="fis-fim" style="padding:6px;border:1px solid #ccc;border-radius:4px;">
+<button class="btn btn-sm" style="background:#1a237e;color:#fff;" onclick="carregarApuracaoIcms()">Atualizar</button>
+</div>
+<div id="apuracao-icms-result"></div>
+</div>
+<div id="sub-pis-cofins-fis" class="sub-conteudo">
+<h2>Apuração PIS/COFINS</h2>
+<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+<input type="date" id="fis-pis-inicio" style="padding:6px;border:1px solid #ccc;border-radius:4px;">
+<input type="date" id="fis-pis-fim" style="padding:6px;border:1px solid #ccc;border-radius:4px;">
+<select id="fis-regime" style="padding:6px;border:1px solid #ccc;border-radius:4px;">
+<option value="cumulativo">Cumulativo</option>
+<option value="nao-cumulativo">Não Cumulativo</option>
+</select>
+<button class="btn btn-sm" style="background:#1a237e;color:#fff;" onclick="carregarApuracaoPisCofins()">Atualizar</button>
+</div>
+<div id="apuracao-pis-result"></div>
+</div>
+<div id="sub-completo-fis" class="sub-conteudo">
+<h2>Relatório Fiscal Completo</h2>
+<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+<input type="date" id="fis-completo-inicio" style="padding:6px;border:1px solid #ccc;border-radius:4px;">
+<input type="date" id="fis-completo-fim" style="padding:6px;border:1px solid #ccc;border-radius:4px;">
+<button class="btn btn-sm" style="background:#1a237e;color:#fff;" onclick="carregarRelatorioCompleto()">Atualizar</button>
+</div>
+<div id="relatorio-completo-result"></div>
+</div>
+</div>
+</div>
+
+<div id="tab-folha" class="tab">
+<div class="card">
+<h2>Dashboard Folha de Pagamento</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px;" id="folha-dashboard"></div>
+<div style="overflow-x:auto;">
+<table>
+<thead><tr><th>Funcionario</th><th>Competencia</th><th>Sal.Base</th><th>Proventos</th><th>INSS</th><th>IRRF</th><th>FGTS</th><th class="valor">Liquido</th><th>Situacao</th></tr></thead>
+<tbody id="folha-ultimos"></tbody>
+</table>
+</div>
+<div style="margin-top:12px;"><a href="/folha.html" class="btn btn-primary" style="display:inline-block;text-decoration:none;">Abrir Folha de Pagamento</a></div>
+</div>
+</div>
+
+<div id="tab-configuracoes" class="tab">
+<div class="card">
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+<button class="btn btn-sm ativo-sub" data-sub="impostos-cfg" onclick="abrirSubMenu('impostos-cfg',this,'configuracoes')">Impostos</button>
+<button class="btn btn-sm" data-sub="diarios-cfg" onclick="abrirSubMenu('diarios-cfg',this,'configuracoes')">Diarios</button>
+<button class="btn btn-sm" data-sub="moedas-cfg" onclick="abrirSubMenu('moedas-cfg',this,'configuracoes')">Moedas</button>
+<button class="btn btn-sm" data-sub="posicoes-cfg" onclick="abrirSubMenu('posicoes-cfg',this,'configuracoes')">Posicoes Fiscais</button>
+<button class="btn btn-sm" data-sub="documentos-cfg" onclick="abrirSubMenu('documentos-cfg',this,'configuracoes')">Tipos Documentos</button>
+<button class="btn btn-sm" data-sub="faturamento-cfg" onclick="abrirSubMenu('faturamento-cfg',this,'configuracoes')">Faturamento</button>
+<button class="btn btn-sm" data-sub="pagamentos-cfg" onclick="abrirSubMenu('pagamentos-cfg',this,'configuracoes')">Pagamentos On-line</button>
+</div>
+<div id="sub-impostos-cfg" class="sub-conteudo ativo"><h2>Impostos</h2><div id="impostos-list"></div></div>
+<div id="sub-diarios-cfg" class="sub-conteudo"><h2>Diarios - Lancamentos Contabeis</h2><div id="diarios-content"></div></div>
+<div id="sub-moedas-cfg" class="sub-conteudo"><h2>Moedas</h2><p style="color:#888;">BRL (Real) - moeda padrao.</p></div>
+<div id="sub-posicoes-cfg" class="sub-conteudo"><h2>Posicoes Fiscais</h2><p style="color:#888;">Em breve.</p></div>
+<div id="sub-documentos-cfg" class="sub-conteudo"><h2>Tipos de Documentos</h2><p style="color:#888;">NFC-e (mod 65), NF-e (mod 55), NFS-e.</p></div>
+<div id="sub-faturamento-cfg" class="sub-conteudo">
+<h2>Faturamento</h2>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+<button class="btn btn-sm ativo-sub" data-sub2="condicoes" onclick="abrirSubSub('condicoes',this)">Condicoes de Pagamento</button>
+<button class="btn btn-sm" data-sub2="categorias" onclick="abrirSubSub('categorias',this)">Categorias de Produtos</button>
+</div>
+<div id="subsub-condicoes" class="subsub-conteudo ativo"><div id="condicoes-list"></div></div>
+<div id="subsub-categorias" class="subsub-conteudo"><div id="categorias-list"></div></div>
+</div>
+<div id="sub-pagamentos-cfg" class="sub-conteudo">
+<h2>Pagamentos On-line</h2>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+<button class="btn btn-sm ativo-sub" data-sub2="provedores" onclick="abrirSubSub('provedores',this)">Provedores</button>
+<button class="btn btn-sm" data-sub2="formaspagto" onclick="abrirSubSub('formaspagto',this)">Formas de Pagamento</button>
+</div>
+<div id="subsub-provedores" class="subsub-conteudo ativo"><div id="provedores-list"></div></div>
+<div id="subsub-formaspagto" class="subsub-conteudo"><div id="formaspagto-list"></div></div>
+</div>
+</div>
+</div>
+
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// === NAVEGACAO ===
+function abrirMenu(nome, btn) {
+document.querySelectorAll('#menu-principal button').forEach(b => b.classList.remove('ativo'));
+document.querySelectorAll('.tab').forEach(t => t.classList.remove('ativo'));
+document.getElementById('tab-' + nome).classList.add('ativo');
+btn.classList.add('ativo');
+carregarDadosMenu(nome);
+}
+
+function abrirSubMenu(sub, btn, menu) {
+const container = btn.closest('.card');
+container.querySelectorAll('[data-sub]').forEach(b => b.classList.remove('ativo-sub'));
+container.querySelectorAll('.sub-conteudo').forEach(s => s.classList.remove('ativo'));
+document.getElementById('sub-' + sub).classList.add('ativo');
+btn.classList.add('ativo');
+carregarDadosSub(sub);
+}
+
+function carregarDadosMenu(menu) {
+if (menu === 'folha') { carregarFolhaDashboard(); return; }
+const subs = document.querySelectorAll('#tab-' + menu + ' .sub-conteudo.ativo');
+if (subs.length) {
+const id = subs[0].id;
+carregarDadosSub(id.replace('sub-',''));
+}
+}
+
+function carregarDadosSub(sub) {
+switch(sub) {
+case 'faturas-cli': carregarFaturasCliente(); break;
+case 'produtos-cli': carregarProdutos('produtos-cli-list'); break;
+case 'clientes-cli': carregarClientes(); break;
+case 'contas-forn': carregarContasFornecedor(); break;
+case 'produtos-forn': carregarProdutos('produtos-forn-list'); break;
+case 'fornecedores-forn': carregarFornecedores(); break;
+case 'analise-rel': gerarRelatorio(); break;
+case 'apuracao-fis': setDefaultPeriodo(); carregarApuracaoIcms(); break;
+case 'pis-cofins-fis': setDefaultPeriodo(); carregarApuracaoPisCofins(); break;
+case 'completo-fis': setDefaultPeriodo(); carregarRelatorioCompleto(); break;
+case 'impostos-cfg': carregarImpostos(); break;
+case 'diarios-cfg': carregarDiarios(); break;
+case 'faturamento-cfg': carregarFaturamentoCfg(); break;
+case 'pagamentos-cfg': carregarPagamentosCfg(); break;
+}
+}
+
+function abrirSubSub(sub, btn) {
+const container = btn.closest('.sub-conteudo');
+container.querySelectorAll('[data-sub2]').forEach(b => b.classList.remove('ativo-sub'));
+container.querySelectorAll('.subsub-conteudo').forEach(s => s.classList.remove('ativo'));
+document.getElementById('subsub-' + sub).classList.add('ativo');
+btn.classList.add('ativo');
+switch(sub) {
+case 'condicoes': carregarCondicoes(); break;
+case 'categorias': carregarCategorias(); break;
+case 'provedores': carregarProvedores(); break;
+case 'formaspagto': carregarFormasPagto(); break;
+}
+}
+
+// === TOAST ===
+function mostrarToast(msg, tipo) {
+const t = document.getElementById('toast');
+t.textContent = msg;
+t.className = 'toast ' + tipo + ' show';
+setTimeout(() => t.className = 'toast', 3000);
+}
+
+// === IMPORT NF-e ===
+let importNfeInput = document.createElement('input');
+importNfeInput.type = 'file';
+importNfeInput.accept = '.xml';
+importNfeInput.style.display = 'none';
+importNfeInput.onchange = async function(e) {
+const file = e.target.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = async function(ev) {
+try {
+const r = await fetch('/api/nfe-fornecedor/importar', {
+method: 'POST', headers: { 'Content-Type': 'application/xml' },
+body: ev.target.result
+});
+const data = await r.json();
+if (data.status === 'ok') {
+mostrarToast('NF-e importada: ' + (data.fornecedor.nome || '') + ' | R$' + (data.total ? data.total.vNF : '') + ' | ' + data.itens_qtde + ' itens', 'success');
+carregarFornecedores(); carregarContasFornecedor(); carregarProdutos('produtos-forn-list');
+} else {
+mostrarToast('Falha: ' + data.mensagem, 'error');
+}
+} catch(e) { mostrarToast('Erro: ' + e.message, 'error'); }
+};
+reader.readAsText(file);
+importNfeInput.value = '';
+};
+document.body.appendChild(importNfeInput);
+
+function importarNfeFornecedor() { importNfeInput.click(); }
+
+// === CLIENTES: Faturas (NF-e emitidas) ===
+async function carregarFaturasCliente() {
+try {
+const r = await fetch('/api/vendas');
+const data = await r.json();
+const div = document.getElementById('faturas-cli-list');
+const vendas = data.vendas || [];
+if (!vendas.length) { div.innerHTML = '<p style="color:#888;">Nenhuma venda registrada.</p>'; return; }
+let html = '<table class="tabela"><tr><th>ID</th><th>Cliente</th><th>Valor</th><th>Data</th><th>Tipo</th><th>Status</th></tr>';
+for (const v of vendas) {
+const tipo = (v.doc_tipo || v.tipo || 'ORCAMENTO') === 'NFCE' ? 'NFC-e' : (v.doc_tipo || v.tipo || 'ORCAMENTO') === 'NFE' ? 'NF-e' : 'Orcamento';
+const status = v.status_pagamento || v.status || '';
+html += '<tr><td>' + (v.id || '') + '</td><td>' + (v.cliente || '').substring(0,25) + '</td><td>R$ ' + (v.total || v.valor || 0) + '</td><td>' + (v.data || '').substring(0,10) + '</td><td>' + tipo + '</td><td>' + status + '</td></tr>';
+}
+html += '</table>';
+div.innerHTML = html;
+} catch(e) { document.getElementById('faturas-cli-list').innerHTML = '<p style="color:red;">Erro: ' + e.message + '</p>'; }
+}
+
+// === CLIENTES: Clientes ===
+async function carregarClientes() {
+try {
+const r = await fetch('/api/vendas');
+const data = await r.json();
+const div = document.getElementById('clientes-list');
+const clientes = {};
+for (const v of (data.vendas || [])) {
+const nome = (v.cliente || '').trim();
+if (nome && !clientes[nome]) clientes[nome] = { nome, total: 0, qtde: 0 };
+if (nome) { clientes[nome].total += parseFloat(v.total || v.valor || 0); clientes[nome].qtde++; }
+}
+const nomes = Object.keys(clientes).sort();
+if (!nomes.length) { div.innerHTML = '<p style="color:#888;">Nenhum cliente encontrado.</p>'; return; }
+let html = '<table class="tabela"><tr><th>Cliente</th><th>Compras</th><th>Total Gasto</th></tr>';
+for (const n of nomes) {
+html += '<tr><td>' + n + '</td><td>' + clientes[n].qtde + '</td><td>R$ ' + clientes[n].total.toFixed(2) + '</td></tr>';
+}
+html += '</table><p style="margin-top:4px;color:#666;">Total: ' + nomes.length + ' clientes</p>';
+div.innerHTML = html;
+} catch(e) { document.getElementById('clientes-list').innerHTML = '<p style="color:red;">Erro: ' + e.message + '</p>'; }
+}
+
+// === FORNECEDORES: Contas a Pagar ===
+async function carregarContasFornecedor() {
+try {
+const r = await fetch('/api/faturas');
+const data = await r.json();
+const div = document.getElementById('contas-forn-list');
+if (!data.faturas || !data.faturas.length) { div.innerHTML = '<p style="color:#888;">Nenhuma conta a pagar.</p>'; return; }
+let html = '<table class="tabela"><tr><th>Fornecedor</th><th>Valor</th><th>Vencimento</th><th>Status</th><th></th></tr>';
+for (const f of data.faturas) {
+const paga = f.status === 'PAGO';
+html += '<tr style="' + (paga ? 'opacity:.5;' : '') + '">'
++ '<td>' + (f.fornecedor || '').substring(0,35) + '</td>'
++ '<td>R$ ' + f.valor + '</td>'
++ '<td>' + (f.data_vencimento || '') + '</td>'
++ '<td>' + f.status + '</td>'
++ '<td>' + (paga ? '' : '<button class="btn btn-sm" style="background:#1a237e;color:#fff;" onclick="pagarFatura(' + f.id + ')">Pagar</button>') + '</td>'
++ '</tr>';
+}
+html += '</table><p style="margin-top:4px;"><strong>Total Pendente:</strong> R$ ' + data.total_pendente + ' &nbsp; <strong>Pago:</strong> R$ ' + data.total_pago + '</p>';
+div.innerHTML = html;
+} catch(e) { document.getElementById('contas-forn-list').innerHTML = '<p style="color:red;">Erro: ' + e.message + '</p>'; }
+}
+
+async function pagarFatura(id) {
+try {
+const r = await fetch('/api/fatura/pagar?id=' + id, { method: 'POST' });
+const data = await r.json();
+if (data.status === 'ok') { mostrarToast('Fatura paga!', 'success'); carregarContasFornecedor(); }
+else { mostrarToast('Erro: ' + data.mensagem, 'error'); }
+} catch(e) { mostrarToast('Erro: ' + e.message, 'error'); }
+}
+
+// === FORNECEDORES: Lista ===
+async function carregarFornecedores() {
+try {
+const r = await fetch('/api/fornecedores');
+const data = await r.json();
+const div = document.getElementById('fornecedores-list');
+if (!data.fornecedores || !data.fornecedores.length) { div.innerHTML = '<p style="color:#888;">Nenhum fornecedor.</p>'; return; }
+let html = '<table class="tabela"><tr><th>ID</th><th>Nome</th><th>CNPJ</th><th>Telefone</th><th>Email</th><th>IE</th></tr>';
+for (const f of data.fornecedores) {
+html += '<tr><td>' + f.id + '</td><td>' + f.nome + '</td><td>' + f.cnpj + '</td><td>' + (f.telefone||'') + '</td><td>' + (f.email||'') + '</td><td>' + (f.ie||'') + '</td></tr>';
+}
+html += '</table><p style="margin-top:4px;color:#666;">Total: ' + data.total + '</p>';
+div.innerHTML = html;
+document.getElementById('f-cnpj').value='';
+document.getElementById('f-cnpj-result').innerHTML='';
+} catch(e) { document.getElementById('fornecedores-list').innerHTML = '<p style="color:red;">Erro: ' + e.message + '</p>'; }
+}
+
+function limparMascaraCNPJ(v){return v.replace(/\D/g,'')}
+
+async function buscarCNPJFornecedor(){
+const el=document.getElementById('f-cnpj');
+const cnpj=limparMascaraCNPJ(el.value);
+if(cnpj.length!==14){alert('CNPJ invalido');return;}
+const resultDiv=document.getElementById('f-cnpj-result');
+resultDiv.innerHTML='<span style="color:#666;">Consultando...</span>';
+try{
+const r=await fetch('https://www.receitaws.com.br/v1/cnpj/'+cnpj);
+const d=await r.json();
+if(d.status==='ERROR'){resultDiv.innerHTML='<span style="color:red;">CNPJ nao encontrado</span>';return;}
+let html='<div style="background:#fff;border-radius:4px;padding:10px;border:1px solid #ddd;">';
+html+='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px;">';
+html+='<input type="text" id="f-cad-nome" placeholder="Razao Social" value="'+(d.nome||'')+'" style="flex:2;min-width:200px;padding:5px;border:1px solid #ccc;border-radius:4px;">';
+html+='<input type="text" id="f-cad-cnpj" value="'+cnpj+'" readonly style="width:150px;padding:5px;border:1px solid #ccc;border-radius:4px;background:#f5f5f5;">';
+html+='</div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px;">';
+let endereco='';
+if(d.logradouro){endereco+=d.logradouro;if(d.numero)endereco+=', '+d.numero;if(d.complemento)endereco+=' - '+d.complemento;if(d.bairro)endereco+=' - '+d.bairro;}
+html+='<input type="text" id="f-cad-endereco" placeholder="Endereco" value="'+(endereco||'')+'" style="flex:2;padding:5px;border:1px solid #ccc;border-radius:4px;">';
+html+='<input type="text" id="f-cad-cep" placeholder="CEP" value="'+(d.cep||'')+'" maxlength="9" onblur="buscarCEPFornecedor()" style="width:100px;padding:5px;border:1px solid #ccc;border-radius:4px;">';
+html+='</div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px;">';
+html+='<input type="text" id="f-cad-telefone" placeholder="Telefone" value="'+(d.telefone||'')+'" style="flex:1;padding:5px;border:1px solid #ccc;border-radius:4px;">';
+html+='<input type="text" id="f-cad-email" placeholder="Email" value="'+(d.email||'')+'" style="flex:1;padding:5px;border:1px solid #ccc;border-radius:4px;">';
+html+='<input type="text" id="f-cad-ie" placeholder="Insc. Estadual" value="'+(d.inscricao_estadual||'')+'" style="width:140px;padding:5px;border:1px solid #ccc;border-radius:4px;">';
+html+='</div>';
+html+='<button class="btn btn-sm" style="background:#2e7d32;color:#fff;" onclick="salvarFornecedor()">Salvar Fornecedor</button>';
+html+='<button class="btn btn-sm" style="background:#757575;color:#fff;margin-left:6px;" onclick="document.getElementById(\'f-cnpj-result\').innerHTML=\'\'">Cancelar</button>';
+html+='</div>';
+resultDiv.innerHTML=html;
+}catch(e){resultDiv.innerHTML='<span style="color:red;">Erro ao consultar CNPJ</span>';}
+}
+
+async function buscarCEPFornecedor(){
+const el=document.getElementById('f-cad-cep');
+if(!el)return;
+const cep=el.value.replace(/\D/g,'');
+if(cep.length!==8)return;
+try{
+const r=await fetch('https://viacep.com.br/ws/'+cep+'/json/');
+const d=await r.json();
+if(d.erro)return;
+let end='';
+if(d.logradouro)end+=d.logradouro;
+if(end&&d.bairro)end+=' - '+d.bairro;
+if(!end)end=d.bairro||'';
+if(d.localidade)end+=(end?' - ':'')+d.localidade+'/'+d.uf;
+if(end)document.getElementById('f-cad-endereco').value=end;
+}catch(e){}
+}
+
+async function salvarFornecedor(){
+const nome=document.getElementById('f-cad-nome').value.trim();
+const cnpj=document.getElementById('f-cad-cnpj').value.trim();
+if(!nome||!cnpj){alert('Nome e CNPJ obrigatorios');return;}
+const params=new URLSearchParams();
+params.set('nome',nome);
+params.set('cnpj',cnpj);
+params.set('endereco',document.getElementById('f-cad-endereco').value.trim());
+params.set('telefone',document.getElementById('f-cad-telefone').value.trim());
+params.set('email',document.getElementById('f-cad-email').value.trim());
+params.set('ie',document.getElementById('f-cad-ie').value.trim());
+params.set('inscricao_mun','');
+try{
+const r=await fetch('/api/fornecedor/incluir',{
+method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params
+});
+const data=await r.json();
+if(data.status==='ok'||data.id){alert('Fornecedor cadastrado!');carregarFornecedores();}
+else alert(data.mensagem||'Erro');
+}catch(e){alert('Erro de conexao');}
+}
+
+// === PRODUTOS ===
+async function carregarProdutos(containerId) {
+try {
+const r = await fetch('/api/produtos');
+const data = await r.json();
+const div = document.getElementById(containerId);
+if (!data.produtos || !data.produtos.length) { div.innerHTML = '<p style="color:#888;">Nenhum produto.</p>'; return; }
+let html = '<table class="tabela"><tr><th>ID</th><th>Nome</th><th>Preco</th><th>Stock</th></tr>';
+for (const p of data.produtos) {
+html += '<tr><td>' + (p.id || '') + '</td><td>' + (p.nome || '').substring(0,35) + '</td><td>R$ ' + (p.preco || 0) + '</td><td>' + (p.stock || 0) + '</td></tr>';
+}
+html += '</table><p style="margin-top:4px;color:#666;">Total: ' + data.produtos.length + ' produtos</p>';
+div.innerHTML = html;
+} catch(e) { document.getElementById(containerId).innerHTML = '<p style="color:red;">Erro: ' + e.message + '</p>'; }
+}
+
+// === RELATORIOS ===
+async function gerarRelatorio() {
+try {
+const r = await fetch('/api/relatorio');
+const data = await r.json();
+const div = document.getElementById('relatorio-list');
+let html = '<table class="tabela"><tr><th>Indicador</th><th>Valor</th></tr>';
+for (const k of Object.keys(data)) {
+if (k === 'vendas_detalhe') continue;
+html += '<tr><td>' + k + '</td><td>' + (typeof data[k] === 'number' && k.includes('valor') ? 'R$ ' : '') + data[k] + '</td></tr>';
+}
+html += '</table>';
+div.innerHTML = html;
+} catch(e) { document.getElementById('relatorio-list').innerHTML = '<p style="color:red;">Erro: ' + e.message + '</p>'; }
+}
+
+async function exportarSpedFiscal() {
+try {
+const r = await fetch('/api/sped/fiscal');
+const data = await r.json();
+if (data.status === 'ok') mostrarToast('SPED Fiscal exportado', 'success');
+else window.open('/api/sped/fiscal', '_blank');
+} catch(e) { mostrarToast('Erro: ' + e.message, 'error'); }
+}
+
+async function exportarSpedPis() {
+try {
+const r = await fetch('/api/sped/pis-cofins');
+const data = await r.json();
+if (data.status === 'ok') mostrarToast('SPED PIS/COFINS exportado', 'success');
+else window.open('/api/sped/pis-cofins', '_blank');
+} catch(e) { mostrarToast('Erro: ' + e.message, 'error'); }
+}
+
+// === FISCAL: Apuração ICMS/PIS/COFINS ===
+function setDefaultPeriodo() {
+    const hoje = new Date();
+    const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+    document.getElementById('fis-inicio').value = primeiroDia.toISOString().split('T')[0];
+    document.getElementById('fis-fim').value = hoje.toISOString().split('T')[0];
+    document.getElementById('fis-pis-inicio').value = primeiroDia.toISOString().split('T')[0];
+    document.getElementById('fis-pis-fim').value = hoje.toISOString().split('T')[0];
+    document.getElementById('fis-completo-inicio').value = primeiroDia.toISOString().split('T')[0];
+    document.getElementById('fis-completo-fim').value = hoje.toISOString().split('T')[0];
+}
+
+async function carregarApuracaoIcms() {
+    const inicio = document.getElementById('fis-inicio').value;
+    const fim = document.getElementById('fis-fim').value;
+    try {
+        const r = await fetch('/api/fiscal/apuracao-icms?inicio=' + inicio + '&fim=' + fim);
+        const data = await r.json();
+        const div = document.getElementById('apuracao-icms-result');
+        if (data.status !== 'ok') { div.innerHTML = '<p style="color:red;">' + (data.mensagem||'Erro') + '</p>'; return; }
+        const ap = data.apuracao;
+        let html = '<table class="tabela">';
+        html += '<tr><th>Indicador</th><th>Valor</th></tr>';
+        html += '<tr><td>Período</td><td>' + (ap.periodo||'') + '</td></tr>';
+        html += '<tr><td>Receita Total</td><td>R$ ' + (ap.receita_total||0) + '</td></tr>';
+        html += '<tr><td>ICMS Débito</td><td>R$ ' + (ap.icms_debito||0) + '</td></tr>';
+        html += '<tr><td>ICMS ST</td><td>R$ ' + (ap.icms_st||0) + '</td></tr>';
+        html += '<tr><td>ICMS Isento</td><td>R$ ' + (ap.icms_isento||0) + '</td></tr>';
+        html += '<tr><td style="font-weight:700;color:#1a237e;">ICMS Líquido</td><td style="font-weight:700;color:#1a237e;">R$ ' + (ap.icms_liquido||0) + '</td></tr>';
+        html += '<tr><td>Total Itens</td><td>' + (ap.total_itens||0) + '</td></tr>';
+        html += '</table>';
+        if (ap.cst_detalhe) {
+            html += '<h3 style="margin-top:16px;color:#1a237e;">Detalhamento por CST/CSOSN</h3>';
+            html += '<table class="tabela"><tr><th>CST</th><th>Qtde</th><th>Valor</th></tr>';
+            for (const [cst, info] of Object.entries(ap.cst_detalhe)) {
+                html += '<tr><td>' + cst + '</td><td>' + info.qtde + '</td><td>R$ ' + info.valor.toFixed(2) + '</td></tr>';
+            }
+            html += '</table>';
+        }
+        div.innerHTML = html;
+    } catch(e) { document.getElementById('apuracao-icms-result').innerHTML = '<p style="color:red;">Erro: ' + e.message + '</p>'; }
+}
+
+async function carregarApuracaoPisCofins() {
+    const inicio = document.getElementById('fis-pis-inicio').value;
+    const fim = document.getElementById('fis-pis-fim').value;
+    const regime = document.getElementById('fis-regime').value;
+    try {
+        const r = await fetch('/api/fiscal/apuracao-pis-cofins?inicio=' + inicio + '&fim=' + fim + '&regime=' + regime);
+        const data = await r.json();
+        const div = document.getElementById('apuracao-pis-result');
+        if (data.status !== 'ok') { div.innerHTML = '<p style="color:red;">' + (data.mensagem||'Erro') + '</p>'; return; }
+        const ap = data.apuracao;
+        let html = '<table class="tabela">';
+        html += '<tr><th>Indicador</th><th>Valor</th></tr>';
+        html += '<tr><td>Período</td><td>' + (ap.periodo||'') + '</td></tr>';
+        html += '<tr><td>Regime</td><td>' + (ap.regime||'') + '</td></tr>';
+        html += '<tr><td>Receita Total</td><td>R$ ' + (ap.receita_total||0) + '</td></tr>';
+        html += '<tr><td>Alíquota PIS</td><td>' + (ap.aliquota_pis||0) + '%</td></tr>';
+        html += '<tr><td>Alíquota COFINS</td><td>' + (ap.aliquota_cofins||0) + '%</td></tr>';
+        html += '<tr><td style="font-weight:700;">PIS</td><td style="font-weight:700;">R$ ' + (ap.pis||0) + '</td></tr>';
+        html += '<tr><td style="font-weight:700;">COFINS</td><td style="font-weight:700;">R$ ' + (ap.cofins||0) + '</td></tr>';
+        html += '<tr><td style="font-weight:700;color:#1a237e;">Total PIS+COFINS</td><td style="font-weight:700;color:#1a237e;">R$ ' + (ap.total_impostos||0) + '</td></tr>';
+        html += '</table>';
+        div.innerHTML = html;
+    } catch(e) { document.getElementById('apuracao-pis-result').innerHTML = '<p style="color:red;">Erro: ' + e.message + '</p>'; }
+}
+
+async function carregarRelatorioCompleto() {
+    const inicio = document.getElementById('fis-completo-inicio').value;
+    const fim = document.getElementById('fis-completo-fim').value;
+    try {
+        const r = await fetch('/api/fiscal/relatorio?inicio=' + inicio + '&fim=' + fim);
+        const data = await r.json();
+        const div = document.getElementById('relatorio-completo-result');
+        if (data.status !== 'ok') { div.innerHTML = '<p style="color:red;">' + (data.mensagem||'Erro') + '</p>'; return; }
+        const rel = data.relatorio;
+        let html = '<h3 style="color:#1a237e;">ICMS</h3>';
+        html += '<table class="tabela"><tr><th>Indicador</th><th>Valor</th></tr>';
+        html += '<tr><td>Receita Total</td><td>R$ ' + rel.icms.receita_total + '</td></tr>';
+        html += '<tr><td>ICMS Débito</td><td>R$ ' + rel.icms.icms_debito + '</td></tr>';
+        html += '<tr><td>ICMS ST</td><td>R$ ' + rel.icms.icms_st + '</td></tr>';
+        html += '<tr><td style="font-weight:700;color:#1a237e;">ICMS Líquido</td><td style="font-weight:700;color:#1a237e;">R$ ' + rel.icms.icms_liquido + '</td></tr></table>';
+
+        html += '<h3 style="margin-top:16px;color:#1a237e;">PIS/COFINS (Cumulativo)</h3>';
+        html += '<table class="tabela"><tr><th>Indicador</th><th>Valor</th></tr>';
+        html += '<tr><td>PIS</td><td>R$ ' + rel.pis_cofins_cumulativo.pis + '</td></tr>';
+        html += '<tr><td>COFINS</td><td>R$ ' + rel.pis_cofins_cumulativo.cofins + '</td></tr>';
+        html += '<tr><td style="font-weight:700;">Total</td><td style="font-weight:700;">R$ ' + rel.pis_cofins_cumulativo.total_impostos + '</td></tr></table>';
+
+        html += '<h3 style="margin-top:16px;color:#1a237e;">PIS/COFINS (Não Cumulativo)</h3>';
+        html += '<table class="tabela"><tr><th>Indicador</th><th>Valor</th></tr>';
+        html += '<tr><td>PIS</td><td>R$ ' + rel.pis_cofins_nao_cumulativo.pis + '</td></tr>';
+        html += '<tr><td>COFINS</td><td>R$ ' + rel.pis_cofins_nao_cumulativo.cofins + '</td></tr>';
+        html += '<tr><td style="font-weight:700;">Total</td><td style="font-weight:700;">R$ ' + rel.pis_cofins_nao_cumulativo.total_impostos + '</td></tr></table>';
+
+        html += '<h3 style="margin-top:16px;color:#1a237e;">Total de Impostos</h3>';
+        html += '<table class="tabela"><tr><th>Regime</th><th>Total</th></tr>';
+        html += '<tr><td>Cumulativo</td><td>R$ ' + rel.total_impostos.cumulativo + '</td></tr>';
+        html += '<tr><td>Não Cumulativo</td><td>R$ ' + rel.total_impostos.nao_cumulativo + '</td></tr></table>';
+        html += '<p style="margin-top:8px;color:#888;font-size:.85rem;">Apuração: ' + rel.data_apuracao + '</p>';
+        div.innerHTML = html;
+    } catch(e) { document.getElementById('relatorio-completo-result').innerHTML = '<p style="color:red;">Erro: ' + e.message + '</p>'; }
+}
+
+// === CONFIGURACOES: Impostos ===
+async function carregarImpostos() {
+try {
+const r = await fetch('/api/fiscal/config');
+const data = await r.json();
+const div = document.getElementById('impostos-list');
+let html = '<table class="tabela"><tr><th>Parametro</th><th>Valor</th></tr>';
+for (const k of Object.keys(data)) {
+html += '<tr><td>' + k + '</td><td>' + JSON.stringify(data[k]) + '</td></tr>';
+}
+html += '</table>';
+div.innerHTML = html;
+} catch(e) { document.getElementById('impostos-list').innerHTML = '<p style="color:red;">Erro: ' + e.message + '</p>'; }
+}
+
+// === DIARIOS ===
+async function carregarDiarios() {
+try {
+const r = await fetch('/api/planocontas');
+const planodata = await r.json();
+const contas = planodata.contas || [];
+// Build tree
+const tree = {};
+for (const c of contas) {
+if (c.nivel == 2) {
+tree[c.classificacao] = c.descricao;
+}
+}
+// Create select options from level-2 accounts
+let opts = '<option value="">Selecione...</option>';
+const sorted = Object.keys(tree).sort();
+for (const k of sorted) {
+opts += '<option value="' + k + '">' + k + ' - ' + tree[k].substring(0,60) + '</option>';
+}
+
+// Load existing entries
+const r2 = await fetch('/api/diarios');
+const diarios = await r2.json();
+const lancamentos = diarios.lancamentos || [];
+
+const div = document.getElementById('diarios-content');
+let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">';
+
+// Left: form
+html += '<div style="background:#f9f9f9;padding:16px;border-radius:8px;">';
+html += '<h3 style="margin-bottom:12px;color:#1a237e;">Novo Lancamento</h3>';
+html += '<div style="margin-bottom:8px;"><label>Data:</label><br><input type="date" id="diario-data" style="padding:6px;width:100%;border:1px solid #ddd;border-radius:4px;"></div>';
+html += '<div style="margin-bottom:8px;"><label>Descricao:</label><br><input type="text" id="diario-desc" style="padding:6px;width:100%;border:1px solid #ddd;border-radius:4px;" placeholder="Ex: Venda a vista"></div>';
+html += '<div style="margin-bottom:8px;"><label>Conta Debito:</label><br><select id="diario-debito" style="padding:6px;width:100%;border:1px solid #ddd;border-radius:4px;">' + opts + '</select></div>';
+html += '<div style="margin-bottom:8px;"><label>Conta Credito:</label><br><select id="diario-credito" style="padding:6px;width:100%;border:1px solid #ddd;border-radius:4px;">' + opts + '</select></div>';
+html += '<div style="margin-bottom:8px;"><label>Valor (R$):</label><br><input type="number" step="0.01" id="diario-valor" style="padding:6px;width:100%;border:1px solid #ddd;border-radius:4px;" placeholder="0.00"></div>';
+html += '<button class="btn" style="background:#1a237e;color:#fff;margin-top:8px;" onclick="lancarDiario()">Lancar</button>';
+html += '</div>';
+
+// Right: entries list
+html += '<div>';
+html += '<h3 style="margin-bottom:12px;color:#1a237e;">Ultimos Lancamentos</h3>';
+if (!lancamentos.length) {
+html += '<p style="color:#888;">Nenhum lancamento.</p>';
+} else {
+const ultimos = lancamentos.slice(-20).reverse();
+html += '<table class="tabela"><tr><th>Data</th><th>Descricao</th><th>Debito</th><th>Credito</th><th>Valor</th></tr>';
+for (const l of ultimos) {
+html += '<tr><td>' + l.data + '</td><td>' + (l.descricao || '').substring(0,20) + '</td><td>' + l.debito + '</td><td>' + l.credito + '</td><td>R$ ' + l.valor + '</td></tr>';
+}
+html += '</table><p style="margin-top:4px;color:#666;">Total: ' + lancamentos.length + ' lancamentos</p>';
+}
+html += '</div></div>';
+div.innerHTML = html;
+
+// Set today's date
+document.getElementById('diario-data').value = new Date().toISOString().split('T')[0];
+} catch(e) { document.getElementById('diarios-content').innerHTML = '<p style="color:red;">Erro: ' + e.message + '</p>'; }
+}
+
+async function lancarDiario() {
+const data = document.getElementById('diario-data').value;
+const desc = document.getElementById('diario-desc').value;
+const debito = document.getElementById('diario-debito').value;
+const credito = document.getElementById('diario-credito').value;
+const valor = document.getElementById('diario-valor').value;
+if (!debito || !credito || !valor || parseFloat(valor) <= 0) {
+mostrarToast('Preencha debito, credito e valor', 'error');
+return;
+}
+try {
+const r = await fetch('/api/diario/lancar', {
+method: 'POST',
+headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+body: 'debito=' + encodeURIComponent(debito) + '&credito=' + encodeURIComponent(credito) + '&valor=' + valor + '&descricao=' + encodeURIComponent(desc) + '&data=' + data
+});
+const result = await r.json();
+if (result.status === 'ok') {
+mostrarToast('Lancamento realizado!', 'success');
+carregarDiarios();
+} else {
+mostrarToast('Erro: ' + result.mensagem, 'error');
+}
+} catch(e) { mostrarToast('Erro: ' + e.message, 'error'); }
+}
+
+// === CONFIG > FATURAMENTO ===
+function carregarFaturamentoCfg() {
+carregarCondicoes();
+}
+
+async function carregarCondicoes() {
+const div = document.getElementById('condicoes-list');
+let html = '<table class="tabela"><tr><th>Condicao</th><th>Descricao</th><th>Prazo (dias)</th></tr>';
+const condicoes = [
+{prazo:0,  nome:'A Vista',         desc:'Pagamento a vista'},
+{prazo:7,  nome:'7 dias',          desc:'Pagamento em 7 dias'},
+{prazo:14, nome:'14 dias',         desc:'Pagamento em 14 dias'},
+{prazo:30, nome:'30 dias',         desc:'Pagamento em 30 dias'},
+{prazo:45, nome:'45 dias',         desc:'Pagamento em 45 dias'},
+{prazo:60, nome:'60 dias',         desc:'Pagamento em 60 dias'},
+];
+for (const c of condicoes) {
+html += '<tr><td>' + c.nome + '</td><td>' + c.desc + '</td><td>' + c.prazo + '</td></tr>';
+}
+html += '</table><p style="margin-top:4px;color:#666;">' + condicoes.length + ' condicoes configuradas</p>';
+div.innerHTML = html;
+}
+
+async function carregarCategorias() {
+try {
+const r = await fetch('/api/produtos');
+const data = await r.json();
+const div = document.getElementById('categorias-list');
+const cats = {};
+for (const p of (data.produtos || [])) {
+const c = (p.categoria || '').trim();
+const sub = (p.sub_categoria || '').trim();
+if (c) {
+if (!cats[c]) cats[c] = {categoria:c, subcategorias:{}, qtde:0};
+cats[c].qtde++;
+if (sub) {
+if (!cats[c].subcategorias[sub]) cats[c].subcategorias[sub] = 0;
+cats[c].subcategorias[sub]++;
+}
+}
+}
+const nomes = Object.keys(cats).sort();
+if (!nomes.length) { div.innerHTML = '<p style="color:#888;">Nenhuma categoria encontrada.</p>'; return; }
+let html = '<table class="tabela"><tr><th>Categoria</th><th>Produtos</th><th>Sub-categorias</th></tr>';
+for (const n of nomes) {
+const subNomes = Object.keys(cats[n].subcategorias);
+html += '<tr><td>' + n + '</td><td>' + cats[n].qtde + '</td><td>' + (subNomes.length ? subNomes.join(', ') : '-') + '</td></tr>';
+}
+html += '</table><p style="margin-top:4px;color:#666;">Total: ' + nomes.length + ' categorias</p>';
+div.innerHTML = html;
+} catch(e) { div.innerHTML = '<p style="color:red;">Erro: ' + e.message + '</p>'; }
+}
+
+// === CONFIG > PAGAMENTOS ON-LINE ===
+function carregarPagamentosCfg() {
+carregarProvedores();
+}
+
+async function carregarProvedores() {
+const div = document.getElementById('provedores-list');
+let html = '<table class="tabela"><tr><th>Provedor</th><th>Status</th><th>Taxa</th></tr>';
+const provedores = [
+{nome:'Mercado Pago', status:'Disponivel', taxa:'3.99%'},
+{nome:'PagSeguro',   status:'Disponivel', taxa:'3.99%'},
+{nome:'Stripe',      status:'Em breve',   taxa:'2.99%'},
+{nome:'Pix (Banco Central)', status:'Ativo', taxa:'0%'},
+];
+for (const p of provedores) {
+html += '<tr><td>' + p.nome + '</td><td>' + p.status + '</td><td>' + p.taxa + '</td></tr>';
+}
+html += '</table><p style="margin-top:4px;color:#666;">' + provedores.length + ' provedores cadastrados</p>';
+div.innerHTML = html;
+}
+
+async function carregarFormasPagto() {
+const div = document.getElementById('formaspagto-list');
+let html = '<table class="tabela"><tr><th>Forma de Pagamento</th><th>Tipo</th><th>Status</th></tr>';
+const formas = [
+{nome:'Dinheiro',        tipo:'A vista',     status:'Ativo'},
+{nome:'Cartao Debito',   tipo:'Eletronico',  status:'Ativo'},
+{nome:'Cartao Credito',  tipo:'Eletronico',  status:'Ativo'},
+{nome:'PIX',             tipo:'Eletronico',  status:'Ativo'},
+{nome:'Boleto',          tipo:'Boleto',      status:'Ativo'},
+{nome:'Crediario',       tipo:'Prazo',       status:'Ativo'},
+];
+for (const f of formas) {
+html += '<tr><td>' + f.nome + '</td><td>' + f.tipo + '</td><td>' + f.status + '</td></tr>';
+}
+html += '</table><p style="margin-top:4px;color:#666;">' + formas.length + ' formas de pagamento</p>';
+div.innerHTML = html;
+}
+
+// Carrega dados iniciais
+carregarFaturasCliente();
+
+// ---- Folha Dashboard ----
+async function carregarFolhaDashboard(){
+try{
+const r=await fetch('/api/folha/holerites');const data=await r.json();
+const holerites=data.holerites||[];
+const ultimos=holerites.slice(-10).reverse();
+const totalProv=holerites.reduce((s,h)=>s+parseFloat(h.proventos||0),0);
+const totalInss=holerites.reduce((s,h)=>s+parseFloat(h.inss||0),0);
+const totalIrrf=holerites.reduce((s,h)=>s+parseFloat(h.irrf||0),0);
+const totalLiq=holerites.reduce((s,h)=>s+parseFloat(h.liquido||0),0);
+const situacao={C:'Calculado',P:'Pago'};
+document.getElementById('folha-dashboard').innerHTML=
+'<div class="summary-box"><div class="label">Total Holerites</div><div class="value">'+holerites.length+'</div></div>'+
+'<div class="summary-box" style="border-left-color:#2e7d32;"><div class="label">Total Liquido</div><div class="value" style="color:#2e7d32;">R$ '+fmt(totalLiq)+'</div></div>'+
+'<div class="summary-box" style="border-left-color:#c62828;"><div class="label">Total INSS+IRRF</div><div class="value" style="color:#c62828;">R$ '+fmt(totalInss+totalIrrf)+'</div></div>'+
+'<div class="summary-box"><div class="label">Total Proventos</div><div class="value">R$ '+fmt(totalProv)+'</div></div>';
+document.getElementById('folha-ultimos').innerHTML=ultimos.length?ultimos.map(h=>
+'<tr><td>'+(h.nome||'#'+h.funcionario_id)+'</td><td>'+h.competencia+'</td><td>R$ '+fmt(h.salario_base)+'</td><td>R$ '+fmt(h.proventos)+'</td><td>R$ '+fmt(h.inss)+'</td><td>R$ '+fmt(h.irrf)+'</td><td>R$ '+fmt(h.fgts)+'</td><td class="valor"><strong>R$ '+fmt(h.liquido)+'</strong></td><td>'+(situacao[h.situacao]||h.situacao)+'</td></tr>'
+).join(''):'<tr><td colspan="9" style="text-align:center;color:#888;padding:20px;">Nenhum holerite gerado</td></tr>';
+}catch(e){}
+}
+</script>
+</body>
+</html>

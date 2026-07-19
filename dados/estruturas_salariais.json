@@ -1,0 +1,154 @@
+[
+  {
+    "id": 1,
+    "nome": "Vendedor Padrao",
+    "cargo": "vendedor",
+    "departamento": "Vendas",
+    "localidade": "",
+    "componentes": [
+      {
+        "id": 1,
+        "tipo": "provento",
+        "nome": "Salario Base",
+        "formula": "salario_base",
+        "ordem": 1
+      },
+      {
+        "id": 2,
+        "tipo": "provento",
+        "nome": "Comissao Vendas",
+        "formula": "percentual_vendas",
+        "perc_vendas": 3.0,
+        "ordem": 2
+      },
+      {
+        "id": 3,
+        "tipo": "provento",
+        "nome": "Horas Extras",
+        "formula": "horas_extras",
+        "ordem": 3
+      },
+      {
+        "id": 4,
+        "tipo": "desconto",
+        "nome": "INSS",
+        "formula": "tabela_inss",
+        "ordem": 10
+      },
+      {
+        "id": 5,
+        "tipo": "desconto",
+        "nome": "IRRF",
+        "formula": "tabela_irrf",
+        "ordem": 11
+      },
+      {
+        "id": 6,
+        "tipo": "desconto",
+        "nome": "Vale Transporte",
+        "formula": "percentual",
+        "percentual": 6.0,
+        "ordem": 12
+      },
+      {
+        "id": 7,
+        "tipo": "desconto",
+        "nome": "Faltas",
+        "formula": "faltas",
+        "ordem": 13
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "nome": "Caixa",
+    "cargo": "caixa",
+    "departamento": "Operacional",
+    "localidade": "",
+    "componentes": [
+      {
+        "id": 1,
+        "tipo": "provento",
+        "nome": "Salario Base",
+        "formula": "salario_base",
+        "ordem": 1
+      },
+      {
+        "id": 2,
+        "tipo": "provento",
+        "nome": "Adicional Caixa",
+        "formula": "fixo",
+        "fixo": 200.0,
+        "ordem": 2
+      },
+      {
+        "id": 3,
+        "tipo": "desconto",
+        "nome": "INSS",
+        "formula": "tabela_inss",
+        "ordem": 10
+      },
+      {
+        "id": 4,
+        "tipo": "desconto",
+        "nome": "IRRF",
+        "formula": "tabela_irrf",
+        "ordem": 11
+      },
+      {
+        "id": 5,
+        "tipo": "desconto",
+        "nome": "Vale Transporte",
+        "formula": "percentual",
+        "percentual": 6.0,
+        "ordem": 12
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "nome": "Gerente",
+    "cargo": "gerente",
+    "departamento": "Administrativo",
+    "localidade": "",
+    "componentes": [
+      {
+        "id": 1,
+        "tipo": "provento",
+        "nome": "Salario Base",
+        "formula": "salario_base",
+        "ordem": 1
+      },
+      {
+        "id": 2,
+        "tipo": "provento",
+        "nome": "Participacao Lucros",
+        "formula": "percentual",
+        "percentual": 10.0,
+        "ordem": 2
+      },
+      {
+        "id": 3,
+        "tipo": "desconto",
+        "nome": "INSS",
+        "formula": "tabela_inss",
+        "ordem": 10
+      },
+      {
+        "id": 4,
+        "tipo": "desconto",
+        "nome": "IRRF",
+        "formula": "tabela_irrf",
+        "ordem": 11
+      },
+      {
+        "id": 5,
+        "tipo": "desconto",
+        "nome": "Plano Saude",
+        "formula": "fixo",
+        "fixo": 350.0,
+        "ordem": 12
+      }
+    ]
+  }
+]

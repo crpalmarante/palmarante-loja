@@ -1,0 +1,22 @@
+{
+  "nome": "COMERCIAL FABIELI LTDA",
+  "cnpj": "62832155000141",
+  "endereco": "RUA RIO GRANDE DO SUL, 372, CENTRO, PASSO FUNDO/RS",
+  "telefone": "(54)3311-5000",
+  "email": "fabieli@fabieli.com.br",
+  "certificado": "COMERCIAL FABIELI LTDA_62832155000141.pfx",
+  "cert_senha": "123456",
+  "cnpj_status": "S",
+  "inscricao_est": "ISENTO",
+  "logo": "",
+  "cnae_prim_codigo": "",
+  "cnae_prim_desc": "",
+  "cnae_sec_codigos": "",
+  "cnae_sec_desc": "",
+  "tipo_fiscal": "Simples Nacional",
+  "chave_pix": "",
+  "crt": 1,
+  "cod_municipio": "4314100",
+  "inscricao_mun": "",
+  "uf": 43
+}

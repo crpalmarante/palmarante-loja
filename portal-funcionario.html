@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal do Funcionário - Palmarante</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#333}
+header{background:#1a237e;color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:1.4rem}
+header .user-info{display:flex;align-items:center;gap:16px}
+header .user-info span{font-size:.9rem}
+header a{color:#ffd54f;text-decoration:none;font-size:.9rem;cursor:pointer}
+main{padding:20px;max-width:1300px;margin:0 auto}
+.card{background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);padding:20px;margin-bottom:20px}
+.card h2{font-size:1.1rem;margin-bottom:16px;color:#1a237e}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:#e8eaf6;text-align:left;padding:8px 10px;font-weight:600;border-bottom:2px solid #c5cae9;white-space:nowrap}
+td{padding:6px 10px;border-bottom:1px solid #eee}
+tr:hover td{background:#f5f5f5}
+.form-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.form-row label{min-width:120px;font-weight:500;font-size:.9rem}
+.form-row input,.form-row select{flex:1;padding:7px 10px;border:1px solid #ccc;border-radius:4px;font-size:.9rem;min-width:120px}
+.form-row input:focus{border-color:#1a237e;outline:none}
+.form-row input[readonly]{background:#f5f5f5;color:#555}
+.btn{padding:8px 20px;border:none;border-radius:4px;cursor:pointer;font-size:.9rem;font-weight:500}
+.btn-primary{background:#1a237e;color:#fff;transition:.2s}
+.btn-primary:hover{background:#283593}
+.btn-success{background:#2e7d32;color:#fff}
+.btn-success:hover{background:#388e3c}
+.btn-danger{background:#c62828;color:#fff}
+.btn-danger:hover{background:#d32f2f}
+.btn-warning{background:#f9a825;color:#333}
+.btn-sm{padding:4px 10px;font-size:.8rem}
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 24px;border-radius:6px;color:#fff;font-weight:500;display:none;z-index:999}
+.toast.success{background:#2e7d32}
+.toast.error{background:#c62828}
+.toast.info{background:#1565c0}
+.tabs{display:flex;gap:2px;margin-bottom:16px;overflow-x:auto}
+.tab{padding:10px 20px;cursor:pointer;border-radius:6px 6px 0 0;font-size:.9rem;font-weight:500;background:#e0e0e0;color:#555;border:none;transition:.2s;white-space:nowrap}
+.tab.active{background:#1a237e;color:#fff}
+.tab:hover:not(.active){background:#c5cae9}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.valor{text-align:right;font-family:'Courier New',monospace}
+.total-row{background:#e8eaf6;font-weight:600}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr}}
+.grid-info{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.info-card{background:#f5f5f5;border-radius:6px;padding:12px 14px;border-left:4px solid #1a237e}
+.info-card .label{font-size:.75rem;color:#666;text-transform:uppercase;letter-spacing:.5px}
+.info-card .value{font-size:1rem;font-weight:600;color:#333;margin-top:4px}
+.summary-box{background:#f5f5f5;border-radius:6px;padding:12px;text-align:center;border-left:4px solid #1a237e}
+.summary-box .value{font-size:1.3rem;font-weight:700;color:#1a237e;font-family:'Courier New',monospace}
+.summary-box .label{font-size:.75rem;color:#666}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:12px 0}
+#login-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000}
+#login-card{background:#fff;border-radius:10px;padding:32px;width:400px;max-width:90vw;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+#login-card h2{color:#1a237e;margin-bottom:20px;text-align:center;font-size:1.3rem}
+#login-card .form-row{margin-bottom:16px}
+#login-card .form-row label{display:block;min-width:auto;margin-bottom:4px;font-size:.85rem}
+#login-card .form-row input{width:100%}
+#login-card .btn{width:100%;padding:12px;margin-top:8px}
+#login-error{color:#c62828;font-size:.85rem;text-align:center;margin-top:10px;display:none}
+#print-layout{display:none}
+@media print{body *{visibility:hidden}#print-layout,#print-layout *{visibility:visible}#print-layout{position:fixed;top:0;left:0;width:100%;display:block;padding:20px;font-size:12px;font-family:'Courier New',monospace}}
+</style>
+</head>
+<body>
+
+<div id="login-overlay">
+<div id="login-card">
+<h2>Portal do Funcionário</h2>
+<div class="form-row"><label>Usuário:</label><input type="text" id="login-usuario" placeholder="Digite seu usuário" autocomplete="username"></div>
+<div class="form-row"><label>Senha:</label><input type="password" id="login-senha" placeholder="Digite sua senha" autocomplete="current-password"></div>
+<button class="btn btn-primary" onclick="fazerLogin()">Entrar</button>
+<div id="login-error"></div>
+</div>
+</div>
+
+<header id="main-header" style="display:none">
+<h1>Portal do Funcionário</h1>
+<div class="user-info">
+<span id="header-user-name"></span>
+<a onclick="logout()">Sair</a>
+</div>
+</header>
+
+<main id="main-content" style="display:none">
+
+<div class="card">
+<div class="tabs">
+<button class="tab active" onclick="ativarAba(this,'aba-dados')">Meus Dados</button>
+<button class="tab" onclick="ativarAba(this,'aba-holerites')">Meus Holerites</button>
+<button class="tab" onclick="ativarAba(this,'aba-solicitacoes')">Solicitações</button>
+</div>
+
+<div id="aba-dados" class="tab-content active">
+<h2>Meus Dados</h2>
+<div class="grid-info" id="dados-grid"></div>
+</div>
+
+<div id="aba-holerites" class="tab-content">
+<h2>Meus Holerites</h2>
+<div style="overflow-x:auto;">
+<table>
+<thead><tr><th>Competência</th><th>Salário Base</th><th>Proventos</th><th>INSS</th><th>IRRF</th><th>FGTS</th><th class="valor">Líquido</th><th>Situação</th><th>Data Pag.</th><th>Ações</th></tr></thead>
+<tbody id="tabela-holerites"></tbody>
+</table>
+</div>
+<div class="summary-grid" id="resumo-holerites" style="margin-top:12px"></div>
+</div>
+
+<div id="aba-solicitacoes" class="tab-content">
+<h2>Solicitar Férias</h2>
+<div class="grid-2">
+<div>
+<div class="form-row"><label>Funcionário:</label><input type="text" id="s-funcionario-nome" readonly></div>
+<div class="form-row"><label>Período Aquisitivo Início:</label><input type="date" id="s-periodo-inicio"></div>
+<div class="form-row"><label>Período Aquisitivo Fim:</label><input type="date" id="s-periodo-fim"></div>
+<div class="form-row"><label>Início das Férias:</label><input type="date" id="s-inicio-ferias"></div>
+<div class="form-row"><label>Dias:</label><input type="number" id="s-dias" min="1" max="30" value="30"></div>
+<div class="form-row"><label>Dias Abono:</label><input type="number" id="s-dias-abono" min="0" value="0"></div>
+</div>
+<div>
+<div class="summary-grid" id="solicitacao-resumo">
+<div class="summary-box"><div class="label">Valor Base</div><div class="value" id="s-valor-base">0,00</div></div>
+<div class="summary-box"><div class="label">1/3 Constitucional</div><div class="value" id="s-um-terco">0,00</div></div>
+<div class="summary-box"><div class="label">Abono</div><div class="value" id="s-abono">0,00</div></div>
+<div class="summary-box"><div class="label">Abono 1/3</div><div class="value" id="s-abono-terco">0,00</div></div>
+<div class="summary-box" style="border-left-color:#c62828;"><div class="label">INSS</div><div class="value" id="s-inss" style="color:#c62828;">0,00</div></div>
+<div class="summary-box" style="border-left-color:#c62828;"><div class="label">IRRF</div><div class="value" id="s-irrf" style="color:#c62828;">0,00</div></div>
+<div class="summary-box" style="border-left-color:#2e7d32;"><div class="label">Líquido</div><div class="value" id="s-liquido" style="color:#2e7d32;">0,00</div></div>
+</div>
+<button class="btn btn-success" onclick="solicitarFerias()" style="margin-top:10px;width:100%;padding:12px;">Solicitar</button>
+</div>
+</div>
+</div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<div id="print-layout"></div>
+
+<script>
+var usuarioLogado = null;
+
+function mostrarToast(msg, tipo) {
+var t = document.getElementById('toast');
+t.textContent = msg;
+t.className = 'toast ' + tipo;
+t.style.display = 'block';
+setTimeout(function(){ t.style.display = 'none'; }, 3000);
+}
+
+function fmt(n) {
+return (n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function ativarAba(btn, id) {
+document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+btn.classList.add('active');
+document.getElementById(id).classList.add('active');
+if (id === 'aba-holerites') carregarHolerites();
+if (id === 'aba-dados') carregarDados();
+}
+
+function fazerLogin() {
+var usuario = document.getElementById('login-usuario').value.trim();
+var senha = document.getElementById('login-senha').value;
+var errEl = document.getElementById('login-error');
+errEl.style.display = 'none';
+
+if (!usuario || !senha) {
+errEl.textContent = 'Preencha usuário e senha.';
+errEl.style.display = 'block';
+return;
+}
+
+var params = new URLSearchParams();
+params.set('usuario', usuario);
+params.set('senha', senha);
+
+fetch('/api/login', {
+method: 'POST',
+headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+body: params
+})
+.then(function(r){ return r.json(); })
+.then(function(data){
+if (data.status === 'erro' || (!data.cargo && !data.tipo)) {
+errEl.textContent = data.mensagem || 'Usuário ou senha inválidos.';
+errEl.style.display = 'block';
+return;
+}
+var cargo = data.cargo || data.tipo || '';
+var cargosPermitidos = ['caixa', 'vendedor', 'gerente'];
+if (cargosPermitidos.indexOf(cargo.toLowerCase()) === -1) {
+errEl.textContent = 'Acesso restrito a funcionários.';
+errEl.style.display = 'block';
+return;
+}
+usuarioLogado = data;
+sessionStorage.setItem('portal_usuario', JSON.stringify(data));
+mostrarDashboard();
+})
+.catch(function(){
+errEl.textContent = 'Erro de conexão com o servidor.';
+errEl.style.display = 'block';
+});
+}
+
+function mostrarDashboard() {
+document.getElementById('login-overlay').style.display = 'none';
+document.getElementById('main-header').style.display = 'flex';
+document.getElementById('main-content').style.display = 'block';
+document.getElementById('header-user-name').textContent = usuarioLogado.nome || usuarioLogado.usuario || '';
+carregarDados();
+}
+
+function logout() {
+usuarioLogado = null;
+sessionStorage.removeItem('portal_usuario');
+document.getElementById('login-overlay').style.display = 'flex';
+document.getElementById('main-header').style.display = 'none';
+document.getElementById('main-content').style.display = 'none';
+document.getElementById('login-usuario').value = '';
+document.getElementById('login-senha').value = '';
+document.getElementById('login-error').style.display = 'none';
+}
+
+function carregarDados() {
+if (!usuarioLogado) return;
+var funcId = usuarioLogado.funcionario_id || usuarioLogado.id;
+if (!funcId) {
+mostrarToast('Funcionário não identificado', 'error');
+return;
+}
+fetch('/api/funcionarios')
+.then(function(r){ return r.json(); })
+.then(function(data){
+var lista = data.funcionarios || [];
+var func = lista.find(function(f){ return f.id == funcId; });
+if (!func) {
+mostrarToast('Dados do funcionário não encontrados', 'error');
+return;
+}
+var grid = document.getElementById('dados-grid');
+var campos = [
+{ label: 'Nome', val: func.nome },
+{ label: 'CPF', val: func.cpf },
+{ label: 'Email', val: func.email },
+{ label: 'Telefone', val: func.telefone },
+{ label: 'Endereço', val: func.endereco },
+{ label: 'Data Admissão', val: func.data_admissao },
+{ label: 'Salário Base', val: 'R$ ' + fmt(func.salario) },
+{ label: 'Cargo', val: func.cargo || usuarioLogado.cargo || usuarioLogado.tipo },
+{ label: 'Data Nascimento', val: func.data_nascimento },
+{ label: 'Tipo Sanguíneo', val: func.tipo_sanguineo }
+];
+grid.innerHTML = campos.map(function(c){
+return '<div class="info-card"><div class="label">' + c.label + '</div><div class="value">' + (c.val || '-') + '</div></div>';
+}).join('');
+document.getElementById('s-funcionario-nome').value = func.nome || '';
+})
+.catch(function(){ mostrarToast('Erro ao carregar dados', 'error'); });
+}
+
+function carregarHolerites() {
+if (!usuarioLogado) return;
+var funcId = usuarioLogado.funcionario_id || usuarioLogado.id;
+fetch('/api/folha/holerites')
+.then(function(r){ return r.json(); })
+.then(function(data){
+var holerites = data.holerites || [];
+var meus = holerites.filter(function(h){ return h.funcionario_id == funcId; });
+var sitLabel = { C: 'Calculado', P: 'Pago' };
+var tbody = document.getElementById('tabela-holerites');
+if (meus.length === 0) {
+tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#888;padding:30px;">Nenhum holerite encontrado</td></tr>';
+} else {
+tbody.innerHTML = meus.map(function(h){
+var s = h.situacao || 'C';
+return '<tr>' +
+'<td>' + (h.competencia || '') + '</td>' +
+'<td class="valor">' + fmt(h.salario_base) + '</td>' +
+'<td class="valor">' + fmt(h.proventos) + '</td>' +
+'<td class="valor">' + fmt(h.inss) + '</td>' +
+'<td class="valor">' + fmt(h.irrf) + '</td>' +
+'<td class="valor">' + fmt(h.fgts) + '</td>' +
+'<td class="valor"><strong>' + fmt(h.liquido) + '</strong></td>' +
+'<td>' + (sitLabel[s] || s) + '</td>' +
+'<td>' + (h.data_pagamento || '-') + '</td>' +
+'<td><button class="btn btn-sm btn-primary" onclick="imprimirHolerite(' + h.id + ')">Imprimir</button></td>' +
+'</tr>';
+}).join('');
+}
+var totalProventos = meus.reduce(function(s, h){ return s + parseFloat(h.proventos || 0); }, 0);
+var totalInss = meus.reduce(function(s, h){ return s + parseFloat(h.inss || 0); }, 0);
+var totalIrrf = meus.reduce(function(s, h){ return s + parseFloat(h.irrf || 0); }, 0);
+var totalFgts = meus.reduce(function(s, h){ return s + parseFloat(h.fgts || 0); }, 0);
+var totalLiquido = meus.reduce(function(s, h){ return s + parseFloat(h.liquido || 0); }, 0);
+document.getElementById('resumo-holerites').innerHTML =
+'<div class="summary-box"><div class="label">Total Proventos</div><div class="value">' + fmt(totalProventos) + '</div></div>' +
+'<div class="summary-box" style="border-left-color:#c62828;"><div class="label">Total INSS</div><div class="value" style="color:#c62828;">' + fmt(totalInss) + '</div></div>' +
+'<div class="summary-box" style="border-left-color:#c62828;"><div class="label">Total IRRF</div><div class="value" style="color:#c62828;">' + fmt(totalIrrf) + '</div></div>' +
+'<div class="summary-box" style="border-left-color:#e65100;"><div class="label">Total FGTS</div><div class="value" style="color:#e65100;">' + fmt(totalFgts) + '</div></div>' +
+'<div class="summary-box" style="border-left-color:#2e7d32;"><div class="label">Total Líquido</div><div class="value" style="color:#2e7d32;">' + fmt(totalLiquido) + '</div></div>' +
+'<div class="summary-box"><div class="label">Holerites</div><div class="value">' + meus.length + '</div></div>';
+})
+.catch(function(){ mostrarToast('Erro ao carregar holerites', 'error'); });
+}
+
+function imprimirHolerite(id) {
+fetch('/api/folha/holerites')
+.then(function(r){ return r.json(); })
+.then(function(data){
+var holerites = data.holerites || [];
+var h = holerites.find(function(item){ return item.id == id; });
+if (!h) { mostrarToast('Holerite não encontrado', 'error'); return; }
+var funcId = usuarioLogado.funcionario_id || usuarioLogado.id;
+fetch('/api/funcionarios')
+.then(function(r){ return r.json(); })
+.then(function(fData){
+var lista = fData.funcionarios || [];
+var func = lista.find(function(f){ return f.id == funcId; });
+var layout = document.getElementById('print-layout');
+layout.innerHTML =
+'<div style="text-align:center;margin-bottom:16px;">' +
+'<h2 style="margin:0;">Palmarante</h2>' +
+'<h3 style="margin:4px 0;">Holerite de Pagamento</h3>' +
+'<p>Competência: ' + (h.competencia || '') + '</p>' +
+'</div>' +
+'<hr>' +
+'<p><strong>Funcionário:</strong> ' + (func ? func.nome : '#' + h.funcionario_id) + '</p>' +
+'<p><strong>CPF:</strong> ' + (func ? func.cpf : '') + '</p>' +
+'<p><strong>Cargo:</strong> ' + (func ? func.cargo : '') + '</p>' +
+'<hr>' +
+'<table style="width:100%;border-collapse:collapse;">' +
+'<tr><td>Salário Base</td><td style="text-align:right">R$ ' + fmt(h.salario_base) + '</td></tr>' +
+'<tr><td>Horas Extras</td><td style="text-align:right">R$ ' + fmt(h.horas_extras) + '</td></tr>' +
+'<tr><td>Proventos</td><td style="text-align:right">R$ ' + fmt(h.proventos) + '</td></tr>' +
+'<tr><td>INSS</td><td style="text-align:right">R$ ' + fmt(h.inss) + '</td></tr>' +
+'<tr><td>IRRF</td><td style="text-align:right">R$ ' + fmt(h.irrf) + '</td></tr>' +
+'<tr><td>FGTS</td><td style="text-align:right">R$ ' + fmt(h.fgts) + '</td></tr>' +
+'<tr style="font-weight:bold;border-top:2px solid #000;"><td>Líquido a Receber</td><td style="text-align:right">R$ ' + fmt(h.liquido) + '</td></tr>' +
+'</table>' +
+'<hr>' +
+'<p style="text-align:center;font-size:11px;">Este documento é uma representação do holerite gerado pelo sistema.</p>';
+window.print();
+layout.innerHTML = '';
+})
+.catch(function(){ mostrarToast('Erro ao carregar dados', 'error'); });
+})
+.catch(function(){ mostrarToast('Erro ao carregar holerite', 'error'); });
+}
+
+function solicitarFerias() {
+if (!usuarioLogado) return;
+var funcId = usuarioLogado.funcionario_id || usuarioLogado.id;
+if (!funcId) { mostrarToast('Funcionário não identificado', 'error'); return; }
+
+var periodoInicio = document.getElementById('s-periodo-inicio').value;
+var periodoFim = document.getElementById('s-periodo-fim').value;
+var inicioFerias = document.getElementById('s-inicio-ferias').value;
+var dias = document.getElementById('s-dias').value;
+var diasAbono = document.getElementById('s-dias-abono').value;
+
+if (!periodoInicio || !periodoFim || !inicioFerias) {
+mostrarToast('Preencha todos os campos de data.', 'error');
+return;
+}
+
+var params = new URLSearchParams();
+params.set('funcionario_id', funcId);
+params.set('periodo_inicio', periodoInicio);
+params.set('periodo_fim', periodoFim);
+params.set('inicio_ferias', inicioFerias);
+params.set('dias', dias);
+params.set('dias_abono', diasAbono);
+
+fetch('/api/folha/ferias/incluir', {
+method: 'POST',
+headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+body: params
+})
+.then(function(r){ return r.json(); })
+.then(function(data){
+if (data.status === 'ok' || data.id) {
+mostrarToast('Férias solicitadas com sucesso!', 'success');
+if (data.valor_base !== undefined) {
+document.getElementById('s-valor-base').textContent = fmt(data.valor_base);
+document.getElementById('s-um-terco').textContent = fmt(data.um_terco);
+document.getElementById('s-abono').textContent = fmt(data.abono);
+document.getElementById('s-abono-terco').textContent = fmt(data.abono_terco);
+document.getElementById('s-inss').textContent = fmt(data.inss);
+document.getElementById('s-irrf').textContent = fmt(data.irrf);
+document.getElementById('s-liquido').textContent = fmt(data.liquido);
+}
+} else {
+mostrarToast(data.mensagem || 'Erro ao solicitar férias', 'error');
+}
+})
+.catch(function(){ mostrarToast('Erro de conexão', 'error'); });
+}
+
+(function init() {
+var stored = sessionStorage.getItem('portal_usuario');
+if (stored) {
+try {
+usuarioLogado = JSON.parse(stored);
+var cargo = (usuarioLogado.cargo || usuarioLogado.tipo || '').toLowerCase();
+var cargosPermitidos = ['caixa', 'vendedor', 'gerente'];
+if (cargosPermitidos.indexOf(cargo) !== -1) {
+mostrarDashboard();
+return;
+}
+} catch(e) {}
+sessionStorage.removeItem('portal_usuario');
+}
+})();
+
+document.getElementById('login-senha').addEventListener('keydown', function(e) {
+if (e.key === 'Enter') fazerLogin();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RH Dashboard - Palmarante</title>
+<link rel="stylesheet" href="pos.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#333}
+header{background:#1a237e;color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:1.4rem}
+header a{color:#ffd54f;text-decoration:none;font-size:.9rem}
+main{padding:20px;max-width:1400px;margin:0 auto}
+.card{background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);padding:20px;margin-bottom:20px}
+.card h2{font-size:1.1rem;margin-bottom:16px;color:#1a237e}
+.card h3{font-size:.95rem;margin-bottom:10px;color:#1a237e}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:#e8eaf6;text-align:left;padding:8px 10px;font-weight:600;border-bottom:2px solid #c5cae9;white-space:nowrap}
+td{padding:6px 10px;border-bottom:1px solid #eee}
+tr:hover td{background:#f5f5f5}
+.valor{text-align:right;font-family:'Courier New',monospace}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:12px 0}
+.summary-box{background:#f5f5f5;border-radius:6px;padding:14px;text-align:center;border-left:4px solid #1a237e}
+.summary-box .value{font-size:1.3rem;font-weight:700;color:#1a237e;font-family:'Courier New',monospace}
+.summary-box .label{font-size:.75rem;color:#666;text-transform:uppercase;letter-spacing:.3px}
+.btn{padding:8px 20px;border:none;border-radius:4px;cursor:pointer;font-size:.85rem;font-weight:500}
+.btn-primary{background:#1a237e;color:#fff;transition:.2s}
+.btn-primary:hover{background:#283593}
+.btn-success{background:#2e7d32;color:#fff}
+.btn-success:hover{background:#388e3c}
+.btn-danger{background:#c62828;color:#fff}
+.btn-danger:hover{background:#d32f2f}
+.btn-warning{background:#f9a825;color:#333}
+.btn-sm{padding:4px 10px;font-size:.8rem}
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 24px;border-radius:6px;color:#fff;font-weight:500;display:none;z-index:999}
+.toast.success{background:#2e7d32}
+.toast.error{background:#c62828}
+.toast.info{background:#1565c0}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.menu-item{background:#f5f5f5;border-radius:8px;padding:18px 12px;text-align:center;cursor:pointer;transition:.2s;text-decoration:none;color:#333;display:block;border:2px solid transparent}
+.menu-item:hover{background:#e8eaf6;border-color:#1a237e;transform:translateY(-2px)}
+.menu-item .icon{font-size:2rem;margin-bottom:6px}
+.menu-item .label{font-weight:600;font-size:.85rem;color:#1a237e}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:600}
+.badge-pendente{background:#fff3e0;color:#e65100}
+.badge-ativo{background:#e8f5e9;color:#2e7d32}
+.badge-alerta{background:#ffebee;color:#c62828}
+.clickable{cursor:pointer}
+.clickable:hover{opacity:.8}
+/* --- Workflow Stepper --- */
+.wf-steps{display:flex;gap:6px;margin:12px 0;flex-wrap:wrap;align-items:center}
+.wf-step{display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:16px;font-size:.75rem;font-weight:600;color:#fff;opacity:.4;transition:all .2s}
+.wf-step.active{opacity:1;transform:scale(1.05);box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.wf-step.past{opacity:.7}
+.wf-step.current{cursor:default}
+.wf-arrow{font-size:1rem;color:#ccc}
+.wf-history{background:#f9f9f9;border:1px solid #e0e0e0;border-radius:6px;padding:8px 12px;margin:8px 0;max-height:120px;overflow-y:auto;font-size:.78rem}
+.wf-history-entry{display:flex;gap:8px;padding:3px 0;border-bottom:1px solid #f0f0f0}
+.wf-history-entry:last-child{border:none}
+.wf-role-badge{background:#e3f2fd;color:#1565c0;padding:1px 8px;border-radius:8px;font-size:.65rem;font-weight:600}
+</style>
+</head>
+<body>
+
+<header>
+<h1>&#x1F4CA; RH Dashboard</h1>
+<div style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:8px;padding:8px 16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);font-size:.85rem;">
+<span style="color:#555;">🧑‍💼 Simular como:</span>
+<select onchange="setWorkflowRole(this.value,this.options[this.selectedIndex].text)" style="padding:4px 8px;border:1px solid #ccc;border-radius:4px;font-size:.85rem;">
+<option value="employee">Funcionario</option>
+<option value="manager">Gestor</option>
+<option value="rh" selected>RH</option>
+<option value="financial">Financeiro</option>
+<option value="admin">Administrador</option>
+</select>
+<span style="color:#888;font-size:.75rem;">Funcao atual: <strong id="wf-current-role">rh</strong></span>
+</div>
+<a href="/index.html">&larr; Menu Principal</a>
+</header>
+
+<main>
+
+<div class="card">
+<div id="kpi-grid" class="summary-grid">
+<div class="summary-box"><div class="label">&#x1F464; Total Funcionarios</div><div class="value" id="kpi-funcionarios">--</div></div>
+<div class="summary-box" style="border-left-color:#2e7d32;"><div class="label">&#x1F4B0; Folha Total</div><div class="value" style="color:#2e7d32;" id="kpi-folha">--</div></div>
+<div class="summary-box" style="border-left-color:#c62828;"><div class="label">&#x1F4B5; INSS Total</div><div class="value" style="color:#c62828;" id="kpi-inss">--</div></div>
+<div class="summary-box" style="border-left-color:#c62828;"><div class="label">&#x1F4B5; IRRF Total</div><div class="value" style="color:#c62828;" id="kpi-irrf">--</div></div>
+<div class="summary-box" style="border-left-color:#e65100;"><div class="label">&#x1F4B5; FGTS Total</div><div class="value" style="color:#e65100;" id="kpi-fgts">--</div></div>
+<div class="summary-box" id="kpi-licencas-box" style="border-left-color:#f9a825;cursor:pointer" onclick="document.getElementById('aprovacoes-card').scrollIntoView({behavior:'smooth'})"><div class="label">&#x26A0;&#xFE0F; Licencas Pendentes</div><div class="value" style="color:#e65100;" id="kpi-licencas">--</div></div>
+</div>
+</div>
+
+<div class="grid-2">
+
+<div class="card">
+<h2>&#x1F4DD; Ausencias por Tipo</h2>
+<div style="overflow-x:auto;">
+<table>
+<thead><tr><th>Tipo</th><th class="valor">Dias</th></tr></thead>
+<tbody id="tabela-ausencias"><tr><td colspan="2" style="text-align:center;color:#888;padding:20px;">Carregando...</td></tr></tbody>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h2>&#x26A0;&#xFE0F; Alertas de Contrato</h2>
+<div style="overflow-x:auto;">
+<table>
+<thead><tr><th>Funcionario</th><th>Tipo</th><th>Data</th><th class="valor">Dias</th></tr></thead>
+<tbody id="tabela-alertas"><tr><td colspan="4" style="text-align:center;color:#888;padding:20px;">Carregando...</td></tr></tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<div class="card" id="aprovacoes-card">
+<h2>&#x1F4CB; Aprovacoes Pendentes</h2>
+<div style="margin-bottom:12px;font-size:.85rem;color:#666;">
+<span id="total-pendentes">0</span> itens aguardando aprovacao
+</div>
+<div style="overflow-x:auto;">
+<table>
+<thead><tr><th>Tipo</th><th>ID</th><th>Funcionario</th><th>Data</th><th>Descricao</th><th class="valor">Valor / Dias</th><th>Workflow</th></tr></thead>
+<tbody id="tabela-aprovacoes"><tr><td colspan="7" style="text-align:center;color:#888;padding:20px;">Carregando...</td></tr></tbody>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h2>&#x1F4CA; Resumo</h2>
+<div class="summary-grid" id="resumo-grid">
+<div class="summary-box"><div class="label">&#x1F4C5; Holerites a Pagar</div><div class="value" id="resumo-a-pagar">--</div></div>
+<div class="summary-box" style="border-left-color:#2e7d32;"><div class="label">&#x2705; Holerites Pagos</div><div class="value" style="color:#2e7d32;" id="resumo-pagos">--</div></div>
+<div class="summary-box"><div class="label">&#x1F552; Total Horas Timesheets</div><div class="value" id="resumo-horas">--</div></div>
+<div class="summary-box" style="border-left-color:#e65100;"><div class="label">&#x1F4B3; Despesas Pendentes</div><div class="value" style="color:#e65100;" id="resumo-despesas">--</div></div>
+</div>
+</div>
+
+<div class="card">
+<h2>&#x1F680; Menus Rapidos</h2>
+<div class="menu-grid">
+<a href="funcionarios.html" class="menu-item"><div class="icon">&#x1F465;</div><div class="label">Diretorio</div></a>
+<a href="relatorios_rh.html" class="menu-item"><div class="icon">&#x1F4CA;</div><div class="label">Relatorios RH</div></a>
+<a href="folha.html" class="menu-item"><div class="icon">&#x1F4C4;</div><div class="label">Folha Pagamento</div></a>
+<a href="ponto.html" class="menu-item"><div class="icon">&#x23F0;</div><div class="label">Ponto</div></a>
+<a href="portal-funcionario.html" class="menu-item"><div class="icon">&#x1F9D1;&#x200D;&#x1F4BB;</div><div class="label">Timesheets</div></a>
+<a href="disciplinar.html" class="menu-item"><div class="icon">&#x1F3AF;</div><div class="label">Recrutamento</div></a>
+</div>
+</div>
+
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+function mostrarToast(msg, tipo) {
+const t=document.getElementById('toast');t.textContent=msg;
+t.className='toast '+tipo;t.style.display='block';
+setTimeout(()=>t.style.display='none',4000);
+}
+
+function fmt(n){return (n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+function fmtNum(n){return (n||0).toLocaleString('pt-BR')}
+
+async function carregarDashboard(){
+try{
+const r=await fetch('/api/rh/dashboard');
+const data=await r.json();
+const d=data.dashboard||{};
+document.getElementById('kpi-funcionarios').textContent=fmtNum(d.total_funcionarios);
+document.getElementById('kpi-folha').textContent='R$ '+fmt(d.folha_total);
+document.getElementById('kpi-inss').textContent='R$ '+fmt(d.inss_total);
+document.getElementById('kpi-irrf').textContent='R$ '+fmt(d.irrf_total);
+document.getElementById('kpi-fgts').textContent='R$ '+fmt(d.fgts_total);
+document.getElementById('kpi-licencas').textContent=fmtNum(d.licencas_pendentes);
+document.getElementById('resumo-a-pagar').textContent=fmtNum(d.a_pagar);
+document.getElementById('resumo-pagos').textContent=fmtNum(d.pagos);
+
+const ausencias=d.ausencias_por_tipo||{};
+const tipos=Object.keys(ausencias);
+const tbody=document.getElementById('tabela-ausencias');
+if(tipos.length===0){
+tbody.innerHTML='<tr><td colspan="2" style="text-align:center;color:#888;padding:20px;">Nenhuma ausencia registrada</td></tr>';
+}else{
+let totalDias=0;
+tipos.forEach(t=>{totalDias+=ausencias[t]});
+tbody.innerHTML=tipos.map(t=>
+'<tr><td>'+t+'</td><td class="valor">'+fmtNum(ausencias[t])+' dias</td></tr>'
+).join('')+
+'<tr style="font-weight:600;background:#e8eaf6;"><td>Total</td><td class="valor">'+fmtNum(totalDias)+' dias</td></tr>';
+}
+
+const alertas=d.alertas_contrato||[];
+const ta=document.getElementById('tabela-alertas');
+if(alertas.length===0){
+ta.innerHTML='<tr><td colspan="4" style="text-align:center;color:#888;padding:20px;">Nenhum alerta pendente</td></tr>';
+}else{
+ta.innerHTML=alertas.map(a=>
+'<tr>'+
+'<td>'+a.nome+'</td>'+
+'<td><span class="badge '+(a.tipo==='Ferias vencidas'?'badge-alerta':'badge-pendente')+'">'+a.tipo+'</span></td>'+
+'<td>'+(a.data||'')+'</td>'+
+'<td class="valor">'+(a.dias||0)+'</td>'+
+'</tr>'
+).join('');
+}
+
+}catch(e){mostrarToast('Erro ao carregar dashboard','error');}
+}
+
+async function carregarAprovacoes(){
+try{
+let linhas=[];
+
+const r1=await fetch('/api/licencas/pendentes');
+const d1=await r1.json();
+const licencas=d1.licencas||[];
+licencas.forEach(l=>{
+linhas.push({
+tipo:'Licenca',
+id:l.id,
+origem:'licenca',
+funcionario:l.nome||'#'+l.funcionario_id,
+data:l.data_inicio||'',
+descricao:(l.tipo||'')+(l.motivo?' - '+l.motivo:''),
+valor:l.dias+' dias',
+dados:l
+});
+});
+
+const r2=await fetch('/api/despesas/pendentes');
+const d2=await r2.json();
+const despesas=d2.despesas||[];
+despesas.forEach(d=>{
+linhas.push({
+tipo:'Despesa',
+id:d.id,
+origem:'despesa',
+funcionario:'#'+d.funcionario_id,
+data:d.data||'',
+descricao:(d.categoria||'')+(d.descricao?' - '+d.descricao:''),
+valor:'R$ '+fmt(d.valor),
+dados:d
+});
+});
+
+const tbody=document.getElementById('tabela-aprovacoes');
+document.getElementById('total-pendentes').textContent=linhas.length;
+if(linhas.length===0){
+tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#888;padding:20px;">Nenhum item pendente de aprovacao</td></tr>';
+return;
+}
+tbody.innerHTML=linhas.map(l=>{
+const wf=l.origem==='licenca'
+?'<div class="wf-stepper-container" data-module="licenca" data-record-id="'+l.id+'" data-status="'+(l.dados.status||'P')+'"></div>'
+:'<div class="wf-stepper-container" data-module="despesa" data-record-id="'+l.id+'" data-status="'+(l.dados.status||'P')+'"></div>';
+return '<tr>'+
+'<td><span class="badge '+(l.origem==='licenca'?'badge-pendente':'badge-ativo')+'">'+l.tipo+'</span></td>'+
+'<td>'+l.id+'</td>'+
+'<td>'+l.funcionario+'</td>'+
+'<td>'+l.data+'</td>'+
+'<td>'+l.descricao+'</td>'+
+'<td class="valor">'+l.valor+'</td>'+
+'<td>'+wf+'</td>'+
+'</tr>';
+}).join('');
+}catch(e){mostrarToast('Erro ao carregar aprovacoes','error');}
+}
+
+async function aprovarLicenca(id){
+if(!confirm('Aprovar licenca #'+id+'?'))return;
+const params=new URLSearchParams();params.set('id',id);
+try{
+const r=await fetch('/api/licenca/aprovar',{
+method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params
+});
+const data=await r.json();
+if(data.status==='ok'){mostrarToast('Licenca aprovada!','success');carregarAprovacoes();carregarDashboard();}
+else mostrarToast(data.mensagem||'Erro','error');
+}catch(e){mostrarToast('Erro ao aprovar','error');}
+}
+
+async function rejeitarLicenca(id){
+if(!confirm('Rejeitar licenca #'+id+'?'))return;
+const params=new URLSearchParams();params.set('id',id);
+try{
+const r=await fetch('/api/licenca/rejeitar',{
+method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params
+});
+const data=await r.json();
+if(data.status==='ok'){mostrarToast('Licenca rejeitada','info');carregarAprovacoes();carregarDashboard();}
+else mostrarToast(data.mensagem||'Erro','error');
+}catch(e){mostrarToast('Erro ao rejeitar','error');}
+}
+
+async function aprovarDespesa(id){
+if(!confirm('Aprovar despesa #'+id+'?'))return;
+const params=new URLSearchParams();params.set('id',id);
+try{
+const r=await fetch('/api/despesa/aprovar',{
+method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params
+});
+const data=await r.json();
+if(data.status==='ok'){mostrarToast('Despesa aprovada!','success');carregarAprovacoes();carregarDashboard();}
+else mostrarToast(data.mensagem||'Erro','error');
+}catch(e){mostrarToast('Erro ao aprovar','error');}
+}
+
+async function rejeitarDespesa(id){
+if(!confirm('Rejeitar despesa #'+id+'?'))return;
+const params=new URLSearchParams();params.set('id',id);
+try{
+const r=await fetch('/api/despesa/rejeitar',{
+method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params
+});
+const data=await r.json();
+if(data.status==='ok'){mostrarToast('Despesa rejeitada','info');carregarAprovacoes();carregarDashboard();}
+else mostrarToast(data.mensagem||'Erro','error');
+}catch(e){mostrarToast('Erro ao rejeitar','error');}
+}
+
+async function carregarResumo(){
+try{
+const r=await fetch('/api/timesheets');
+const data=await r.json();
+const timesheets=data.timesheets||[];
+let totalHoras=0;
+timesheets.forEach(ts=>{totalHoras+=parseFloat(ts.horas||0)});
+document.getElementById('resumo-horas').textContent=fmtNum(totalHoras.toFixed(1))+'h';
+}catch(e){document.getElementById('resumo-horas').textContent='--';}
+
+try{
+const r=await fetch('/api/despesas/pendentes');
+const data=await r.json();
+const despesas=data.despesas||[];
+let totalValor=0;
+despesas.forEach(d=>{totalValor+=parseFloat(d.valor||0)});
+document.getElementById('resumo-despesas').textContent='R$ '+fmt(totalValor);
+}catch(e){document.getElementById('resumo-despesas').textContent='--';}
+}
+
+// ---- Global Workflow ----
+let currentUserRole = 'admin';
+let currentUserName = 'Admin';
+
+function setWorkflowRole(role, name) {
+    currentUserRole = role;
+    currentUserName = name || role;
+    document.getElementById('wf-current-role').textContent = role;
+    document.querySelectorAll('.wf-stepper-container').forEach(el => renderWorkflow(el));
+}
+
+async function fetchWorkflowDef(module) {
+    try {
+        const r = await fetch('/api/workflow/definitions');
+        const d = await r.json();
+        return (d.workflows||{})[module] || null;
+    } catch(e) { return null; }
+}
+
+async function fetchWorkflowHistory(module, recordId) {
+    try {
+        const r = await fetch('/api/workflow/history?module='+module+'&record_id='+recordId);
+        const d = await r.json();
+        return d.entries || [];
+    } catch(e) { return []; }
+}
+
+async function renderWorkflow(container) {
+    const module = container.dataset.module;
+    const status = container.dataset.status;
+    const recordId = container.dataset.recordId;
+    if (!module || !status) return;
+
+    const def = await fetchWorkflowDef(module);
+    if (!def) { container.innerHTML = '<span style="color:#888;font-size:.8rem;">Workflow nao configurado</span>'; return; }
+
+    const states = def.states || [];
+    const transitions = (def.transitions || {})[status] || {};
+
+    const statusMap = {};
+    states.forEach(s => statusMap[s.code] = s);
+
+    let currentIdx = states.findIndex(s => s.code === status);
+    let html = '<div class="wf-steps">';
+    states.forEach((s, i) => {
+        if (i > 0) html += '<span class="wf-arrow">→</span>';
+        let cls = 'wf-step';
+        if (i < currentIdx) cls += ' past';
+        else if (i === currentIdx) cls += ' active current';
+        html += '<div class="'+cls+'" style="background:'+s.color+'">'+s.icon+' '+s.label+'</div>';
+    });
+    html += '</div>';
+
+    let hasButtons = false;
+    let btns = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0;">';
+    for (const [targetCode, tdef] of Object.entries(transitions)) {
+        const allowedRoles = tdef.roles || [];
+        if (allowedRoles.includes(currentUserRole)) {
+            hasButtons = true;
+            const targetState = statusMap[targetCode];
+            btns += '<button class="btn btn-sm" style="background:'+(targetState?targetState.color:'#757575')+';color:#fff;" onclick="execWorkflowTransition(\''+module+'\','+recordId+',\''+targetCode+'\',\''+(tdef.label||targetCode)+'\')">'+(targetState?targetState.icon:'')+' '+tdef.label+'</button>';
+        }
+    }
+    btns += '</div>';
+    if (hasButtons) html += btns;
+
+    const history = await fetchWorkflowHistory(module, recordId);
+    if (history.length > 0) {
+        html += '<div class="wf-history"><strong style="font-size:.78rem;color:#555;">Historico:</strong>';
+        history.forEach(h => {
+            const fromSt = statusMap[h.from_status] || {};
+            const toSt = statusMap[h.to_status] || {};
+            html += '<div class="wf-history-entry"><span style="color:#888;font-size:.7rem;">'+h.timestamp+'</span>'+
+                '<span style="font-size:.75rem;">'+fromSt.icon+' '+fromSt.label+' → '+toSt.icon+' '+toSt.label+'</span>'+
+                '<span class="wf-role-badge">'+h.user_role+'</span>'+
+                '<span style="color:#666;font-size:.75rem;">'+h.user_name+'</span></div>';
+        });
+        html += '</div>';
+    }
+
+    container.innerHTML = html;
+}
+
+async function execWorkflowTransition(module, recordId, targetStatus, label) {
+    if (!confirm('Confirmar: '+label+'?')) return;
+    const params = new URLSearchParams();
+    params.set('module', module);
+    params.set('record_id', recordId);
+    params.set('target_status', targetStatus);
+    params.set('user_name', currentUserName);
+    params.set('user_role', currentUserRole);
+    try {
+        const r = await fetch('/api/workflow/transition', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: params
+        });
+        const d = await r.json();
+        if (d.status === 'ok') {
+            mostrarToast(label+' com sucesso!', 'success');
+            document.querySelectorAll('.wf-stepper-container[data-record-id="'+recordId+'"]').forEach(el => {
+                el.dataset.status = targetStatus;
+                renderWorkflow(el);
+            });
+            if (typeof carregarAprovacoes === 'function') carregarAprovacoes();
+            if (typeof carregarDashboard === 'function') carregarDashboard();
+        } else {
+            mostrarToast(d.mensagem || 'Erro na transicao', 'error');
+        }
+    } catch(e) { mostrarToast('Erro de conexao', 'error'); }
+}
+
+carregarDashboard();
+carregarAprovacoes();
+carregarResumo();
+</script>
+
+</body>
+</html>

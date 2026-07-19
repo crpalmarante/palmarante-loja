@@ -1,0 +1,195 @@
+{
+  "rules": [
+    {
+      "componente": "proventos",
+      "natureza": "C",
+      "conta": "3.1.1.001",
+      "conta_nome": "Salarios a Pagar",
+      "centro_custo": "",
+      "parceiro": ""
+    },
+    {
+      "componente": "inss_empregado",
+      "natureza": "C",
+      "conta": "2.1.2.001",
+      "conta_nome": "INSS a Recolher",
+      "centro_custo": "",
+      "parceiro": "INSS"
+    },
+    {
+      "componente": "irrf",
+      "natureza": "C",
+      "conta": "2.1.2.002",
+      "conta_nome": "IRRF a Recolher",
+      "centro_custo": "",
+      "parceiro": "Receita Federal"
+    },
+    {
+      "componente": "fgts",
+      "natureza": "C",
+      "conta": "2.1.3.001",
+      "conta_nome": "FGTS a Recolher",
+      "centro_custo": "",
+      "parceiro": "FGTS"
+    },
+    {
+      "componente": "liquido",
+      "natureza": "C",
+      "conta": "2.1.1.001",
+      "conta_nome": "Salarios a Pagar Liq.",
+      "centro_custo": "",
+      "parceiro": ""
+    },
+    {
+      "componente": "inss_empregador",
+      "natureza": "D",
+      "conta": "3.2.1.001",
+      "conta_nome": "INSS Patronal",
+      "centro_custo": "",
+      "parceiro": "INSS"
+    },
+    {
+      "componente": "fgts_empregador",
+      "natureza": "D",
+      "conta": "3.2.1.002",
+      "conta_nome": "FGTS",
+      "centro_custo": "",
+      "parceiro": "FGTS"
+    },
+    {
+      "componente": "ferias",
+      "natureza": "D",
+      "conta": "3.1.1.002",
+      "conta_nome": "Ferias",
+      "centro_custo": "",
+      "parceiro": ""
+    },
+    {
+      "componente": "ferias_abono",
+      "natureza": "D",
+      "conta": "3.1.1.002",
+      "conta_nome": "Ferias Abono",
+      "centro_custo": "",
+      "parceiro": ""
+    },
+    {
+      "componente": "decimo_terceiro",
+      "natureza": "D",
+      "conta": "3.1.1.003",
+      "conta_nome": "13o Salario",
+      "centro_custo": "",
+      "parceiro": ""
+    },
+    {
+      "componente": "rescisao_saldo",
+      "natureza": "D",
+      "conta": "3.1.1.004",
+      "conta_nome": "Rescisao - Saldo",
+      "centro_custo": "",
+      "parceiro": ""
+    },
+    {
+      "componente": "rescisao_ferias",
+      "natureza": "D",
+      "conta": "3.1.1.004",
+      "conta_nome": "Rescisao - Ferias",
+      "centro_custo": "",
+      "parceiro": ""
+    },
+    {
+      "componente": "rescisao_decimo",
+      "natureza": "D",
+      "conta": "3.1.1.004",
+      "conta_nome": "Rescisao - 13o",
+      "centro_custo": "",
+      "parceiro": ""
+    },
+    {
+      "componente": "rescisao_multa",
+      "natureza": "D",
+      "conta": "3.2.1.003",
+      "conta_nome": "Multa FGTS Rescisao",
+      "centro_custo": "",
+      "parceiro": "FGTS"
+    }
+  ],
+  "planocontas": [
+    {
+      "codigo": "1.1.1.001",
+      "nome": "Banco Conta Movimento",
+      "tipo": "Ativo"
+    },
+    {
+      "codigo": "2.1.1.001",
+      "nome": "Salarios a Pagar",
+      "tipo": "Passivo"
+    },
+    {
+      "codigo": "2.1.1.002",
+      "nome": "Ferias a Pagar",
+      "tipo": "Passivo"
+    },
+    {
+      "codigo": "2.1.1.003",
+      "nome": "13o Salario a Pagar",
+      "tipo": "Passivo"
+    },
+    {
+      "codigo": "2.1.1.004",
+      "nome": "Rescisoes a Pagar",
+      "tipo": "Passivo"
+    },
+    {
+      "codigo": "2.1.2.001",
+      "nome": "INSS a Recolher",
+      "tipo": "Passivo"
+    },
+    {
+      "codigo": "2.1.2.002",
+      "nome": "IRRF a Recolher",
+      "tipo": "Passivo"
+    },
+    {
+      "codigo": "2.1.3.001",
+      "nome": "FGTS a Recolher",
+      "tipo": "Passivo"
+    },
+    {
+      "codigo": "3.1.1.001",
+      "nome": "Salarios",
+      "tipo": "Despesa"
+    },
+    {
+      "codigo": "3.1.1.002",
+      "nome": "Ferias",
+      "tipo": "Despesa"
+    },
+    {
+      "codigo": "3.1.1.003",
+      "nome": "13o Salario",
+      "tipo": "Despesa"
+    },
+    {
+      "codigo": "3.1.1.004",
+      "nome": "Rescisoes",
+      "tipo": "Despesa"
+    },
+    {
+      "codigo": "3.2.1.001",
+      "nome": "INSS Patronal",
+      "tipo": "Despesa"
+    },
+    {
+      "codigo": "3.2.1.002",
+      "nome": "FGTS",
+      "tipo": "Despesa"
+    },
+    {
+      "codigo": "3.2.1.003",
+      "nome": "Multa FGTS Rescisao",
+      "tipo": "Despesa"
+    }
+  ],
+  "funcionarios": [],
+  "holerites": []
+}

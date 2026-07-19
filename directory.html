@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Directorio de Funcionarios - Palmarante</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#333}
+header{background:#1a237e;color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header h1{font-size:1.4rem}
+header nav{display:flex;gap:12px;align-items:center}
+header nav a{color:#ffd54f;text-decoration:none;font-size:.9rem;transition:opacity .2s}
+header nav a:hover{opacity:.8}
+main{padding:20px;max-width:1300px;margin:0 auto}
+.card{background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);padding:20px;margin-bottom:20px}
+.card h2{font-size:1.1rem;margin-bottom:16px;color:#1a237e}
+.filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-bar input,.filter-bar select{padding:7px 10px;border:1px solid #ccc;border-radius:4px;font-size:.9rem;min-width:140px;flex:1}
+.filter-bar input:focus,.filter-bar select:focus{border-color:#1a237e;outline:none}
+.filter-bar .filter-group{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.filter-bar .filter-group label{font-size:.8rem;font-weight:500;color:#555}
+.export-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:#e8eaf6;text-align:left;padding:8px 10px;font-weight:600;border-bottom:2px solid #c5cae9;white-space:nowrap}
+td{padding:6px 10px;border-bottom:1px solid #eee;vertical-align:middle}
+tr:hover td{background:#f5f5f5}
+.foto-cell{width:40px;height:40px;object-fit:cover;border-radius:50%;border:1px solid #ddd;background:#f0f0f0}
+.btn{padding:8px 20px;border:none;border-radius:4px;cursor:pointer;font-size:.9rem;font-weight:500;transition:background .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:#1a237e;color:#fff}
+.btn-primary:hover{background:#283593}
+.btn-success{background:#2e7d32;color:#fff}
+.btn-success:hover{background:#388e3c}
+.btn-danger{background:#c62828;color:#fff}
+.btn-danger:hover{background:#d32f2f}
+.btn-warning{background:#f9a825;color:#333}
+.btn-warning:hover{background:#fbc02d}
+.btn-info{background:#0277bd;color:#fff}
+.btn-info:hover{background:#0288d1}
+.btn-sm{padding:4px 10px;font-size:.8rem}
+.btn-outline{background:transparent;border:1px solid #1a237e;color:#1a237e}
+.btn-outline:hover{background:#e8eaf6}
+.valor{text-align:right;font-family:'Courier New',monospace;white-space:nowrap}
+.center{text-align:center}
+.status-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75rem;font-weight:600}
+.status-ativo{background:#c8e6c9;color:#2e7d32}
+.status-inativo{background:#ffcdd2;color:#c62828}
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 24px;border-radius:6px;color:#fff;font-weight:500;display:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.toast.success{background:#2e7d32}
+.toast.error{background:#c62828}
+.toast.info{background:#1565c0}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:9998;justify-content:center;align-items:center;overflow-y:auto;padding:20px}
+.modal-overlay.ativo{display:flex}
+.modal{background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.25);max-width:700px;width:100%;max-height:90vh;overflow-y:auto;animation:modalIn .25s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:translateY(0)}}
+.modal-header{background:#1a237e;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;display:flex;justify-content:space-between;align-items:center}
+.modal-header h2{font-size:1.1rem;margin:0}
+.modal-header .close{background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;padding:0 4px;line-height:1}
+.modal-body{padding:20px}
+.modal-body .field-group{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.modal-body .field-group{grid-template-columns:1fr}}
+.modal-body .field{display:flex;flex-direction:column}
+.modal-body .field .label{font-size:.75rem;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.3px}
+.modal-body .field .value{font-size:.95rem;color:#333;padding:4px 0 8px;border-bottom:1px solid #eee}
+.modal-body .section-title{font-size:.9rem;font-weight:600;color:#1a237e;margin:16px 0 8px;grid-column:1/-1}
+.loading-cell{text-align:center;padding:40px;color:#888}
+.empty-cell{text-align:center;padding:40px;color:#888}
+.error-cell{text-align:center;padding:40px;color:#c62828}
+@media print{.no-print{display:none!important}body{background:#fff}header{background:#1a237e!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}th{background:#e8eaf6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.card{box-shadow:none;border:1px solid #ddd}.status-badge{-webkit-print-color-adjust:exact;print-color-adjust:exact}.modal-overlay,.export-bar,.filter-bar,.actions-cell{display:none!important}}
+.result-count{font-size:.85rem;color:#666;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Directorio de Funcionarios</h1>
+<nav>
+<a href="/relatorios_rh.html">&larr; RH Dashboard</a>
+<a href="/index.html">&larr; Menu Principal</a>
+</nav>
+</header>
+
+<main>
+
+<div class="card no-print">
+<h2>Filtros</h2>
+<div class="filter-bar">
+<input type="text" id="search-input" placeholder="Buscar por nome, CPF, cargo, filial..." oninput="aplicarFiltros()">
+<div class="filter-group">
+<label for="filter-filial">Filial:</label>
+<select id="filter-filial" onchange="aplicarFiltros()"><option value="">Todas</option></select>
+</div>
+<div class="filter-group">
+<label for="filter-cargo">Cargo:</label>
+<select id="filter-cargo" onchange="aplicarFiltros()"><option value="">Todos</option></select>
+</div>
+<div class="filter-group">
+<label for="filter-status">Status:</label>
+<select id="filter-status" onchange="aplicarFiltros()">
+<option value="">Todos</option>
+<option value="ativo">Ativo</option>
+<option value="inativo">Inativo</option>
+</select>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+<h2>Funcionarios</h2>
+<div class="export-bar">
+<button class="btn btn-success btn-sm" onclick="exportarCSV()">CSV</button>
+<button class="btn btn-primary btn-sm" onclick="exportarXLS()">XLS</button>
+<button class="btn btn-warning btn-sm" onclick="exportarPDF()">PDF</button>
+<button class="btn btn-info btn-sm" onclick="window.print()">Imprimir</button>
+</div>
+</div>
+<div class="result-count" id="result-count"></div>
+<div style="overflow-x:auto;">
+<table id="tabela-directorio">
+<thead>
+<tr>
+<th style="width:50px;">Foto</th>
+<th>Nome</th>
+<th>CPF</th>
+<th>Cargo</th>
+<th>Filial</th>
+<th class="valor">Salario</th>
+<th class="center">Dependentes</th>
+<th>Admissao</th>
+<th class="center no-print" style="width:120px;">Acoes</th>
+</tr>
+</thead>
+<tbody id="table-body">
+<tr><td class="loading-cell" colspan="9">Carregando...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</main>
+
+<div id="toast" class="toast"></div>
+
+<div class="modal-overlay" id="modal-detalhes">
+<div class="modal">
+<div class="modal-header">
+<h2 id="modal-titulo">Detalhes do Funcionario</h2>
+<button class="close" onclick="fecharModal()">&times;</button>
+</div>
+<div class="modal-body" id="modal-body"></div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const CARGO_LABEL = {caixa:'Caixa', vendedor:'Vendedor', gerente:'Gerente', supervisor:'Supervisor', auxiliar:'Auxiliar', administrador:'Administrador', analista:'Analista', coordenador:'Coordenador', diretor:'Diretor'};
+
+let todosFuncionarios = [];
+let funcionariosFiltrados = [];
+let filiais = [];
+
+function mostrarToast(msg, tipo) {
+const t = document.getElementById('toast');
+t.textContent = msg;
+t.className = 'toast ' + tipo;
+t.style.display = 'block';
+setTimeout(() => t.style.display = 'none', 3500);
+}
+
+function fmt(n) {
+if (n === undefined || n === null || n === '') return '-';
+const v = typeof n === 'string' ? parseFloat(n) : n;
+return isNaN(v) ? '-' : 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function fmtAnual(n) {
+if (n === undefined || n === null || n === '') return '-';
+const v = typeof n === 'string' ? parseFloat(n) : n;
+return isNaN(v) ? '-' : 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function labelCargo(cargo) {
+return CARGO_LABEL[cargo] || cargo || '-';
+}
+
+function getFilialNome(id) {
+const f = filiais.find(x => x.id == id);
+return f ? f.nome : (id ? 'Filial ' + id : 'Matriz');
+}
+
+function parseDate(str) {
+if (!str) return null;
+if (str.includes('/')) {
+const p = str.split('/');
+return new Date(parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0]));
+}
+return new Date(str + 'T00:00:00');
+}
+
+function fmtDate(str) {
+if (!str) return '-';
+try {
+const d = parseDate(str);
+if (!d) return str;
+return d.toLocaleDateString('pt-BR');
+} catch(e) { return str; }
+}
+
+function getStatus(emp) {
+return emp.ativo || (emp.status !== 'inativo' && !emp.data_dem) ? 'ativo' : 'inativo';
+}
+
+async function carregarFiliais() {
+try {
+const r = await fetch('/api/filiais');
+const data = await r.json();
+filiais = data.filiais || [];
+const sel = document.getElementById('filter-filial');
+sel.innerHTML = '<option value="">Todas</option>' + filiais.map(f =>
+'<option value="' + f.id + '">' + f.nome + '</option>'
+).join('');
+} catch(e) { filiais = []; }
+}
+
+async function carregarDados() {
+try {
+const r = await fetch('/api/directory');
+const data = await r.json();
+todosFuncionarios = data.funcionarios || [];
+
+const cargosSet = new Set();
+todosFuncionarios.forEach(f => {
+if (f.cargo) cargosSet.add(f.cargo);
+});
+const cargoSel = document.getElementById('filter-cargo');
+cargoSel.innerHTML = '<option value="">Todos</option>' +
+Array.from(cargosSet).sort().map(c =>
+'<option value="' + c + '">' + labelCargo(c) + '</option>'
+).join('');
+
+aplicarFiltros();
+} catch(e) {
+document.getElementById('table-body').innerHTML =
+'<tr><td class="error-cell" colspan="9">Erro ao carregar dados: ' + e.message + '</td></tr>';
+mostrarToast('Erro ao carregar directorio', 'error');
+}
+}
+
+function aplicarFiltros() {
+const q = document.getElementById('search-input').value.toLowerCase().trim();
+const filialId = document.getElementById('filter-filial').value;
+const cargo = document.getElementById('filter-cargo').value;
+const status = document.getElementById('filter-status').value;
+
+funcionariosFiltrados = todosFuncionarios.filter(f => {
+if (q) {
+const match = (f.nome || '').toLowerCase().includes(q) ||
+(f.cpf || '').includes(q) ||
+labelCargo(f.cargo).toLowerCase().includes(q) ||
+getFilialNome(f.filial_id).toLowerCase().includes(q);
+if (!match) return false;
+}
+if (filialId && String(f.filial_id) !== filialId) return false;
+if (cargo && f.cargo !== cargo) return false;
+if (status === 'ativo' && getStatus(f) !== 'ativo') return false;
+if (status === 'inativo' && getStatus(f) !== 'inativo') return false;
+return true;
+});
+
+renderizarTabela();
+}
+
+function renderizarTabela() {
+const tbody = document.getElementById('table-body');
+const count = document.getElementById('result-count');
+
+if (!funcionariosFiltrados.length) {
+const msg = todosFuncionarios.length ? 'Nenhum funcionario encontrado com os filtros atuais.' : 'Nenhum funcionario cadastrado.';
+tbody.innerHTML = '<tr><td class="empty-cell" colspan="9">' + msg + '</td></tr>';
+count.textContent = '0 funcionarios';
+return;
+}
+
+count.textContent = funcionariosFiltrados.length + ' funcionario(s)';
+
+tbody.innerHTML = funcionariosFiltrados.map(f => {
+const cargo = labelCargo(f.cargo);
+const salario = fmt(f.salario);
+const dependentes = f.dependentes !== undefined && f.dependentes !== null ? f.dependentes : 0;
+const admissao = fmtDate(f.data_admissao);
+const filialNome = getFilialNome(f.filial_id);
+const statusCls = getStatus(f) === 'ativo' ? 'status-ativo' : 'status-inativo';
+const statusLabel = getStatus(f) === 'ativo' ? 'Ativo' : 'Inativo';
+return '<tr>' +
+'<td><img src="/img/sem-foto.png" class="foto-cell" alt="Foto" onerror="this.src=\'/img/sem-foto.png\'"></td>' +
+'<td><strong>' + (f.nome || '') + '</strong><br><span class="status-badge ' + statusCls + '">' + statusLabel + '</span></td>' +
+'<td>' + (f.cpf || '-') + '</td>' +
+'<td>' + cargo + '</td>' +
+'<td>' + filialNome + '</td>' +
+'<td class="valor">' + salario + '</td>' +
+'<td class="center">' + dependentes + '</td>' +
+'<td>' + admissao + '</td>' +
+'<td class="center no-print actions-cell"><button class="btn btn-sm btn-info" onclick="verDetalhes(' + f.id + ')">Ver Detalhes</button></td>' +
+'</tr>';
+}).join('');
+}
+
+function buscarFuncionarioPorId(id) {
+return todosFuncionarios.find(f => f.id === id);
+}
+
+function verDetalhes(id) {
+const f = buscarFuncionarioPorId(id);
+if (!f) { mostrarToast('Funcionario nao encontrado', 'error'); return; }
+
+document.getElementById('modal-titulo').textContent = f.nome || 'Detalhes #' + f.id;
+
+const html = '<div class="field-group">' +
+'<div class="section-title">Informacoes Pessoais</div>' +
+'<div class="field"><span class="label">ID</span><span class="value">' + (f.id || '-') + '</span></div>' +
+'<div class="field"><span class="label">Nome</span><span class="value">' + (f.nome || '-') + '</span></div>' +
+'<div class="field"><span class="label">CPF</span><span class="value">' + (f.cpf || '-') + '</span></div>' +
+'<div class="field"><span class="label">RG</span><span class="value">' + (f.rg || '-') + '</span></div>' +
+'<div class="field"><span class="label">Email</span><span class="value">' + (f.email || '-') + '</span></div>' +
+'<div class="field"><span class="label">Telefone</span><span class="value">' + (f.telefone || '-') + '</span></div>' +
+'<div class="field"><span class="label">Celular</span><span class="value">' + (f.celular || '-') + '</span></div>' +
+
+'<div class="section-title">Dados Profissionais</div>' +
+'<div class="field"><span class="label">Cargo</span><span class="value">' + labelCargo(f.cargo) + '</span></div>' +
+'<div class="field"><span class="label">Filial</span><span class="value">' + getFilialNome(f.filial_id) + '</span></div>' +
+'<div class="field"><span class="label">Salario</span><span class="value">' + fmt(f.salario) + '</span></div>' +
+'<div class="field"><span class="label">Salario Anual</span><span class="value">' + fmtAnual(f.salario_anual) + '</span></div>' +
+'<div class="field"><span class="label">Data Admissao</span><span class="value">' + fmtDate(f.data_admissao) + '</span></div>' +
+'<div class="field"><span class="label">Dependentes</span><span class="value">' + (f.dependentes !== undefined && f.dependentes !== null ? f.dependentes : 0) + '</span></div>' +
+'<div class="field"><span class="label">Status</span><span class="value"><span class="status-badge ' + (getStatus(f) === 'ativo' ? 'status-ativo' : 'status-inativo') + '">' + (getStatus(f) === 'ativo' ? 'Ativo' : 'Inativo') + '</span></span></div>' +
+'</div>';
+
+document.getElementById('modal-body').innerHTML = html;
+document.getElementById('modal-detalhes').classList.add('ativo');
+}
+
+function fecharModal() {
+document.getElementById('modal-detalhes').classList.remove('ativo');
+}
+
+document.getElementById('modal-detalhes').addEventListener('click', function(e) {
+if (e.target === this) fecharModal();
+});
+
+document.addEventListener('keydown', function(e) {
+if (e.key === 'Escape') fecharModal();
+});
+
+function escapeCSV(val) {
+if (val === null || val === undefined) return '';
+const s = String(val);
+if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+return '"' + s.replace(/"/g, '""') + '"';
+}
+return s;
+}
+
+function exportarCSV() {
+if (!funcionariosFiltrados.length) {
+mostrarToast('Nenhum dado para exportar', 'error');
+return;
+}
+const headers = ['ID','Nome','CPF','RG','Email','Telefone','Celular','Cargo','Filial','Salario','Data Admissao','Dependentes','Salario Anual','Status'];
+const rows = funcionariosFiltrados.map(f => [
+f.id, f.nome, f.cpf, f.rg, f.email, f.telefone, f.celular,
+labelCargo(f.cargo), getFilialNome(f.filial_id),
+f.salario, f.data_admissao,
+f.dependentes !== undefined && f.dependentes !== null ? f.dependentes : 0,
+f.salario_anual, getStatus(f) === 'ativo' ? 'Ativo' : 'Inativo'
+].map(escapeCSV));
+
+let csv = '\uFEFF'; // BOM for Excel UTF-8
+csv += headers.join(',') + '\n';
+csv += rows.map(r => r.join(',')).join('\n');
+
+const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'directorio_funcionarios.csv';
+a.click();
+URL.revokeObjectURL(url);
+mostrarToast('CSV exportado com sucesso!', 'success');
+}
+
+function exportarXLS() {
+if (!funcionariosFiltrados.length) {
+mostrarToast('Nenhum dado para exportar', 'error');
+return;
+}
+const headers = ['ID','Nome','CPF','RG','Email','Telefone','Celular','Cargo','Filial','Salario','Data Admissao','Dependentes','Salario Anual','Status'];
+const rows = funcionariosFiltrados.map(f => [
+f.id, f.nome, f.cpf, f.rg, f.email, f.telefone, f.celular,
+labelCargo(f.cargo), getFilialNome(f.filial_id),
+f.salario, f.data_admissao,
+f.dependentes !== undefined && f.dependentes !== null ? f.dependentes : 0,
+f.salario_anual, getStatus(f) === 'ativo' ? 'Ativo' : 'Inativo'
+]);
+
+let table = '<table>';
+table += '<tr>' + headers.map(h => '<th>' + h + '</th>').join('') + '</tr>';
+table += rows.map(r => '<tr>' + r.map(v => '<td>' + (v === null || v === undefined ? '' : v) + '</td>').join('') + '</tr>').join('');
+table += '</table>';
+
+const blob = new Blob([table], { type: 'application/vnd.ms-excel' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'directorio_funcionarios.xls';
+a.click();
+URL.revokeObjectURL(url);
+mostrarToast('XLS exportado com sucesso!', 'success');
+}
+
+function exportarPDF() {
+if (!funcionariosFiltrados.length) {
+mostrarToast('Nenhum dado para exportar', 'error');
+return;
+}
+if (typeof html2canvas === 'undefined' || typeof jspdf === 'undefined') {
+mostrarToast('Bibliotecas de PDF ainda nao carregaram, tente novamente...', 'info');
+return;
+}
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF('landscape', 'mm', 'a4');
+
+const table = document.getElementById('tabela-directorio');
+const clone = table.cloneNode(true);
+clone.querySelectorAll('.no-print, .actions-cell').forEach(el => el.remove());
+
+const wrapper = document.createElement('div');
+wrapper.style.background = '#fff';
+wrapper.style.padding = '10px';
+wrapper.style.fontSize = '12px';
+wrapper.appendChild(clone);
+wrapper.style.position = 'absolute';
+wrapper.style.left = '-9999px';
+wrapper.style.top = '0';
+document.body.appendChild(wrapper);
+
+html2canvas(clone, {
+scale: 2,
+useCORS: true,
+logging: false,
+backgroundColor: '#ffffff'
+}).then(canvas => {
+const imgData = canvas.toDataURL('image/png');
+const imgWidth = 277; // A4 landscape in mm
+const pageHeight = 190;
+const imgHeight = (canvas.height * imgWidth) / canvas.width;
+let heightLeft = imgHeight;
+let position = 10;
+
+doc.addImage(imgData, 'PNG', 5, position, imgWidth, imgHeight);
+heightLeft -= pageHeight;
+
+while (heightLeft > 0) {
+position = heightLeft - imgHeight + 10;
+doc.addPage();
+doc.addImage(imgData, 'PNG', 5, position, imgWidth, imgHeight);
+heightLeft -= pageHeight;
+}
+
+doc.save('directorio_funcionarios.pdf');
+document.body.removeChild(wrapper);
+mostrarToast('PDF exportado com sucesso!', 'success');
+}).catch(err => {
+document.body.removeChild(wrapper);
+mostrarToast('Erro ao gerar PDF: ' + err.message, 'error');
+});
+}
+
+carregarFiliais();
+carregarDados();
+</script>
+</body>
+</html>

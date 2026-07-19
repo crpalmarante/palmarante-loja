@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estrutura Salarial - Palmarante</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#333}
+header{background:#1a237e;color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:1.4rem}
+header a{color:#ffd54f;text-decoration:none;font-size:.9rem}
+main{padding:20px;max-width:1300px;margin:0 auto}
+.card{background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);padding:20px;margin-bottom:20px}
+.card h2{font-size:1.1rem;margin-bottom:16px;color:#1a237e}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:#e8eaf6;text-align:left;padding:8px 10px;font-weight:600;border-bottom:2px solid #c5cae9;white-space:nowrap}
+td{padding:6px 10px;border-bottom:1px solid #eee}
+tr:hover td{background:#f5f5f5}
+.form-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.form-row label{min-width:120px;font-weight:500;font-size:.9rem}
+.form-row input,.form-row select{flex:1;padding:7px 10px;border:1px solid #ccc;border-radius:4px;font-size:.9rem;min-width:120px}
+.form-row input:focus,.form-row select:focus{border-color:#1a237e;outline:none}
+.form-row input[readonly]{background:#f5f5f5;color:#555}
+.btn{padding:8px 20px;border:none;border-radius:4px;cursor:pointer;font-size:.9rem;font-weight:500}
+.btn-primary{background:#1a237e;color:#fff;transition:.2s}
+.btn-primary:hover{background:#283593}
+.btn-success{background:#2e7d32;color:#fff}
+.btn-success:hover{background:#388e3c}
+.btn-danger{background:#c62828;color:#fff}
+.btn-danger:hover{background:#d32f2f}
+.btn-warning{background:#f9a825;color:#333}
+.btn-sm{padding:4px 10px;font-size:.8rem}
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 24px;border-radius:6px;color:#fff;font-weight:500;display:none;z-index:999}
+.toast.success{background:#2e7d32}
+.toast.error{background:#c62828}
+.toast.info{background:#1565c0}
+.tabs{display:flex;gap:2px;margin-bottom:16px;overflow-x:auto}
+.tab{padding:10px 20px;cursor:pointer;border-radius:6px 6px 0 0;font-size:.9rem;font-weight:500;background:#e0e0e0;color:#555;border:none;transition:.2s;white-space:nowrap}
+.tab.active{background:#1a237e;color:#fff}
+.tab:hover:not(.active){background:#c5cae9}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.valor{text-align:right;font-family:'Courier New',monospace}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr}}
+.summary-box{background:#f5f5f5;border-radius:6px;padding:12px;text-align:center;border-left:4px solid #1a237e}
+.summary-box .value{font-size:1.3rem;font-weight:700;color:#1a237e;font-family:'Courier New',monospace}
+.summary-box .label{font-size:.75rem;color:#666}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:12px 0}
+.form-panel{display:none;background:#f5f5f5;border:1px solid #e0e0e0;border-radius:8px;padding:16px;margin-bottom:20px}
+.form-panel.visible{display:block}
+.comp-row{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center;padding:6px;background:#fff;border-radius:4px;border:1px solid #eee}
+.comp-row select,.comp-row input{flex:1;min-width:80px;padding:5px 8px;border:1px solid #ccc;border-radius:4px;font-size:.82rem}
+.comp-row input:focus,.comp-row select:focus{border-color:#1a237e;outline:none}
+.comp-row .btn-sm{padding:4px 8px;font-size:.75rem}
+.result-table{margin-top:8px}
+.result-table td:last-child{text-align:right;font-family:'Courier New',monospace;font-weight:500}
+.result-table .total-row td{font-weight:700;background:#e8eaf6}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Estrutura Salarial</h1>
+<a href="/index.html">&larr; Menu Principal</a>
+</header>
+
+<main>
+
+<div class="card">
+<div class="tabs">
+<button class="tab active" onclick="ativarAba(this,'aba-estruturas')">Estruturas</button>
+<button class="tab" onclick="ativarAba(this,'aba-simular')">Simular</button>
+</div>
+
+<div id="aba-estruturas" class="tab-content active">
+<h2>Gerenciar Estruturas Salariais</h2>
+<button class="btn btn-primary" onclick="novaEstrutura()" style="margin-bottom:12px;">Nova Estrutura</button>
+
+<div id="form-panel" class="form-panel">
+<h3 id="form-titulo" style="font-size:.95rem;color:#1a237e;margin-bottom:12px;">Nova Estrutura Salarial</h3>
+<input type="hidden" id="estrutura-id">
+<div class="form-row"><label>Nome:</label><input type="text" id="e-nome"></div>
+<div class="form-row"><label>Cargo:</label><input type="text" id="e-cargo"></div>
+<div class="form-row"><label>Departamento:</label><input type="text" id="e-departamento"></div>
+<div class="form-row"><label>Localidade:</label><input type="text" id="e-localidade"></div>
+
+<h4 style="font-size:.85rem;color:#1a237e;margin:14px 0 8px;">Componentes</h4>
+<div id="componentes-container"></div>
+<button class="btn btn-sm btn-warning" onclick="adicionarComponente()" style="margin-bottom:10px;">+ Adicionar Componente</button>
+
+<div style="display:flex;gap:8px;margin-top:8px;">
+<button class="btn btn-success" onclick="salvarEstrutura()">Salvar Estrutura</button>
+<button class="btn btn-sm" style="background:#ccc;color:#333;" onclick="cancelarEdicao()">Cancelar</button>
+</div>
+</div>
+
+<div style="overflow-x:auto;">
+<table>
+<thead><tr><th>ID</th><th>Nome</th><th>Cargo</th><th>Departamento</th><th>Localidade</th><th>Componentes</th><th>Ações</th></tr></thead>
+<tbody id="tabela-estruturas"></tbody>
+</table>
+</div>
+</div>
+
+<div id="aba-simular" class="tab-content">
+<h2>Simular Estrutura Salarial</h2>
+<div class="grid-2">
+<div>
+<div class="form-row"><label>Estrutura:</label>
+<select id="s-estrutura-id"><option value="">Selecionar...</option></select></div>
+<div class="form-row"><label>Salário Base (R$):</label>
+<input type="number" id="s-salario-base" step="0.01" min="0"></div>
+<div class="form-row"><label>Horas Extras:</label>
+<input type="number" id="s-horas-extras" step="0.5" min="0" value="0"></div>
+<div class="form-row"><label>Valor Hora Extra (R$):</label>
+<input type="number" id="s-valor-hora-extra" step="0.01" min="0" value="0"></div>
+<div class="form-row"><label>Faltas (dias):</label>
+<input type="number" id="s-faltas" min="0" value="0"></div>
+<div class="form-row"><label>Percentual Vendas (%):</label>
+<input type="number" id="s-percentual-vendas" step="0.01" min="0" value="0"></div>
+<button class="btn btn-success" onclick="simularEstrutura()" style="margin-top:4px;">Calcular</button>
+</div>
+<div>
+<div id="simulacao-resultado" style="display:none;">
+<h3 style="font-size:.9rem;color:#1a237e;margin-bottom:8px;">Proventos</h3>
+<table class="result-table" style="margin-bottom:12px;">
+<thead><tr><th>Nome</th><th class="valor">Valor</th></tr></thead>
+<tbody id="tabela-proventos"></tbody>
+</table>
+<h3 style="font-size:.9rem;color:#c62828;margin-bottom:8px;">Descontos</h3>
+<table class="result-table" style="margin-bottom:12px;">
+<thead><tr><th>Nome</th><th class="valor">Valor</th></tr></thead>
+<tbody id="tabela-descontos"></tbody>
+</table>
+<div class="summary-grid" id="simulacao-summary">
+<div class="summary-box"><div class="label">Total Proventos</div><div class="value" id="s-total-proventos">0,00</div></div>
+<div class="summary-box" style="border-left-color:#c62828;"><div class="label">Total Descontos</div><div class="value" id="s-total-descontos" style="color:#c62828;">0,00</div></div>
+<div class="summary-box" style="border-left-color:#2e7d32;"><div class="label">Líquido</div><div class="value" id="s-liquido" style="color:#2e7d32;">0,00</div></div>
+<div class="summary-box"><div class="label">Base INSS</div><div class="value" id="s-base-inss">0,00</div></div>
+<div class="summary-box"><div class="label">Base IRRF</div><div class="value" id="s-base-irrf">0,00</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+let editandoId = null;
+
+function mostrarToast(msg, tipo) {
+const t=document.getElementById('toast');t.textContent=msg;
+t.className='toast '+tipo;t.style.display='block';
+setTimeout(()=>t.style.display='none',3000);
+}
+
+function fmt(n){return (n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+function ativarAba(btn,id){
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+btn.classList.add('active');document.getElementById(id).classList.add('active');
+if(id==='aba-estruturas')carregarEstruturas();
+if(id==='aba-simular')carregarSelectEstruturas();
+}
+
+function getComponentesFromForm(){
+const rows=document.querySelectorAll('#componentes-container .comp-row');
+return Array.from(rows).map(row=>({
+id: row.dataset.compId||null,
+tipo: row.querySelector('.comp-tipo').value,
+nome: row.querySelector('.comp-nome').value,
+formula: row.querySelector('.comp-formula').value,
+valor_fixo: parseFloat(row.querySelector('.comp-valor-fixo').value||0),
+percentual: parseFloat(row.querySelector('.comp-percentual').value||0),
+ordem: parseInt(row.querySelector('.comp-ordem').value||0)
+}));
+}
+
+function atualizarVisibilidadeCampos(row){
+const formula=row.querySelector('.comp-formula').value;
+const vf=row.querySelector('.comp-valor-fixo');
+const perc=row.querySelector('.comp-percentual');
+vf.style.display=formula==='fixo'?'':'none';
+perc.style.display=formula==='percentual'||formula==='percentual_vendas'?'':'none';
+}
+
+function adicionarComponente(dados){
+const container=document.getElementById('componentes-container');
+const idx=container.children.length;
+const row=document.createElement('div');
+row.className='comp-row';
+row.dataset.compId=dados?.id||'';
+row.innerHTML=
+'<span style="font-size:.75rem;color:#666;min-width:20px;">'+(idx+1)+'.</span>'+
+'<select class="comp-tipo" style="min-width:90px;">'+
+'<option value="provento"'+(dados?.tipo==='provento'?' selected':'')+'>Provento</option>'+
+'<option value="desconto"'+(dados?.tipo==='desconto'?' selected':'')+'>Desconto</option>'+
+'</select>'+
+'<input class="comp-nome" type="text" placeholder="Nome" value="'+(dados?.nome||'')+'" style="min-width:120px;">'+
+'<select class="comp-formula" style="min-width:140px;" onchange="atualizarVisibilidadeCampos(this.parentElement)">'+
+'<option value="salario_base"'+(dados?.formula==='salario_base'?' selected':'')+'>Salário Base</option>'+
+'<option value="fixo"'+(dados?.formula==='fixo'?' selected':'')+'>Fixo</option>'+
+'<option value="percentual"'+(dados?.formula==='percentual'?' selected':'')+'>Percentual</option>'+
+'<option value="percentual_vendas"'+(dados?.formula==='percentual_vendas'?' selected':'')+'>% Vendas</option>'+
+'<option value="horas_extras"'+(dados?.formula==='horas_extras'?' selected':'')+'>Horas Extras</option>'+
+'<option value="faltas"'+(dados?.formula==='faltas'?' selected':'')+'>Faltas</option>'+
+'<option value="tabela_inss"'+(dados?.formula==='tabela_inss'?' selected':'')+'>Tabela INSS</option>'+
+'<option value="tabela_irrf"'+(dados?.formula==='tabela_irrf'?' selected':'')+'>Tabela IRRF</option>'+
+'</select>'+
+'<input class="comp-valor-fixo" type="number" step="0.01" min="0" placeholder="Valor Fixo" value="'+(dados?.valor_fixo||'')+'" style="min-width:90px;">'+
+'<input class="comp-percentual" type="number" step="0.01" min="0" placeholder="%" value="'+(dados?.percentual||'')+'" style="min-width:70px;">'+
+'<input class="comp-ordem" type="number" min="0" placeholder="Ordem" value="'+(dados?.ordem||idx+1||'')+'" style="min-width:60px;">'+
+'<button class="btn btn-sm btn-danger" onclick="removerComponente(this)">Remover</button>';
+container.appendChild(row);
+atualizarVisibilidadeCampos(row);
+}
+
+function removerComponente(btn){
+if(document.querySelectorAll('#componentes-container .comp-row').length<=1){
+mostrarToast('Deve haver pelo menos um componente','error');return;
+}
+if(!confirm('Remover este componente?'))return;
+btn.parentElement.remove();
+}
+
+async function carregarEstruturas(){
+try{
+const r=await fetch('/api/estruturas-salariais');
+const data=await r.json();
+const estruturas=data.estruturas||data||[];
+const tbody=document.getElementById('tabela-estruturas');
+if(!Array.isArray(estruturas)||estruturas.length===0){
+tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#888;padding:30px;">Nenhuma estrutura encontrada</td></tr>';
+}else{
+tbody.innerHTML=estruturas.map(e=>{
+const comps=e.componentes||[];
+return '<tr>'+
+'<td>'+e.id+'</td>'+
+'<td>'+(e.nome||'')+'</td>'+
+'<td>'+(e.cargo||'')+'</td>'+
+'<td>'+(e.departamento||'')+'</td>'+
+'<td>'+(e.localidade||'')+'</td>'+
+'<td>'+comps.length+'</td>'+
+'<td style="white-space:nowrap;">'+
+'<button class="btn btn-sm btn-primary" onclick="editarEstrutura('+e.id+')">Editar</button> '+
+'<button class="btn btn-sm btn-danger" onclick="excluirEstrutura('+e.id+')">Excluir</button>'+
+'</td></tr>';
+}).join('');
+}
+}catch(e){mostrarToast('Erro ao carregar estruturas','error');}
+}
+
+async function editarEstrutura(id){
+try{
+const r=await fetch('/api/estrutura-salarial/'+id);
+const data=await r.json();
+const e=data.estrutura||data;
+editandoId=e.id;
+document.getElementById('form-titulo').textContent='Editar Estrutura #'+e.id;
+document.getElementById('estrutura-id').value=e.id;
+document.getElementById('e-nome').value=e.nome||'';
+document.getElementById('e-cargo').value=e.cargo||'';
+document.getElementById('e-departamento').value=e.departamento||'';
+document.getElementById('e-localidade').value=e.localidade||'';
+document.getElementById('componentes-container').innerHTML='';
+(e.componentes||[]).forEach(c=>adicionarComponente(c));
+if((e.componentes||[]).length===0)adicionarComponente();
+document.getElementById('form-panel').classList.add('visible');
+}catch(e){mostrarToast('Erro ao carregar estrutura','error');}
+}
+
+async function excluirEstrutura(id){
+if(!confirm('Excluir estrutura #'+id+'?'))return;
+try{
+const r=await fetch('/api/estrutura-salarial/excluir',{
+method:'POST',
+headers:{'Content-Type':'application/x-www-form-urlencoded'},
+body:'id='+id
+});
+const data=await r.json();
+if(data.status==='ok'){mostrarToast('Estrutura excluída!','success');carregarEstruturas();}
+else mostrarToast(data.mensagem||'Erro','error');
+}catch(e){mostrarToast('Erro ao excluir','error');}
+}
+
+function novaEstrutura(){
+editandoId=null;
+document.getElementById('form-titulo').textContent='Nova Estrutura Salarial';
+document.getElementById('estrutura-id').value='';
+document.getElementById('e-nome').value='';
+document.getElementById('e-cargo').value='';
+document.getElementById('e-departamento').value='';
+document.getElementById('e-localidade').value='';
+document.getElementById('componentes-container').innerHTML='';
+adicionarComponente();
+document.getElementById('form-panel').classList.add('visible');
+}
+
+function cancelarEdicao(){
+document.getElementById('form-panel').classList.remove('visible');
+editandoId=null;
+}
+
+async function salvarEstrutura(){
+const nome=document.getElementById('e-nome').value.trim();
+const cargo=document.getElementById('e-cargo').value.trim();
+const departamento=document.getElementById('e-departamento').value.trim();
+const localidade=document.getElementById('e-localidade').value.trim();
+if(!nome){mostrarToast('Informe o nome da estrutura','error');return;}
+
+const componentes=getComponentesFromForm();
+if(componentes.length===0){mostrarToast('Adicione pelo menos um componente','error');return;}
+
+const body=new URLSearchParams();
+body.set('nome',nome);
+body.set('cargo',cargo);
+body.set('departamento',departamento);
+body.set('localidade',localidade);
+body.set('componentes',JSON.stringify(componentes));
+
+const isEdit=!!editandoId;
+const url=isEdit?'/api/estrutura-salarial/alterar':'/api/estrutura-salarial/incluir';
+if(isEdit)body.set('id',editandoId);
+
+try{
+const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
+const data=await r.json();
+if(data.status==='ok'||data.id){
+mostrarToast('Estrutura '+(isEdit?'alterada':'incluída')+' com sucesso!','success');
+cancelarEdicao();
+carregarEstruturas();
+}else mostrarToast(data.mensagem||'Erro','error');
+}catch(e){mostrarToast('Erro ao salvar','error');}
+}
+
+async function carregarSelectEstruturas(){
+try{
+const r=await fetch('/api/estruturas-salariais');
+const data=await r.json();
+const estruturas=data.estruturas||data||[];
+const sel=document.getElementById('s-estrutura-id');
+if(Array.isArray(estruturas)){
+sel.innerHTML='<option value="">Selecionar...</option>'+estruturas.map(e=>
+'<option value="'+e.id+'">'+(e.nome||'#'+e.id)+' - '+(e.cargo||'')+'</option>'
+).join('');
+}
+}catch(e){}
+}
+
+async function simularEstrutura(){
+const estruturaId=document.getElementById('s-estrutura-id').value;
+if(!estruturaId){mostrarToast('Selecione uma estrutura','error');return;}
+const params=new URLSearchParams();
+params.set('estrutura_id',estruturaId);
+params.set('salario_base',document.getElementById('s-salario-base').value||'0');
+params.set('horas_extras',document.getElementById('s-horas-extras').value||'0');
+params.set('valor_hora_extra',document.getElementById('s-valor-hora-extra').value||'0');
+params.set('faltas',document.getElementById('s-faltas').value||'0');
+params.set('percentual_vendas',document.getElementById('s-percentual-vendas').value||'0');
+try{
+const r=await fetch('/api/estrutura-salarial/calcular',{
+method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params
+});
+const data=await r.json();
+if(data.status==='ok'||data.proventos||data.descontos){
+const proventos=data.proventos||[];
+const descontos=data.descontos||[];
+const tProv=document.getElementById('tabela-proventos');
+const tDesc=document.getElementById('tabela-descontos');
+if(proventos.length===0) tProv.innerHTML='<tr><td colspan="2" style="color:#888;padding:10px;">Nenhum provento</td></tr>';
+else tProv.innerHTML=proventos.map(p=>'<tr><td>'+(p.nome||'')+'</td><td>'+fmt(p.valor)+'</td></tr>').join('');
+if(descontos.length===0) tDesc.innerHTML='<tr><td colspan="2" style="color:#888;padding:10px;">Nenhum desconto</td></tr>';
+else tDesc.innerHTML=descontos.map(d=>'<tr><td>'+(d.nome||'')+'</td><td>'+fmt(d.valor)+'</td></tr>').join('');
+document.getElementById('s-total-proventos').textContent=fmt(data.total_proventos);
+document.getElementById('s-total-descontos').textContent=fmt(data.total_descontos);
+document.getElementById('s-liquido').textContent=fmt(data.liquido);
+document.getElementById('s-base-inss').textContent=fmt(data.base_inss);
+document.getElementById('s-base-irrf').textContent=fmt(data.base_irrf);
+document.getElementById('simulacao-resultado').style.display='block';
+mostrarToast('Cálculo realizado!','success');
+}else mostrarToast(data.mensagem||'Erro ao calcular','error');
+}catch(e){mostrarToast('Erro ao calcular','error');}
+}
+
+carregarEstruturas();
+carregarSelectEstruturas();
+</script>
+</body>
+</html>

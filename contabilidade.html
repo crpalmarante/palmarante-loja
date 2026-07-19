@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contabilidade - Palmarante</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#333}
+header{background:#1a237e;color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:1.4rem}
+header a{color:#ffd54f;text-decoration:none;font-size:.9rem}
+main{padding:20px;max-width:1300px;margin:0 auto}
+.card{background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);padding:20px;margin-bottom:20px}
+.card h2{font-size:1.1rem;margin-bottom:16px;color:#1a237e}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:#e8eaf6;text-align:left;padding:8px 10px;font-weight:600;border-bottom:2px solid #c5cae9;white-space:nowrap}
+td{padding:6px 10px;border-bottom:1px solid #eee}
+tr:hover td{background:#f5f5f5}
+.form-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.form-row label{min-width:120px;font-weight:500;font-size:.9rem}
+.form-row input,.form-row select{flex:1;padding:7px 10px;border:1px solid #ccc;border-radius:4px;font-size:.9rem;min-width:120px}
+.form-row input:focus{border-color:#1a237e;outline:none}
+.form-row input[readonly]{background:#f5f5f5;color:#555}
+.btn{padding:8px 20px;border:none;border-radius:4px;cursor:pointer;font-size:.9rem;font-weight:500}
+.btn-primary{background:#1a237e;color:#fff;transition:.2s}
+.btn-primary:hover{background:#283593}
+.btn-success{background:#2e7d32;color:#fff}
+.btn-success:hover{background:#388e3c}
+.btn-danger{background:#c62828;color:#fff}
+.btn-danger:hover{background:#d32f2f}
+.btn-warning{background:#f9a825;color:#333}
+.btn-sm{padding:4px 10px;font-size:.8rem}
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 24px;border-radius:6px;color:#fff;font-weight:500;display:none;z-index:999}
+.toast.success{background:#2e7d32}
+.toast.error{background:#c62828}
+.toast.info{background:#1565c0}
+.tabs{display:flex;gap:2px;margin-bottom:16px;overflow-x:auto}
+.tab{padding:10px 20px;cursor:pointer;border-radius:6px 6px 0 0;font-size:.9rem;font-weight:500;background:#e0e0e0;color:#555;border:none;transition:.2s;white-space:nowrap}
+.tab.active{background:#1a237e;color:#fff}
+.tab:hover:not(.active){background:#c5cae9}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.valor{text-align:right;font-family:'Courier New',monospace}
+.total-row{background:#e8eaf6;font-weight:600}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr}}
+.summary-box{background:#f5f5f5;border-radius:6px;padding:12px;text-align:center;border-left:4px solid #1a237e}
+.summary-box .value{font-size:1.3rem;font-weight:700;color:#1a237e;font-family:'Courier New',monospace}
+.summary-box .label{font-size:.75rem;color:#666}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:12px 0}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Contabilidade</h1>
+<a href="/index.html">&larr; Menu Principal</a>
+</header>
+
+<main>
+
+<div class="card">
+<div class="tabs">
+<button class="tab active" onclick="ativarAba(this,'aba-planocontas')">Plano de Contas</button>
+<button class="tab" onclick="ativarAba(this,'aba-regras')">Regras Contábeis</button>
+<button class="tab" onclick="ativarAba(this,'aba-lancamentos')">Gerar Lançamentos</button>
+<button class="tab" onclick="ativarAba(this,'aba-funcionarios')">Config. Funcionarios</button>
+<button class="tab" onclick="ativarAba(this,'aba-holerites')">Config. Holerites</button>
+</div>
+
+<div id="aba-planocontas" class="tab-content active">
+<h2>Plano de Contas</h2>
+<div style="overflow-x:auto;">
+<table>
+<thead><tr><th>Código</th><th>Nome</th><th>Tipo</th><th>Ações</th></tr></thead>
+<tbody id="tabela-planocontas"></tbody>
+</table>
+</div>
+
+<h3 style="font-size:.9rem;color:#1a237e;margin:16px 0 8px;" id="titulo-form-conta">Nova Conta</h3>
+<input type="hidden" id="pc-codigo-original">
+<div class="grid-2">
+<div class="form-row"><label>Código:</label><input type="text" id="pc-codigo" placeholder="Ex: 3.1.1.001"></div>
+<div class="form-row"><label>Nome:</label><input type="text" id="pc-nome" placeholder="Nome da conta"></div>
+<div class="form-row"><label>Tipo:</label>
+<select id="pc-tipo">
+<option value="Ativo">Ativo</option>
+<option value="Passivo">Passivo</option>
+<option value="Receita">Receita</option>
+<option value="Despesa">Despesa</option>
+<option value="Outro">Outro</option>
+</select></div>
+</div>
+<div style="display:flex;gap:8px;margin-top:8px;">
+<button class="btn btn-success" onclick="adicionarConta()">Adicionar</button>
+<button class="btn btn-primary" onclick="salvarConta()" id="btn-salvar-conta" style="display:none">Salvar</button>
+<button class="btn btn-sm btn-warning" onclick="cancelarEdicaoConta()" id="btn-cancelar-edicao" style="display:none">Cancelar</button>
+</div>
+</div>
+
+<div id="aba-regras" class="tab-content">
+<h2>Regras Contábeis</h2>
+<p style="font-size:.8rem;color:#666;margin-bottom:12px;">Configure as contas de débito e crédito para cada componente salarial.</p>
+<div style="overflow-x:auto;">
+<table>
+<thead><tr><th>Componente</th><th>Conta Débito</th><th>Conta Crédito</th><th>Centro de Custo</th><th>Parceiro</th></tr></thead>
+<tbody id="tabela-regras"></tbody>
+</table>
+</div>
+<button class="btn btn-success" onclick="salvarRegras()" style="margin-top:12px;">Salvar Regras</button>
+</div>
+
+<div id="aba-lancamentos" class="tab-content">
+<h2>Gerar Lançamentos</h2>
+<div class="form-row">
+<label>Competência:</label>
+<input type="month" id="gl-competencia">
+<button class="btn btn-primary" onclick="calcularTotais()">Calcular Totais</button>
+<button class="btn btn-success" onclick="gerarLancamentos()">Gerar Lançamentos</button>
+</div>
+<div class="summary-grid" id="gl-resumo">
+<div class="summary-box"><div class="label">Holerites</div><div class="value" id="gl-qtd">0</div></div>
+<div class="summary-box"><div class="label">Total Proventos</div><div class="value" id="gl-proventos">0,00</div></div>
+<div class="summary-box" style="border-left-color:#c62828;"><div class="label">Total INSS</div><div class="value" id="gl-inss" style="color:#c62828;">0,00</div></div>
+<div class="summary-box" style="border-left-color:#c62828;"><div class="label">Total IRRF</div><div class="value" id="gl-irrf" style="color:#c62828;">0,00</div></div>
+<div class="summary-box" style="border-left-color:#e65100;"><div class="label">Total FGTS</div><div class="value" id="gl-fgts" style="color:#e65100;">0,00</div></div>
+<div class="summary-box" style="border-left-color:#2e7d32;"><div class="label">Total Líquido</div><div class="value" id="gl-liquido" style="color:#2e7d32;">0,00</div></div>
+</div>
+<div style="overflow-x:auto;margin-top:16px;">
+<table>
+<thead><tr><th>Data</th><th>Descrição</th><th>Conta Débito</th><th>Conta Crédito</th><th>Diário</th><th>Regra</th><th class="valor">Valor</th><th>Centro Custo</th><th>Parceiro</th></tr></thead>
+<tbody id="tabela-lancamentos-gl"></tbody>
+<tfoot id="total-lancamentos-gl"></tfoot>
+</table>
+</div>
+<p style="font-size:.8rem;color:#888;margin-top:8px;"><em>Os lançamentos consideram as regras definidas na aba Regras Contábeis.</em></p>
+</div>
+
+<div id="aba-funcionarios" class="tab-content">
+<h2>Configuração por Funcionário</h2>
+<p style="color:#666;font-size:.85rem;margin-bottom:12px;">Defina o diário contábil e a regra de distribuição analítica para cada funcionário. Estes valores sobrescrevem as regras globais.</p>
+<div style="overflow-x:auto;">
+<table>
+<thead><tr><th>ID</th><th>Nome</th><th>Diário Contábil</th><th>Regra Distribuição</th><th>Estrutura Salarial</th></tr></thead>
+<tbody id="tabela-funcionarios-contabil"></tbody>
+</table>
+</div>
+<button class="btn btn-success" onclick="salvarConfigFuncionarios()" style="margin-top:12px;">Salvar Configurações</button>
+</div>
+
+<div id="aba-holerites" class="tab-content">
+<h2>Configuração por Holerite</h2>
+<p style="color:#666;font-size:.85rem;margin-bottom:12px;">Defina o diário contábil e a regra de distribuição para holerites específicos. Maior prioridade que a config do funcionário.</p>
+<div class="form-row"><label>Competência:</label><input type="month" id="ch-competencia"><button class="btn btn-sm btn-primary" onclick="carregarHoleritesContabil()">Carregar Holerites</button></div>
+<div style="overflow-x:auto;">
+<table>
+<thead><tr><th>ID</th><th>Funcionário</th><th>Competência</th><th>Diário Contábil</th><th>Regra Distribuição</th></tr></thead>
+<tbody id="tabela-holerites-contabil"></tbody>
+</table>
+</div>
+<button class="btn btn-success" onclick="salvarConfigHolerites()" style="margin-top:12px;">Salvar Configurações</button>
+</div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+function mostrarToast(msg,tipo){
+const t=document.getElementById('toast');t.textContent=msg;
+t.className='toast '+tipo;t.style.display='block';
+setTimeout(()=>t.style.display='none',3000);
+}
+
+function fmt(n){return (n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+function ativarAba(btn,id){
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+btn.classList.add('active');document.getElementById(id).classList.add('active');
+if(id==='aba-planocontas'){carregarPlanocontas()}
+if(id==='aba-regras'){carregarRegras()}
+if(id==='aba-lancamentos'){calcularTotais()}
+if(id==='aba-funcionarios'){carregarConfigFuncionarios()}
+if(id==='aba-holerites'){carregarHoleritesContabil()}
+}
+
+// ---- Plano de Contas ----
+let planocontas=[];
+let planocontasSelect=[];
+
+async function carregarPlanocontas(){
+try{
+const r=await fetch('/api/contabilidade/rules');const data=await r.json();
+planocontas=data.planocontas||[];
+planocontasSelect=planocontas.map(c=>'<option value="'+c.codigo+'">'+c.codigo+' - '+c.nome+'</option>').join('');
+const tbody=document.getElementById('tabela-planocontas');
+if(planocontas.length===0){
+tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:#888;padding:30px;">Nenhuma conta cadastrada</td></tr>';
+}else{
+tbody.innerHTML=planocontas.map(c=>
+'<tr>'+
+'<td>'+c.codigo+'</td>'+
+'<td>'+c.nome+'</td>'+
+'<td>'+c.tipo+'</td>'+
+'<td style="white-space:nowrap;">'+
+'<button class="btn btn-sm btn-warning" onclick="editarConta(\''+c.codigo+'\')">Editar</button> '+
+'<button class="btn btn-sm btn-danger" onclick="excluirConta(\''+c.codigo+'\')">Excluir</button>'+
+'</td></tr>'
+).join('');
+}
+}catch(e){mostrarToast('Erro ao carregar plano de contas','error');}
+}
+
+function adicionarConta(){
+const codigo=document.getElementById('pc-codigo').value.trim();
+const nome=document.getElementById('pc-nome').value.trim();
+const tipo=document.getElementById('pc-tipo').value;
+if(!codigo){mostrarToast('Informe o código','error');return;}
+if(!nome){mostrarToast('Informe o nome','error');return;}
+const params=new URLSearchParams();
+params.set('codigo',codigo);
+params.set('nome',nome);
+params.set('tipo',tipo);
+fetch('/api/contabilidade/planocontas/incluir',{
+method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params
+}).then(r=>r.json()).then(data=>{
+if(data.status==='ok'){mostrarToast('Conta adicionada!','success');limparFormConta();carregarPlanocontas();}
+else mostrarToast(data.mensagem||'Erro','error');
+}).catch(()=>mostrarToast('Erro ao adicionar conta','error'));
+}
+
+function editarConta(codigo){
+const conta=planocontas.find(c=>c.codigo===codigo);
+if(!conta)return;
+document.getElementById('pc-codigo-original').value=codigo;
+document.getElementById('pc-codigo').value=conta.codigo;
+document.getElementById('pc-nome').value=conta.nome;
+document.getElementById('pc-tipo').value=conta.tipo;
+document.getElementById('titulo-form-conta').textContent='Editar Conta';
+document.querySelector('#aba-planocontas .btn-success').style.display='none';
+document.getElementById('btn-salvar-conta').style.display='inline-block';
+document.getElementById('btn-cancelar-edicao').style.display='inline-block';
+}
+
+function cancelarEdicaoConta(){
+limparFormConta();
+}
+
+function limparFormConta(){
+document.getElementById('pc-codigo-original').value='';
+document.getElementById('pc-codigo').value='';
+document.getElementById('pc-nome').value='';
+document.getElementById('pc-tipo').value='Ativo';
+document.getElementById('titulo-form-conta').textContent='Nova Conta';
+document.querySelector('#aba-planocontas .btn-success').style.display='inline-block';
+document.getElementById('btn-salvar-conta').style.display='none';
+document.getElementById('btn-cancelar-edicao').style.display='none';
+}
+
+function salvarConta(){
+const codigoOriginal=document.getElementById('pc-codigo-original').value;
+const codigo=document.getElementById('pc-codigo').value.trim();
+const nome=document.getElementById('pc-nome').value.trim();
+const tipo=document.getElementById('pc-tipo').value;
+if(!codigo||!nome){mostrarToast('Preencha todos os campos','error');return;}
+const params=new URLSearchParams();
+params.set('codigo_original',codigoOriginal);
+params.set('codigo',codigo);
+params.set('nome',nome);
+params.set('tipo',tipo);
+fetch('/api/contabilidade/planocontas/alterar',{
+method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params
+}).then(r=>r.json()).then(data=>{
+if(data.status==='ok'){mostrarToast('Conta alterada!','success');limparFormConta();carregarPlanocontas();}
+else mostrarToast(data.mensagem||'Erro','error');
+}).catch(()=>mostrarToast('Erro ao salvar conta','error'));
+}
+
+function excluirConta(codigo){
+if(!confirm('Excluir conta '+codigo+'?'))return;
+const params=new URLSearchParams();
+params.set('codigo',codigo);
+fetch('/api/contabilidade/planocontas/excluir',{
+method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params
+}).then(r=>r.json()).then(data=>{
+if(data.status==='ok'){mostrarToast('Conta excluida!','success');carregarPlanocontas();}
+else mostrarToast(data.mensagem||'Erro','error');
+}).catch(()=>mostrarToast('Erro ao excluir conta','error'));
+}
+
+// ---- Regras Contabeis ----
+let planocontasOptions='';
+
+function buildPlanocontasOptions(){
+planocontasOptions=planocontas.map(c=>'<option value="'+c.codigo+'">'+c.codigo+' - '+c.nome+'</option>').join('');
+}
+
+const componentes=[
+{key:'proventos',label:'Proventos'},
+{key:'inss_empregado',label:'INSS Empregado'},
+{key:'irrf',label:'IRRF'},
+{key:'fgts',label:'FGTS'},
+{key:'liquido',label:'Líquido'},
+{key:'inss_empregador',label:'INSS Empregador'},
+{key:'fgts_empregador',label:'FGTS Empregador'},
+{key:'ferias',label:'Férias'},
+{key:'ferias_abono',label:'Férias Abono'},
+{key:'decimo_terceiro',label:'13º Salário'},
+{key:'rescisao_saldo',label:'Rescisão - Saldo'},
+{key:'rescisao_ferias',label:'Rescisão - Férias'},
+{key:'rescisao_decimo',label:'Rescisão - 13º'},
+{key:'rescisao_multa',label:'Rescisão - Multa FGTS'}
+];
+
+let regrasAtuais=[];
+
+async function carregarRegras(){
+try{
+const r=await fetch('/api/contabilidade/rules');const data=await r.json();
+const rules=data.rules||[];
+planocontas=data.planocontas||[];
+buildPlanocontasOptions();
+const tbody=document.getElementById('tabela-regras');
+tbody.innerHTML=componentes.map(comp=>{
+const rule=rules.find(r=>r.componente===comp.key)||{};
+const opt=planocontasOptions||'';
+return '<tr>'+
+'<td><strong>'+comp.label+'</strong><br><span style="font-size:.75rem;color:#888;">'+comp.key+'</span></td>'+
+'<td><select class="regra-debito" data-componente="'+comp.key+'">'+
+'<option value="">Selecionar...</option>'+opt+
+'</select></td>'+
+'<td><select class="regra-credito" data-componente="'+comp.key+'">'+
+'<option value="">Selecionar...</option>'+opt+
+'</select></td>'+
+'<td><input type="text" class="regra-cc" data-componente="'+comp.key+'" value="'+(rule.centro_custo||'')+'" placeholder="Centro de Custo" style="width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:4px;"></td>'+
+'<td><input type="text" class="regra-parceiro" data-componente="'+comp.key+'" value="'+(rule.parceiro||'')+'" placeholder="Ex: INSS, FGTS" style="width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:4px;"></td>'+
+'</tr>';
+}).join('');
+setTimeout(()=>{
+componentes.forEach(comp=>{
+const rule=rules.find(r=>r.componente===comp.key);
+if(rule){
+const selDeb=document.querySelector('.regra-debito[data-componente="'+comp.key+'"]');
+const selCred=document.querySelector('.regra-credito[data-componente="'+comp.key+'"]');
+if(selDeb)selDeb.value=rule.conta_debito||'';
+if(selCred)selCred.value=rule.conta_credito||'';
+}
+});
+},50);
+}catch(e){mostrarToast('Erro ao carregar regras','error');}
+}
+
+function salvarRegras(){
+const rules=componentes.map(comp=>{
+const selDeb=document.querySelector('.regra-debito[data-componente="'+comp.key+'"]');
+const selCred=document.querySelector('.regra-credito[data-componente="'+comp.key+'"]');
+const cc=document.querySelector('.regra-cc[data-componente="'+comp.key+'"]');
+const parceiro=document.querySelector('.regra-parceiro[data-componente="'+comp.key+'"]');
+return {
+componente:comp.key,
+conta_debito:selDeb?selDeb.value:'',
+conta_credito:selCred?selCred.value:'',
+centro_custo:cc?cc.value:'',
+parceiro:parceiro?parceiro.value:''
+};
+});
+fetch('/api/contabilidade/rules/salvar',{
+method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rules})
+}).then(r=>r.json()).then(data=>{
+if(data.status==='ok')mostrarToast('Regras salvas!','success');
+else mostrarToast(data.mensagem||'Erro','error');
+}).catch(()=>mostrarToast('Erro ao salvar regras','error'));
+}
+
+// ---- Gerar Lancamentos ----
+async function calcularTotais(){
+const comp=document.getElementById('gl-competencia').value;
+if(!comp){mostrarToast('Selecione a competencia','error');return;}
+const mes=comp.replace('-','/');
+try{
+const r=await fetch('/api/folha/contabilizar?competencia='+mes);
+const data=await r.json();
+document.getElementById('gl-qtd').textContent=data.quantidade||0;
+document.getElementById('gl-proventos').textContent=fmt(data.total_proventos);
+document.getElementById('gl-inss').textContent=fmt(data.total_inss);
+document.getElementById('gl-irrf').textContent=fmt(data.total_irrf);
+document.getElementById('gl-fgts').textContent=fmt(data.total_fgts);
+document.getElementById('gl-liquido').textContent=fmt(data.total_liquido);
+mostrarToast('Totais carregados!','success');
+}catch(e){mostrarToast('Erro ao carregar totais','error');}
+}
+
+async function gerarLancamentos(){
+const comp=document.getElementById('gl-competencia').value;
+if(!comp){mostrarToast('Selecione a competencia','error');return;}
+const mes=comp.replace('-','/');
+try{
+const r=await fetch('/api/contabilidade/gerar',{
+method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({competencia:mes})
+});
+const data=await r.json();
+const lancamentos=data.lancamentos||[];
+const tbody=document.getElementById('tabela-lancamentos-gl');
+const tfoot=document.getElementById('total-lancamentos-gl');
+if(lancamentos.length===0){
+tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:#888;padding:30px;">Nenhum lançamento gerado</td></tr>';
+tfoot.innerHTML='';
+}else{
+let totalDeb=0,totalCred=0;
+tbody.innerHTML=lancamentos.map(l=>{
+const v=parseFloat(l.valor||0);
+totalDeb+=v;totalCred+=v;
+return '<tr>'+
+'<td>'+(l.data||'')+'</td>'+
+'<td>'+(l.descricao||'')+'</td>'+
+'<td>'+(l.conta_debito||l.debito||'')+'</td>'+
+'<td>'+(l.conta_credito||l.credito||'')+'</td>'+
+'<td>'+(l.diario_contabil||'')+'</td>'+
+'<td>'+(l.regra_distribuicao||'')+'</td>'+
+'<td class="valor">'+fmt(v)+'</td>'+
+'<td>'+(l.centro_custo||'')+'</td>'+
+'<td>'+(l.parceiro||'')+'</td>'+
+'</tr>';
+}).join('');
+tfoot.innerHTML='<tr class="total-row"><td colspan="2"><strong>Totais</strong></td><td>'+fmt(totalDeb)+'</td><td>'+fmt(totalCred)+'</td><td colspan="2"></td><td class="valor">'+fmt(totalDeb)+'</td><td colspan="2"></td></tr>';
+}
+if(data.status==='ok')mostrarToast('Lançamentos gerados!','success');
+else if(lancamentos.length>0)mostrarToast(lancamentos.length+' lançamentos gerados','success');
+}catch(e){mostrarToast('Erro ao gerar lançamentos','error');}
+}
+
+// ---- Config. Funcionarios ----
+async function carregarConfigFuncionarios(){
+    try{
+        const [rFunc, rCfg, rEst] = await Promise.all([
+            fetch('/api/funcionarios'),
+            fetch('/api/contabilidade/funcionarios'),
+            fetch('/api/estruturas-salariais')
+        ]);
+        const funcData = await rFunc.json();
+        const cfgData = await rCfg.json();
+        const estData = await rEst.json();
+        const configs = {};
+        (cfgData.funcionarios||[]).forEach(f => { configs[f.funcionario_id] = f; });
+        const tbody = document.getElementById('tabela-funcionarios-contabil');
+        if(!(funcData.funcionarios||[]).length){
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;padding:30px;">Nenhum funcionario cadastrado</td></tr>';
+            return;
+        }
+        tbody.innerHTML = (funcData.funcionarios||[]).map(f => {
+            const cfg = configs[f.id] || {};
+            const diario = cfg.diario_contabil || '';
+            const regra = cfg.regra_distribuicao || '';
+            const estId = cfg.estrutura_id || '';
+            const estruturasOpts = (estData.estruturas||[]).map(e =>
+                '<option value="'+e.id+'"'+(parseInt(estId)===parseInt(e.id)?' selected':'')+'>'+e.nome+'</option>'
+            ).join('');
+            return '<tr>' +
+                '<td>'+f.id+'</td>' +
+                '<td>'+(f.nome||'')+'</td>' +
+                '<td><input type="text" class="fc-diario" data-id="'+f.id+'" value="'+diario+'" placeholder="Ex: 2.1" style="width:100px;padding:4px;border:1px solid #ccc;border-radius:4px;"></td>' +
+                '<td><input type="text" class="fc-regra" data-id="'+f.id+'" value="'+regra+'" placeholder="Ex: centro-custo" style="width:160px;padding:4px;border:1px solid #ccc;border-radius:4px;"></td>' +
+                '<td><select class="fc-estrutura" data-id="'+f.id+'" style="padding:4px;border:1px solid #ccc;border-radius:4px;max-width:160px;">' +
+                '<option value="">Nenhuma</option>' +
+                estruturasOpts +
+                '</select></td>' +
+                '</tr>';
+        }).join('');
+    }catch(e){mostrarToast('Erro ao carregar','error');}
+}
+
+async function salvarConfigFuncionarios(){
+    const rows = document.querySelectorAll('#tabela-funcionarios-contabil tr');
+    const funcionarios = [];
+    rows.forEach(row => {
+        const diarioInput = row.querySelector('.fc-diario');
+        const regraInput = row.querySelector('.fc-regra');
+        const estSelect = row.querySelector('.fc-estrutura');
+        if(!diarioInput) return;
+        const fid = diarioInput.dataset.id;
+        funcionarios.push({
+            funcionario_id: parseInt(fid),
+            diario_contabil: diarioInput.value.trim(),
+            regra_distribuicao: regraInput.value.trim(),
+            estrutura_id: estSelect ? parseInt(estSelect.value) || '' : ''
+        });
+    });
+    try{
+        const r = await fetch('/api/contabilidade/funcionarios/salvar', {
+            method:'POST',
+            headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body:'funcionarios='+encodeURIComponent(JSON.stringify(funcionarios))
+        });
+        const d = await r.json();
+        mostrarToast(d.status==='ok'?'Configuracoes salvas!':(d.mensagem||'Erro'), d.status==='ok'?'success':'error');
+    }catch(e){mostrarToast('Erro','error');}
+}
+
+// ---- Config. Holerites ----
+async function carregarHoleritesContabil(){
+    const comp = document.getElementById('ch-competencia').value;
+    try{
+        const [rHol, rCfg] = await Promise.all([
+            fetch('/api/folha/holerites'),
+            fetch('/api/contabilidade/holerites')
+        ]);
+        const holData = await rHol.json();
+        const cfgData = await rCfg.json();
+        let holerites = holData.holerites||[];
+        if(comp) holerites = holerites.filter(h => (h.competencia||'').replace('/','-') === comp.replace('/','-') || h.competencia === comp);
+        const configs = {};
+        (cfgData.holerites||[]).forEach(h => { configs[h.holerite_id] = h; });
+        const tbody = document.getElementById('tabela-holerites-contabil');
+        if(!holerites.length){
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;padding:30px;">Nenhum holerite</td></tr>';
+            return;
+        }
+        tbody.innerHTML = holerites.map(h => {
+            const cfg = configs[h.id] || {};
+            return '<tr>' +
+                '<td>'+h.id+'</td>' +
+                '<td>'+(h.nome||'#'+h.funcionario_id)+'</td>' +
+                '<td>'+h.competencia+'</td>' +
+                '<td><input type="text" class="hc-diario" data-id="'+h.id+'" value="'+(cfg.diario_contabil||'')+'" placeholder="Ex: 2.1" style="width:80px;padding:4px;border:1px solid #ccc;border-radius:4px;"></td>' +
+                '<td><input type="text" class="hc-regra" data-id="'+h.id+'" value="'+(cfg.regra_distribuicao||'')+'" placeholder="Ex: custo-setor" style="width:140px;padding:4px;border:1px solid #ccc;border-radius:4px;"></td>' +
+                '</tr>';
+        }).join('');
+    }catch(e){mostrarToast('Erro ao carregar','error');}
+}
+
+async function salvarConfigHolerites(){
+    const rows = document.querySelectorAll('#tabela-holerites-contabil tr');
+    const holerites = [];
+    rows.forEach(row => {
+        const diarioInput = row.querySelector('.hc-diario');
+        const regraInput = row.querySelector('.hc-regra');
+        if(!diarioInput) return;
+        const hid = diarioInput.dataset.id;
+        holerites.push({
+            holerite_id: parseInt(hid),
+            diario_contabil: diarioInput.value.trim(),
+            regra_distribuicao: regraInput.value.trim()
+        });
+    });
+    try{
+        const r = await fetch('/api/contabilidade/holerites/salvar', {
+            method:'POST',
+            headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body:'holerites='+encodeURIComponent(JSON.stringify(holerites))
+        });
+        const d = await r.json();
+        mostrarToast(d.status==='ok'?'Configuracoes salvas!':(d.mensagem||'Erro'), d.status==='ok'?'success':'error');
+    }catch(e){mostrarToast('Erro','error');}
+}
+
+// ---- Init ----
+const agora=new Date();
+const mesStr=agora.getFullYear()+'-'+String(agora.getMonth()+1).padStart(2,'0');
+document.getElementById('gl-competencia').value=mesStr;
+carregarPlanocontas();
+carregarRegras();
+</script>
+</body>
+</html>

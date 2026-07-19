@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Gestao Disciplinar</title>
+<link rel="stylesheet" href="pos.css">
+<style>
+body{background:#f5f5f5;font-family:Segoe UI,sans-serif;margin:0;padding:0}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+h1{font-size:1.4rem;color:#1a237e;margin-bottom:16px}
+.tabs{display:flex;gap:4px;border-bottom:2px solid #e0e0e0;margin-bottom:16px}
+.tab{padding:8px 20px;cursor:pointer;border:1px solid #e0e0e0;border-bottom:none;border-radius:6px 6px 0 0;font-size:.85rem;background:#fafafa;color:#555}
+.tab.active{background:#fff;color:#1a237e;font-weight:600;border-color:#1a237e;border-bottom:2px solid #fff;margin-bottom:-2px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.form-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.form-row label{flex:0 0 140px;font-size:.85rem;color:#444}
+.form-row input,.form-row select,.form-row textarea{flex:1;padding:6px 8px;border:1px solid #ccc;border-radius:4px;font-size:.85rem;font-family:inherit}
+table{width:100%;border-collapse:collapse;margin-top:8px}
+th{background:#1a237e;color:#fff;padding:8px 10px;font-size:.8rem;text-align:left}
+td{padding:6px 10px;border-bottom:1px solid #e0e0e0;font-size:.8rem}
+tr:hover{background:#f0f0f0}
+.btn{padding:6px 14px;border:none;border-radius:4px;cursor:pointer;font-size:.8rem}
+.btn-primary{background:#1a237e;color:#fff}
+.btn-success{background:#2e7d32;color:#fff}
+.btn-danger{background:#c62828;color:#fff}
+.btn-sm{padding:4px 10px;font-size:.75rem}
+.valor{text-align:right;font-family:monospace}
+.tag-ativo{background:#2e7d32;color:#fff;padding:2px 8px;border-radius:10px;font-size:.7rem}
+.tag-inativo{background:#757575;color:#fff;padding:2px 8px;border-radius:10px;font-size:.7rem}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>⚠️ Gestao Disciplinar</h1>
+
+<div class="tabs">
+<div class="tab active" onclick="ativarAba(this,'categorias')">Categorias</div>
+<div class="tab" onclick="ativarAba(this,'acoes')">Acoes Disciplinares</div>
+</div>
+
+<div id="aba-categorias" class="tab-content active">
+<h2>Categorias Disciplinares</h2>
+<div style="background:#fff;border-radius:8px;padding:16px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+<form id="form-categoria" onsubmit="salvarCategoria(event)">
+<div class="form-row"><label>Nome:</label><input type="text" id="cat-nome" required></div>
+<div class="form-row"><label>Descricao:</label><textarea id="cat-descricao" rows="2"></textarea></div>
+<div style="display:flex;gap:8px;margin-top:8px;">
+<button type="submit" class="btn btn-primary" id="btn-cat-salvar">Incluir</button>
+<button type="button" class="btn btn-sm" style="background:#757575;color:#fff;display:none" id="btn-cat-cancelar" onclick="cancelarEdicaoCategoria()">Cancelar</button>
+</div>
+<input type="hidden" id="cat-id" value="">
+</form>
+</div>
+<div style="background:#fff;border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+<table><thead><tr><th>ID</th><th>Nome</th><th>Descricao</th><th>Acoes</th></tr></thead>
+<tbody id="tabela-categorias"></tbody>
+</table>
+</div>
+</div>
+
+<div id="aba-acoes" class="tab-content">
+<h2>Acoes Disciplinares</h2>
+<div style="background:#fff;border-radius:8px;padding:16px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+<form id="form-acao" onsubmit="salvarAcao(event)">
+<div class="form-row"><label>Funcionario:</label><select id="ac-funcionario-id" required></select></div>
+<div class="form-row"><label>Categoria:</label><select id="ac-categoria-id" required></select></div>
+<div class="form-row"><label>Data:</label><input type="date" id="ac-data" required></div>
+<div class="form-row"><label>Descricao:</label><textarea id="ac-descricao" rows="2"></textarea></div>
+<div class="form-row"><label>Dias Desconto:</label><input type="number" id="ac-dias" min="0" value="0"></div>
+<div class="form-row"><label>Valor Desconto (R$):</label><input type="number" id="ac-valor" step="0.01" min="0" value="0"></div>
+<div class="form-row"><label>Status:</label><select id="ac-status"><option value="A">Ativo</option><option value="I">Inativo</option></select></div>
+<div style="display:flex;gap:8px;margin-top:8px;">
+<button type="submit" class="btn btn-success" id="btn-ac-salvar">Incluir</button>
+<button type="button" class="btn btn-sm" style="background:#757575;color:#fff;display:none" id="btn-ac-cancelar" onclick="cancelarEdicaoAcao()">Cancelar</button>
+</div>
+<input type="hidden" id="ac-id" value="">
+</form>
+</div>
+<div style="background:#fff;border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+<div class="form-row"><label>Filtrar Func.:</label><select id="ac-filtro-func" onchange="carregarAcoes()"><option value="">Todas</option></select></div>
+<table><thead><tr><th>ID</th><th>Funcionario</th><th>Categoria</th><th>Data</th><th>Descricao</th><th>Dias</th><th>Valor R$</th><th>Status</th><th>Acoes</th></tr></thead>
+<tbody id="tabela-acoes"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<script>
+function $(id){return document.getElementById(id)}
+function fmt(v){return (v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+let editandoCategoria = false, editandoAcao = false;
+let categorias = [], funcionarios = [], acoes = [];
+
+// ---- Abas ----
+function ativarAba(el,aba){
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+el.classList.add('active');
+$(aba==='categorias'?'aba-categorias':'aba-acoes').classList.add('active');
+}
+
+// ---- Categorias ----
+async function carregarCategorias(){
+try{
+const r=await fetch('/api/categorias-disciplinares');
+const d=await r.json();
+categorias=d.categorias||[];
+const tbody=$('tabela-categorias');
+if(!categorias.length){tbody.innerHTML='<tr><td colspan="4" style="color:#888;text-align:center;padding:20px;">Nenhuma categoria</td></tr>';return;}
+tbody.innerHTML=categorias.map(c=>'<tr><td>'+c.id+'</td><td>'+c.nome+'</td><td>'+(c.descricao||'-')+'</td><td>'+
+'<button class="btn btn-sm btn-primary" onclick="editarCategoria('+c.id+')">Editar</button> '+
+'<button class="btn btn-sm btn-danger" onclick="excluirCategoria('+c.id+')">Excluir</button></td></tr>').join('');
+}catch(e){mostrarToast('Erro ao carregar categorias','error');}
+}
+function editarCategoria(id){
+const c=categorias.find(x=>x.id==id);
+if(!c)return;
+editandoCategoria=true;
+$('cat-id').value=c.id;$('cat-nome').value=c.nome;$('cat-descricao').value=c.descricao||'';
+$('btn-cat-salvar').textContent='Alterar';
+$('btn-cat-cancelar').style.display='inline-block';
+}
+function cancelarEdicaoCategoria(){
+editandoCategoria=false;
+$('cat-id').value='';$('cat-nome').value='';$('cat-descricao').value='';
+$('btn-cat-salvar').textContent='Incluir';
+$('btn-cat-cancelar').style.display='none';
+}
+async function salvarCategoria(e){
+e.preventDefault();
+const params=new URLSearchParams();
+params.set('nome',$('cat-nome').value);
+params.set('descricao',$('cat-descricao').value);
+const id=$('cat-id').value;
+const url=id?'/api/categoria-disciplinar/alterar':'/api/categoria-disciplinar/incluir';
+if(id)params.set('id',id);
+try{
+const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params});
+const d=await r.json();
+if(d.status==='ok'){mostrarToast(id?'Categoria alterada!':'Categoria incluida!','success');cancelarEdicaoCategoria();carregarCategorias();atualizarSelects();}
+else mostrarToast(d.mensagem||'Erro','error');
+}catch(e){mostrarToast('Erro','error');}
+}
+async function excluirCategoria(id){
+if(!confirm('Excluir categoria #'+id+'?'))return;
+try{
+const r=await fetch('/api/categoria-disciplinar/excluir',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({id})});
+const d=await r.json();
+if(d.status==='ok'){mostrarToast('Categoria excluida!','success');carregarCategorias();atualizarSelects();}
+else mostrarToast(d.mensagem||'Erro','error');
+}catch(e){mostrarToast('Erro','error');}
+}
+
+// ---- Acoes ----
+async function carregarAcoes(){
+try{
+const filtro=$('ac-filtro-func').value;
+const url=filtro?'/api/acoes-disciplinares?funcionario_id='+filtro:'/api/acoes-disciplinares';
+const r=await fetch(url);
+const d=await r.json();
+acoes=d.acoes||[];
+const tbody=$('tabela-acoes');
+if(!acoes.length){tbody.innerHTML='<tr><td colspan="9" style="color:#888;text-align:center;padding:20px;">Nenhuma acao</td></tr>';return;}
+tbody.innerHTML=acoes.map(a=>{
+const f=funcionarios.find(x=>x.id==a.funcionario_id);
+const cat=categorias.find(x=>x.id==a.categoria_id);
+return '<tr><td>'+a.id+'</td><td>'+(f?f.nome:'#'+a.funcionario_id)+'</td><td>'+(cat?cat.nome:'#'+a.categoria_id)+'</td><td>'+(a.data||'-')+'</td><td>'+(a.descricao||'-')+'</td><td class="valor">'+(a.dias_desconto||0)+'</td><td class="valor">'+fmt(a.valor_desconto)+'</td><td>'+(a.status==='A'?'<span class="tag-ativo">Ativo</span>':'<span class="tag-inativo">Inativo</span>')+'</td><td>'+
+'<button class="btn btn-sm btn-primary" onclick="editarAcao('+a.id+')">Editar</button> '+
+'<button class="btn btn-sm btn-danger" onclick="excluirAcao('+a.id+')">Excluir</button></td></tr>';
+}).join('');
+}catch(e){mostrarToast('Erro ao carregar acoes','error');}
+}
+async function carregarFuncionarios(){
+try{
+const r=await fetch('/api/funcionarios');
+const d=await r.json();
+funcionarios=d.funcionarios||[];
+const sel=$('ac-funcionario-id');const filtro=$('ac-filtro-func');
+sel.innerHTML='<option value="">Selecionar...</option>'+funcionarios.map(f=>'<option value="'+f.id+'">'+f.nome+'</option>').join('');
+filtro.innerHTML='<option value="">Todas</option>'+funcionarios.map(f=>'<option value="'+f.id+'">'+f.nome+'</option>').join('');
+}catch(e){}
+}
+function atualizarSelects(){
+carregarCategorias();
+const sel=$('ac-categoria-id');
+sel.innerHTML='<option value="">Selecionar...</option>'+categorias.map(c=>'<option value="'+c.id+'">'+c.nome+'</option>').join('');
+}
+function editarAcao(id){
+const a=acoes.find(x=>x.id==id);
+if(!a)return;
+editandoAcao=true;
+$('ac-id').value=a.id;$('ac-funcionario-id').value=a.funcionario_id;$('ac-categoria-id').value=a.categoria_id;
+$('ac-data').value=a.data;$('ac-descricao').value=a.descricao||'';
+$('ac-dias').value=a.dias_desconto||0;$('ac-valor').value=a.valor_desconto||0;
+$('ac-status').value=a.status||'A';
+$('btn-ac-salvar').textContent='Alterar';
+$('btn-ac-cancelar').style.display='inline-block';
+}
+function cancelarEdicaoAcao(){
+editandoAcao=false;
+$('ac-id').value='';$('ac-funcionario-id').value='';$('ac-categoria-id').value='';
+$('ac-data').value='';$('ac-descricao').value='';$('ac-dias').value=0;$('ac-valor').value=0;
+$('ac-status').value='A';
+$('btn-ac-salvar').textContent='Incluir';
+$('btn-ac-cancelar').style.display='none';
+}
+async function salvarAcao(e){
+e.preventDefault();
+const params=new URLSearchParams();
+const id=$('ac-id').value;
+params.set('funcionario_id',$('ac-funcionario-id').value);
+params.set('categoria_id',$('ac-categoria-id').value);
+params.set('data',$('ac-data').value);
+params.set('descricao',$('ac-descricao').value);
+params.set('dias_desconto',$('ac-dias').value);
+params.set('valor_desconto',$('ac-valor').value);
+params.set('status',$('ac-status').value);
+if(!params.get('funcionario_id')){mostrarToast('Selecione funcionario','error');return;}
+if(!params.get('categoria_id')){mostrarToast('Selecione categoria','error');return;}
+const url=id?'/api/acao-disciplinar/alterar':'/api/acao-disciplinar/incluir';
+if(id)params.set('id',id);
+try{
+const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params});
+const d=await r.json();
+if(d.status==='ok'){mostrarToast(id?'Acao alterada!':'Acao incluida!','success');cancelarEdicaoAcao();carregarAcoes();}
+else mostrarToast(d.mensagem||'Erro','error');
+}catch(e){mostrarToast('Erro','error');}
+}
+async function excluirAcao(id){
+if(!confirm('Excluir acao #'+id+'?'))return;
+try{
+const r=await fetch('/api/acao-disciplinar/excluir',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({id})});
+const d=await r.json();
+if(d.status==='ok'){mostrarToast('Acao excluida!','success');carregarAcoes();}
+else mostrarToast(d.mensagem||'Erro','error');
+}catch(e){mostrarToast('Erro','error');}
+}
+
+// ---- Toast ----
+function mostrarToast(msg,tipo){
+const t=document.createElement('div');
+t.style.cssText='position:fixed;bottom:20px;right:20px;padding:12px 24px;border-radius:6px;color:#fff;font-size:.85rem;z-index:9999;background:'+(tipo==='success'?'#2e7d32':'#c62828');
+t.textContent=msg;
+document.body.appendChild(t);
+setTimeout(()=>t.remove(),3000);
+}
+
+// ---- Init ----
+carregarFuncionarios().then(()=>{carregarCategorias();atualizarSelects();carregarAcoes();});
+</script>
+</body>
+</html>

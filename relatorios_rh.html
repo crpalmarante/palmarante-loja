@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatórios RH - Palmarante</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#333}
+header{background:#1a237e;color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:1.4rem}
+header a{color:#ffd54f;text-decoration:none;font-size:.9rem}
+main{padding:20px;max-width:1300px;margin:0 auto}
+.card{background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);padding:20px;margin-bottom:20px}
+.card h2{font-size:1.1rem;margin-bottom:16px;color:#1a237e}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:#e8eaf6;text-align:left;padding:8px 10px;font-weight:600;border-bottom:2px solid #c5cae9;white-space:nowrap}
+td{padding:6px 10px;border-bottom:1px solid #eee}
+tr:hover td{background:#f5f5f5}
+.form-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.form-row label{min-width:120px;font-weight:500;font-size:.9rem}
+.form-row input,.form-row select{flex:1;padding:7px 10px;border:1px solid #ccc;border-radius:4px;font-size:.9rem;min-width:120px}
+.form-row input:focus{border-color:#1a237e;outline:none}
+.btn{padding:8px 20px;border:none;border-radius:4px;cursor:pointer;font-size:.9rem;font-weight:500}
+.btn-primary{background:#1a237e;color:#fff;transition:.2s}
+.btn-primary:hover{background:#283593}
+.btn-success{background:#2e7d32;color:#fff}
+.btn-success:hover{background:#388e3c}
+.btn-danger{background:#c62828;color:#fff}
+.btn-danger:hover{background:#d32f2f}
+.btn-sm{padding:4px 10px;font-size:.8rem}
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 24px;border-radius:6px;color:#fff;font-weight:500;display:none;z-index:999}
+.toast.success{background:#2e7d32}
+.toast.error{background:#c62828}
+.toast.info{background:#1565c0}
+.valor{text-align:right;font-family:'Courier New',monospace}
+.total-row{background:#e8eaf6;font-weight:600}
+.summary-box{background:#f5f5f5;border-radius:6px;padding:12px;text-align:center;border-left:4px solid #1a237e}
+.summary-box .value{font-size:1.3rem;font-weight:700;color:#1a237e;font-family:'Courier New',monospace}
+.summary-box .label{font-size:.75rem;color:#666}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:12px 0}
+.filial-table{margin-bottom:20px}
+.filial-table h3{font-size:.95rem;color:#1a237e;margin-bottom:6px}
+.filial-table .summary{font-size:.85rem;color:#555;margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Relatórios RH</h1>
+<a href="/index.html">&larr; Menu Principal</a>
+</header>
+
+<main>
+
+<div class="card">
+<h2>Aniversariantes do Mês</h2>
+<div class="form-row">
+<button class="btn btn-primary" onclick="filtrarAniversariantes()">Carregar Aniversariantes</button>
+</div>
+<div style="overflow-x:auto;">
+<table>
+<thead><tr><th>Nome</th><th>Data Nascimento</th><th>Idade</th><th>Filial</th></tr></thead>
+<tbody id="tabela-aniversariantes"></tbody>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h2>Funcionários por Filial</h2>
+<div class="form-row">
+<button class="btn btn-primary" onclick="agruparPorFilial()">Listar por Filial</button>
+</div>
+<div id="filial-container"></div>
+</div>
+
+<div class="card">
+<h2>Holerites por Período</h2>
+<div class="form-row">
+<label>Mês Início:</label>
+<input type="month" id="hp-mes-inicio">
+<label>Mês Fim:</label>
+<input type="month" id="hp-mes-fim">
+<button class="btn btn-primary" onclick="gerarRelatorioHolerites()">Gerar Relatório</button>
+</div>
+<div style="overflow-x:auto;">
+<table>
+<thead><tr><th>Funcionário</th><th>Competência</th><th class="valor">Proventos</th><th class="valor">INSS</th><th class="valor">IRRF</th><th class="valor">FGTS</th><th class="valor">Líquido</th></tr></thead>
+<tbody id="tabela-holerites-periodo"></tbody>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h2>Custos Totais da Folha</h2>
+<div class="form-row">
+<label>Competência:</label>
+<input type="month" id="ct-competencia">
+<button class="btn btn-primary" onclick="calcularCustosFolha()">Calcular Custos</button>
+</div>
+<div class="summary-grid" id="custos-resumo"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+function mostrarToast(msg, tipo) {
+const t=document.getElementById('toast');t.textContent=msg;
+t.className='toast '+tipo;t.style.display='block';
+setTimeout(()=>t.style.display='none',3000);
+}
+
+function fmt(n){return (n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+let funcionarios=[];
+
+async function carregarFuncionarios(){
+try{
+const r=await fetch('/api/funcionarios');const data=await r.json();
+funcionarios=data.funcionarios||[];
+}catch(e){mostrarToast('Erro ao carregar funcionarios','error');}
+}
+
+function parseDate(str){
+if(!str)return null;
+if(str.includes('/')){
+const p=str.split('/');
+return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));
+}
+return new Date(str+'T00:00:00');
+}
+
+function calcularIdade(dataNasc){
+const hoje=new Date();
+const nasc=parseDate(dataNasc);
+if(!nasc)return '-';
+let idade=hoje.getFullYear()-nasc.getFullYear();
+const m=hoje.getMonth()-nasc.getMonth();
+if(m<0||(m===0&&hoje.getDate()<nasc.getDate()))idade--;
+return idade;
+}
+
+function getFilialNome(filialId){
+const map={1:'Matriz',2:'Filial Centro',3:'Filial Norte',4:'Filial Sul'};
+return map[filialId]||'Filial '+filialId;
+}
+
+function filtrarAniversariantes(){
+const mesAtual=new Date().getMonth();
+const aniversariantes=funcionarios.filter(f=>{
+const nasc=parseDate(f.data_nasc);
+return nasc&&nasc.getMonth()===mesAtual;
+});
+aniversariantes.sort((a,b)=>parseDate(a.data_nasc).getDate()-parseDate(b.data_nasc).getDate());
+const tbody=document.getElementById('tabela-aniversariantes');
+if(aniversariantes.length===0){
+tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:#888;padding:30px;">Nenhum aniversariante este mês</td></tr>';
+return;
+}
+tbody.innerHTML=aniversariantes.map(f=>
+'<tr>'+
+'<td>'+f.nome+'</td>'+
+'<td>'+f.data_nasc+'</td>'+
+'<td>'+calcularIdade(f.data_nasc)+'</td>'+
+'<td>'+(f.filial_id?getFilialNome(f.filial_id):'-')+'</td>'+
+'</tr>'
+).join('');
+mostrarToast(aniversariantes.length+' aniversariante(s) encontrado(s)','info');
+}
+
+function getFilialNome(id){
+const map={1:'Matriz',2:'Filial Centro',3:'Filial Norte',4:'Filial Sul'};
+return map[id]||'Filial '+id;
+}
+
+function agruparPorFilial(){
+const grupos={};
+funcionarios.forEach(f=>{
+const fid=f.filial_id||0;
+if(!grupos[fid])grupos[fid]=[];
+grupos[fid].push(f);
+});
+const container=document.getElementById('filial-container');
+const keys=Object.keys(grupos).sort((a,b)=>parseInt(a)-parseInt(b));
+if(keys.length===0){
+container.innerHTML='<p style="color:#888;padding:20px;text-align:center;">Nenhum funcionário cadastrado</p>';
+return;
+}
+let html='';
+keys.forEach(fid=>{
+const funcs=grupos[fid];
+const totalSalarios=funcs.reduce((s,f)=>s+parseFloat(f.salario||0),0);
+html+='<div class="filial-table">'+
+'<h3>'+getFilialNome(parseInt(fid))+'</h3>'+
+'<div class="summary">Filial '+fid+': '+funcs.length+' funcionário(s), Total salários: R$ '+fmt(totalSalarios)+'</div>'+
+'<table><thead><tr><th>Nome</th><th>Cargo</th><th class="valor">Salário</th><th>Data Admissão</th></tr></thead><tbody>';
+funcs.forEach(f=>{
+html+='<tr><td>'+f.nome+'</td><td>'+(f.cargo||'-')+'</td><td class="valor">'+fmt(f.salario)+'</td><td>'+(f.data_admissao||'-')+'</td></tr>';
+});
+html+='</tbody></table></div>';
+});
+container.innerHTML=html;
+mostrarToast(Object.keys(grupos).length+' filial(is) listada(s)','info');
+}
+
+function gerarRelatorioHolerites(){
+const mesInicio=document.getElementById('hp-mes-inicio').value;
+const mesFim=document.getElementById('hp-mes-fim').value;
+if(!mesInicio||!mesFim){mostrarToast('Selecione o período','error');return;}
+if(mesInicio>mesFim){mostrarToast('Mês início deve ser anterior ao mês fim','error');return;}
+fetch('/api/folha/holerites').then(r=>r.json()).then(data=>{
+const holerites=data.holerites||[];
+const filtrados=holerites.filter(h=>{
+const comp=h.competencia;
+const cNorm=comp.replace('/','-');
+return cNorm>=mesInicio&&cNorm<=mesFim;
+});
+const tbody=document.getElementById('tabela-holerites-periodo');
+if(filtrados.length===0){
+tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#888;padding:30px;">Nenhum holerite encontrado no período</td></tr>';
+return;
+}
+let html='';
+let totProv=0,totInss=0,totIrrf=0,totFgts=0,totLiq=0;
+filtrados.forEach(h=>{
+totProv+=parseFloat(h.proventos||0);
+totInss+=parseFloat(h.inss||0);
+totIrrf+=parseFloat(h.irrf||0);
+totFgts+=parseFloat(h.fgts||0);
+totLiq+=parseFloat(h.liquido||0);
+html+='<tr>'+
+'<td>'+(h.nome||'#'+h.funcionario_id)+'</td>'+
+'<td>'+h.competencia+'</td>'+
+'<td class="valor">'+fmt(h.proventos)+'</td>'+
+'<td class="valor">'+fmt(h.inss)+'</td>'+
+'<td class="valor">'+fmt(h.irrf)+'</td>'+
+'<td class="valor">'+fmt(h.fgts)+'</td>'+
+'<td class="valor"><strong>'+fmt(h.liquido)+'</strong></td>'+
+'</tr>';
+});
+html+='<tr class="total-row"><td colspan="2"><strong>Totais</strong></td>'+
+'<td class="valor"><strong>'+fmt(totProv)+'</strong></td>'+
+'<td class="valor"><strong>'+fmt(totInss)+'</strong></td>'+
+'<td class="valor"><strong>'+fmt(totIrrf)+'</strong></td>'+
+'<td class="valor"><strong>'+fmt(totFgts)+'</strong></td>'+
+'<td class="valor"><strong>'+fmt(totLiq)+'</strong></td></tr>';
+tbody.innerHTML=html;
+mostrarToast(filtrados.length+' holerite(s) encontrado(s)','info');
+}).catch(()=>mostrarToast('Erro ao carregar holerites','error'));
+}
+
+function calcularCustosFolha(){
+const comp=document.getElementById('ct-competencia').value;
+if(!comp){mostrarToast('Selecione a competência','error');return;}
+const mes=comp.replace('-','/');
+fetch('/api/folha/holerites').then(r=>r.json()).then(data=>{
+const holerites=data.holerites||[];
+const filtrados=holerites.filter(h=>{
+const cNorm=h.competencia.replace('/','-');
+return cNorm===comp;
+});
+const qtd=filtrados.length;
+const totProv=filtrados.reduce((s,h)=>s+parseFloat(h.proventos||0),0);
+const totInss=filtrados.reduce((s,h)=>s+parseFloat(h.inss||0),0);
+const totIrrf=filtrados.reduce((s,h)=>s+parseFloat(h.irrf||0),0);
+const totFgts=filtrados.reduce((s,h)=>s+parseFloat(h.fgts||0),0);
+const totLiq=filtrados.reduce((s,h)=>s+parseFloat(h.liquido||0),0);
+const totEncargos=totFgts*2+totInss;
+const custoTotal=totProv+totFgts+totInss;
+document.getElementById('custos-resumo').innerHTML=
+'<div class="summary-box"><div class="label">Total Funcionários</div><div class="value">'+qtd+'</div></div>'+
+'<div class="summary-box"><div class="label">Total Proventos</div><div class="value">'+fmt(totProv)+'</div></div>'+
+'<div class="summary-box" style="border-left-color:#c62828;"><div class="label">Total INSS</div><div class="value" style="color:#c62828;">'+fmt(totInss)+'</div></div>'+
+'<div class="summary-box" style="border-left-color:#c62828;"><div class="label">Total IRRF</div><div class="value" style="color:#c62828;">'+fmt(totIrrf)+'</div></div>'+
+'<div class="summary-box" style="border-left-color:#e65100;"><div class="label">Total FGTS</div><div class="value" style="color:#e65100;">'+fmt(totFgts)+'</div></div>'+
+'<div class="summary-box" style="border-left-color:#2e7d32;"><div class="label">Total Líquido</div><div class="value" style="color:#2e7d32;">'+fmt(totLiq)+'</div></div>'+
+'<div class="summary-box" style="border-left-color:#e65100;"><div class="label">Total Encargos Empregador</div><div class="value" style="color:#e65100;">'+fmt(totEncargos)+'</div></div>'+
+'<div class="summary-box" style="border-left-color:#c62828;"><div class="label">Custo Total Empresa</div><div class="value" style="color:#c62828;">'+fmt(custoTotal)+'</div></div>';
+mostrarToast('Custos calculados para '+qtd+' funcionário(s)','success');
+}).catch(()=>mostrarToast('Erro ao calcular custos','error'));
+}
+
+// ---- Init ----
+const agora=new Date();
+const mesStr=agora.getFullYear()+'-'+String(agora.getMonth()+1).padStart(2,'0');
+document.getElementById('hp-mes-inicio').value=mesStr;
+document.getElementById('hp-mes-fim').value=mesStr;
+document.getElementById('ct-competencia').value=mesStr;
+carregarFuncionarios();
+</script>
+</body>
+</html>
