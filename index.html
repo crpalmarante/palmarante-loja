@@ -4,43 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Palmarante Loja</title>
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-.login-screen { text-align: center; }
-.login-screen h1 { color: #1a237e; margin-bottom: 8px; }
-.login-screen .sub { color: #888; margin-bottom: 32px; }
-.login-box { background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,.1); max-width: 360px; margin: 0 auto; }
-.login-box input { width: 100%; padding: 12px 16px; border: 1px solid #ccc; border-radius: 6px; font-size: .95rem; margin-bottom: 12px; }
-.login-box input:focus { border-color: #1a237e; outline: none; box-shadow: 0 0 0 2px rgba(26,35,126,.2); }
-.login-box button { width: 100%; padding: 12px; background: #1a237e; color: #fff; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; font-weight: 600; }
-.login-box button:hover { background: #283593; }
-.login-box .link { color: #1a237e; font-size: .85rem; cursor: pointer; margin-top: 12px; display: inline-block; text-decoration: underline; }
-.login-erro { color: #c62828; font-size: .85rem; margin-top: 8px; display: none; }
-.login-ok { color: #2e7d32; font-size: .85rem; margin-top: 8px; display: none; }
-.loading { color: #666; font-size: .85rem; margin-top: 8px; display: none; }
-.menu-screen { display: none; width: 100%; max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-.menu-screen.ativo { display: block; }
-.menu-header { text-align: center; margin-bottom: 40px; }
-.menu-header h1 { color: #1a237e; font-size: 1.6rem; }
-.menu-header .sub { color: #888; margin-top: 4px; }
-.menu-header .user-info { color: #666; font-size: .85rem; margin-top: 8px; }
-.menu-header .tipo-info { color: #1a237e; font-size: .8rem; font-weight: 600; margin-top: 2px; }
-.menu-header .logout { display: inline-block; margin-top: 8px; color: #c62828; cursor: pointer; font-size: .85rem; text-decoration: underline; }
-.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-.menu-item { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.06); padding: 20px 12px; text-align: center; cursor: pointer; transition: .2s; text-decoration: none; color: #333; display: block; border: 1.5px solid transparent; }
-.menu-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.1); border-color: #1a237e; }
-.menu-item.oculto { display: none; }
-.menu-item .icon { font-size: 1.8rem; margin-bottom: 4px; }
-.menu-item .label { font-weight: 600; font-size: .85rem; color: #1a237e; }
-.menu-item .sub-icon { font-size: .7rem; color: #94a3b8; margin-left: 6px; padding: 4px 6px; border-radius: 4px; cursor: pointer; display: inline-block; }
-.menu-item .sub-icon:hover { background: rgba(26,35,126,.1); }
-.submenu { display: none; grid-column: 1 / -1; }
-.submenu.open { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; padding: 8px 0 8px 16px; }
-.submenu .menu-item { padding: 14px 10px; font-size: .8rem; background: #f8fafc; border-color: #e2e8f0; }
-.submenu .menu-item .icon { font-size: 1.3rem; }
-.submenu .menu-item .label { font-size: .8rem; }
-</style>
+<link rel="stylesheet" href="index.css">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
