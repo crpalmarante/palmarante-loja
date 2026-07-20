@@ -7,7 +7,42 @@ import os
 import sqlite3
 import hashlib
 import secrets
+import sys
+import subprocess
 from datetime import datetime, timedelta
+
+# ---------- PostgreSQL (consultas e relatorios) ----------
+PG_HOST = os.environ.get('PG_HOST', '/tmp')
+PG_PORT = int(os.environ.get('PG_PORT', '5433'))
+PG_DB   = os.environ.get('PG_DB', 'palmarante_rh')
+PG_USER = os.environ.get('PG_USER', 'palmarante')
+
+def pg_conn():
+    try:
+        import psycopg2
+        return psycopg2.connect(host=PG_HOST, port=PG_PORT, dbname=PG_DB, user=PG_USER)
+    except Exception:
+        return None
+
+def pg_query(sql, params=None):
+    conn = pg_conn()
+    if not conn:
+        return None
+    try:
+        cur = conn.cursor()
+        cur.execute(sql, params or ())
+        if cur.description:
+            cols = [d[0] for d in cur.description]
+            rows = cur.fetchall()
+            return [dict(zip(cols, r)) for r in rows]
+        conn.commit()
+        return []
+    except Exception as e:
+        print(f"[PG ERROR] {e}")
+        return None
+    finally:
+        try: conn.close()
+        except: pass
 
 PORT = 8080
 DIR = os.path.dirname(os.path.abspath(__file__))
@@ -176,6 +211,8 @@ class POSHandler(http.server.SimpleHTTPRequestHandler):
             return self.api_licencas(params)
         if parsed.path == '/api/licencas/pendentes':
             return self.api_licencas_pendentes()
+        if parsed.path == '/api/sync/pg':
+            return self.api_sync_pg()
         if parsed.path == '/api/directory':
             return self.api_directory()
         if parsed.path == '/api/timesheets':
@@ -1411,6 +1448,21 @@ class POSHandler(http.server.SimpleHTTPRequestHandler):
         if conta:
             return self.send_json({'status': 'ok', 'conta': conta})
         return self.send_json({'status': 'erro', 'mensagem': 'nao autenticado'}, 401)
+
+    def api_sync_pg(self):
+        """Sincroniza COBOL -> PostgreSQL para consultas e relatorios"""
+        try:
+            r = subprocess.run(
+                [sys.executable, os.path.join(DIR, 'sync_pg.py')],
+                capture_output=True, text=True, timeout=60, cwd=DIR
+            )
+            if r.returncode == 0:
+                return self.send_json({'status': 'ok', 'output': r.stdout})
+            return self.send_json({'status': 'erro', 'output': r.stderr or r.stdout})
+        except subprocess.TimeoutExpired:
+            return self.send_json({'status': 'erro', 'mensagem': 'timeout'})
+        except Exception as e:
+            return self.send_json({'status': 'erro', 'mensagem': str(e)})
 
     def api_funcionarios(self):
         out, err = self.run_cobol('gerir_funcionarios', {'ACAO': 'listar'})
@@ -2735,6 +2787,30 @@ class POSHandler(http.server.SimpleHTTPRequestHandler):
 
     # ---- RH Dashboard ----
     def api_rh_dashboard(self):
+        # Tentar PostgreSQL primeiro, fallback para COBOL
+        pg = pg_query("SELECT * FROM rh.vw_dashboard")
+        if pg:
+            d = pg[0]
+            result = {
+                'total_funcionarios': int(d.get('total_funcionarios', 0)),
+                'total_desligados': int(d.get('total_desligados', 0)),
+                'em_licenca': int(d.get('em_licenca', 0)),
+                'folha_mes_atual': float(d.get('folha_mes_atual', 0)),
+                'inss_mes': float(d.get('inss_mes', 0)),
+                'irrf_mes': float(d.get('irrf_mes', 0)),
+                'fgts_mes': float(d.get('fgts_mes', 0)),
+            }
+            # Alertas de ferias + licencas pendentes via PG
+            alertas = pg_query("""
+                SELECT 'Ferias vencidas' as tipo, f.nome, (CURRENT_DATE - h.competencia::DATE) as dias
+                FROM rh.holerites h JOIN rh.funcionarios f ON f.fn_id = h.funcionario_id
+                WHERE h.tipo = 'ferias' AND h.status = 'pendente'
+            """) or []
+            lic_pend = pg_query("SELECT COUNT(*) as total FROM rh.licencas WHERE status='pendente'") or [{'total':0}]
+            result['alertas_contrato'] = alertas
+            result['licencas_pendentes'] = int(lic_pend[0]['total'])
+            return self.send_json(result)
+
         import os, json
         result = {}
         try:
@@ -2767,32 +2843,14 @@ class POSHandler(http.server.SimpleHTTPRequestHandler):
         irrf_total = sum(float(h.get('irrf', 0) or 0) for h in holerites)
         fgts_total = sum(float(h.get('fgts', 0) or 0) for h in holerites)
 
-        # Licencas
         lic_ativas = sum(1 for l in licencas if l.get('status') == 'A')
         lic_pendentes = sum(1 for l in licencas if l.get('status') == 'P')
 
-        # Contratos a vencer (funcionarios sem data_saida)
         from datetime import datetime as dt, timedelta
         hoje = dt.now().date()
         alertas_contrato = []
         for f in funcs:
             data_adm = f.get('data_admissao', '')
-            if data_adm:
-                try:
-                    adm = dt.strptime(data_adm[:10], '%Y-%m-%d').date()
-                    meses = (hoje.year - adm.year) * 12 + (hoje.month - adm.month)
-                    if meses == 0: meses = 1
-                    if meses % 12 == 0 and meses > 0:
-                        alertas_contrato.append({
-                            'funcionario_id': f.get('id'),
-                            'nome': f.get('nome', ''),
-                            'tipo': 'Aniversario de contrato',
-                            'data': data_adm[:10],
-                            'dias': 0,
-                        })
-                except: pass
-            # Ferias vencidas
-            data_ult_ferias = f.get('data_ultimas_ferias', '')
             if data_ult_ferias:
                 try:
                     ult = dt.strptime(data_ult_ferias[:10], '%Y-%m-%d').date()
