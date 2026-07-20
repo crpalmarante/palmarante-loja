@@ -39,8 +39,14 @@ body {
     color: var(--text);
     line-height: 1.6;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     -webkit-font-smoothing: antialiased;
 }
+main, .container, .menu-screen, .content {
+    flex: 1;
+}
+
 
 /* ===== Tipografia ===== */
 h1, h2, h3, h4 {
@@ -280,21 +286,21 @@ tbody tr:hover { background: #f8fafc; }
 .header, .menu-header, .topbar {
     background: linear-gradient(135deg, var(--primary), var(--primary-light));
     color: #fff;
-    padding: 20px 24px;
+    padding: 12px 20px;
     border-radius: 0 0 var(--radius) var(--radius);
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
-.header h1, .menu-header h1 { color: #fff; }
-.header .sub, .menu-header .sub { color: rgba(255,255,255,.7); }
+.header h1, .menu-header h1 { color: #fff; font-size: 1.2rem; }
+.header .sub, .menu-header .sub { color: rgba(255,255,255,.7); font-size: .8rem; }
 .header .user-info, .header .tipo-info { color: rgba(255,255,255,.9); }
 
 /* ===== Footer ===== */
 footer {
     text-align: center;
-    padding: 20px;
-    margin-top: 48px;
+    padding: 12px 20px;
+    margin-top: auto;
     color: var(--text-secondary);
-    font-size: .8rem;
+    font-size: .75rem;
     border-top: 1px solid var(--border);
 }
 
