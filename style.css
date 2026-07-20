@@ -324,23 +324,54 @@ footer {
 }
 
 /* ===== Tabelas com scroll ===== */
-.table-wrap {
+.table-wrap, table {
     overflow-x: auto;
     border-radius: var(--radius);
     border: 1px solid var(--border);
 }
+table { display: block; max-width: 100%; }
 
 /* ===== Responsivo ===== */
+@media (max-width: 1024px) {
+    .menu-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+    .menu-item { padding: 16px 10px; }
+    .menu-item .icon { font-size: 1.5rem; }
+}
 @media (max-width: 768px) {
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    .form-row { grid-template-columns: 1fr; }
-    .summary-grid { grid-template-columns: repeat(2, 1fr); }
-    .tabs { flex-wrap: nowrap; }
-    .tab { padding: 10px 14px; font-size: .8rem; }
+    .form-row, .form-grid { grid-template-columns: 1fr !important; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .summary-box { padding: 14px 16px; }
+    .summary-box .value, .summary-box .valor { font-size: 1.2rem; }
+    .tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+    .tab { padding: 10px 14px; font-size: .8rem; white-space: nowrap; }
+    header { padding: 8px 16px; flex-direction: column; text-align: center; gap: 4px; }
+    header h1 { font-size: 1rem; }
+    .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .menu-item { padding: 14px 8px; }
+    .menu-item .icon { font-size: 1.3rem; }
+    .menu-item .label { font-size: .8rem; }
+    .submenu.open { grid-template-columns: repeat(2, 1fr); }
+    main { padding: 12px; }
+    .card { padding: 14px; }
+    input, select, textarea { font-size: 16px !important; } /* Evita zoom em iOS */
+    .btn, button { min-height: 44px; } /* Touch target */
+    footer { font-size: .7rem; padding: 10px 16px; }
 }
 @media (max-width: 480px) {
     .summary-grid { grid-template-columns: 1fr; }
-    .container { padding: 0 12px; }
+    .container { padding: 0 8px; }
+    .menu-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+    .menu-item { padding: 12px 6px; border-radius: 8px; }
+    .menu-item .icon { font-size: 1.2rem; }
+    .menu-item .label { font-size: .75rem; }
+    header h1 { font-size: .9rem; }
+    header a { font-size: .75rem; }
+}
+/* Tabelas em mobile: scroll horizontal */
+@media (max-width: 600px) {
+    table { font-size: .75rem; }
+    th, td { padding: 6px 8px; white-space: nowrap; }
 }
 
 /* ===== Utilitarios ===== */
