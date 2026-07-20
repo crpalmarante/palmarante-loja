@@ -4,6 +4,9 @@ import urllib.parse
 import subprocess
 import json
 import os
+import sqlite3
+import hashlib
+import secrets
 from datetime import datetime, timedelta
 
 PORT = 8080
@@ -17,6 +20,56 @@ try:
     _c = _r.sub(r":\.(\d+)", r":0.\1", _c)
     with open(_p, "w") as _f: _f.write(_c)
 except Exception: pass
+
+# ---------- Banco de dados SQLite (auth) ----------
+DB_PATH = os.path.join(DIR, 'dados', 'auth.db')
+
+def init_db():
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.executescript('''
+        CREATE TABLE IF NOT EXISTS contas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            email TEXT,
+            usuario TEXT UNIQUE NOT NULL,
+            senha_hash TEXT NOT NULL,
+            tipo TEXT NOT NULL DEFAULT 'funcionario',
+            funcionario_id INTEGER,
+            permissoes TEXT DEFAULT '',
+            ativo INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now'))
+        );
+        CREATE TABLE IF NOT EXISTS sessoes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            conta_id INTEGER NOT NULL,
+            token TEXT UNIQUE NOT NULL,
+            created_at TEXT DEFAULT (datetime('now')),
+            expires_at TEXT NOT NULL,
+            FOREIGN KEY (conta_id) REFERENCES contas(id)
+        );
+    ''')
+    # Seed: criar admin padrao se vazio
+    c.execute('SELECT COUNT(*) FROM contas')
+    if c.fetchone()[0] == 0:
+        c.execute('INSERT INTO contas (nome, email, usuario, senha_hash, tipo, permissoes) VALUES (?,?,?,?,?,?)',
+                  ('Administrador', 'admin@palmarante.com.br', 'admin',
+                   hash_senha('admin'), 'usuario', 'admin'))
+    conn.commit()
+    conn.close()
+
+def hash_senha(senha):
+    return hashlib.sha256(senha.encode()).hexdigest()
+
+def gerar_token():
+    return secrets.token_hex(32)
+
+def db():
+    return sqlite3.connect(DB_PATH)
+
+init_db()
 
 class POSHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -97,6 +150,8 @@ class POSHandler(http.server.SimpleHTTPRequestHandler):
             return self.api_fornecedores()
         if parsed.path == '/api/faturas':
             return self.api_faturas_listar()
+        if parsed.path == '/api/auth/me':
+            return self.api_auth_me()
         if parsed.path == '/api/planocontas':
             return self.api_planocontas()
         if parsed.path == '/api/diarios':
@@ -181,6 +236,12 @@ class POSHandler(http.server.SimpleHTTPRequestHandler):
             return self.api_produto_excluir(params)
         if path == '/api/login':
             return self.api_login(params)
+        if path == '/api/auth/login':
+            return self.api_auth_login(params)
+        if path == '/api/auth/register':
+            return self.api_auth_register(params)
+        if path == '/api/auth/logout':
+            return self.api_auth_logout(params)
         if path == '/api/venda/registrar':
             return self.api_venda_registrar(params)
         if path == '/api/empresa/gravar':
@@ -369,10 +430,18 @@ class POSHandler(http.server.SimpleHTTPRequestHandler):
             return self.api_workflow_transition(params)
         self.send_json({'status': 'erro', 'mensagem': 'rota invalida'})
 
-    def send_json(self, data):
+    def do_OPTIONS(self):
         self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Authorization, X-Auth-Token, Content-Type')
+        self.end_headers()
+
+    def send_json(self, data, status=200):
+        self.send_response(status)
         self.send_header('Content-Type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Headers', 'Authorization, X-Auth-Token, Content-Type')
         self.end_headers()
         self.wfile.write(json.dumps(data, ensure_ascii=False).encode())
 
@@ -1255,6 +1324,93 @@ class POSHandler(http.server.SimpleHTTPRequestHandler):
             except json.JSONDecodeError:
                 pass
         self.send_json({'status': 'erro', 'mensagem': 'usuario ou senha incorretos'})
+
+    # ---------- Auth via SQLite ----------
+    def _get_conta_por_token(self):
+        auth = self.headers.get('Authorization', '')
+        if auth.startswith('Bearer '):
+            token = auth[7:]
+        else:
+            token = self.headers.get('X-Auth-Token', '')
+        if not token:
+            return None
+        conn = db()
+        c = conn.cursor()
+        c.execute('SELECT c.* FROM contas c JOIN sessoes s ON c.id=s.conta_id '
+                  'WHERE s.token=? AND s.expires_at > datetime("now")', (token,))
+        row = c.fetchone()
+        conn.close()
+        if row:
+            return {
+                'id': row[0], 'nome': row[1], 'email': row[2],
+                'usuario': row[3], 'tipo': row[5],
+                'funcionario_id': row[6], 'permissoes': row[7]
+            }
+        return None
+
+    def api_auth_login(self, params):
+        usuario = params.get('usuario', [''])[0]
+        senha = params.get('senha', [''])[0]
+        if not usuario or not senha:
+            return self.send_json({'status': 'erro', 'mensagem': 'usuario e senha obrigatorios'})
+        conn = db()
+        c = conn.cursor()
+        c.execute('SELECT * FROM contas WHERE usuario=? AND ativo=1', (usuario,))
+        row = c.fetchone()
+        if row and row[4] == hash_senha(senha):
+            token = gerar_token()
+            exp = (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
+            c.execute('INSERT INTO sessoes (conta_id, token, expires_at) VALUES (?,?,?)',
+                      (row[0], token, exp))
+            conn.commit()
+            conn.close()
+            return self.send_json({
+                'status': 'ok', 'token': token,
+                'id': row[0], 'nome': row[1], 'usuario': row[3],
+                'tipo': row[5], 'funcionario_id': row[6],
+                'permissoes': row[7]
+            })
+        conn.close()
+        # Fallback: tentar login via COBOL (legado)
+        return self.api_login(params)
+
+    def api_auth_register(self, params):
+        nome = params.get('nome', [''])[0]
+        usuario = params.get('usuario', [''])[0]
+        senha = params.get('senha', [''])[0]
+        email = params.get('email', [''])[0]
+        tipo = params.get('tipo', ['funcionario'])[0]
+        if not nome or not usuario or not senha:
+            return self.send_json({'status': 'erro', 'mensagem': 'nome, usuario e senha obrigatorios'})
+        if len(senha) < 4:
+            return self.send_json({'status': 'erro', 'mensagem': 'senha deve ter no minimo 4 caracteres'})
+        conn = db()
+        c = conn.cursor()
+        try:
+            c.execute('INSERT INTO contas (nome, email, usuario, senha_hash, tipo) VALUES (?,?,?,?,?)',
+                      (nome, email, usuario, hash_senha(senha), tipo))
+            conn.commit()
+            conta_id = c.lastrowid
+            conn.close()
+            return self.send_json({'status': 'ok', 'id': conta_id, 'mensagem': 'conta criada com sucesso'})
+        except sqlite3.IntegrityError:
+            conn.close()
+            return self.send_json({'status': 'erro', 'mensagem': 'usuario ja existe'})
+
+    def api_auth_logout(self, params):
+        token = self.headers.get('X-Auth-Token', '') or self.headers.get('Authorization', '').replace('Bearer ', '')
+        if token:
+            conn = db()
+            conn.execute('DELETE FROM sessoes WHERE token=?', (token,))
+            conn.commit()
+            conn.close()
+        return self.send_json({'status': 'ok'})
+
+    def api_auth_me(self):
+        conta = self._get_conta_por_token()
+        if conta:
+            return self.send_json({'status': 'ok', 'conta': conta})
+        return self.send_json({'status': 'erro', 'mensagem': 'nao autenticado'}, 401)
 
     def api_funcionarios(self):
         out, err = self.run_cobol('gerir_funcionarios', {'ACAO': 'listar'})

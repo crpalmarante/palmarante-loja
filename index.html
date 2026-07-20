@@ -15,7 +15,9 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #
 .login-box input:focus { border-color: #1a237e; outline: none; box-shadow: 0 0 0 2px rgba(26,35,126,.2); }
 .login-box button { width: 100%; padding: 12px; background: #1a237e; color: #fff; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; font-weight: 600; }
 .login-box button:hover { background: #283593; }
+.login-box .link { color: #1a237e; font-size: .85rem; cursor: pointer; margin-top: 12px; display: inline-block; text-decoration: underline; }
 .login-erro { color: #c62828; font-size: .85rem; margin-top: 8px; display: none; }
+.login-ok { color: #2e7d32; font-size: .85rem; margin-top: 8px; display: none; }
 .loading { color: #666; font-size: .85rem; margin-top: 8px; display: none; }
 .menu-screen { display: none; width: 100%; max-width: 800px; margin: 0 auto; padding: 40px 20px; }
 .menu-screen.ativo { display: block; }
@@ -38,12 +40,28 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #
 <div class="login-screen" id="login-screen">
 <h1>Palmarante Loja</h1>
 <div class="sub">Sistema de Gestao</div>
-<div class="login-box">
+
+<div class="login-box" id="login-box">
+<div id="form-login">
 <input type="text" id="login-user" placeholder="Usuario" autocomplete="off">
 <input type="password" id="login-pass" placeholder="Senha" onkeydown="if(event.key==='Enter')logar()">
 <button onclick="logar()" id="btn-entrar">Entrar</button>
 <div class="loading" id="login-loading">A autenticar...</div>
 <div class="login-erro" id="login-erro">Usuario ou senha incorretos</div>
+<div class="link" onclick="mostrarRegistro()">Cadastrar-se</div>
+</div>
+
+<div id="form-registro" style="display:none">
+<input type="text" id="reg-nome" placeholder="Nome completo">
+<input type="text" id="reg-usuario" placeholder="Usuario">
+<input type="email" id="reg-email" placeholder="Email (opcional)">
+<input type="password" id="reg-senha" placeholder="Senha (min 4 caracteres)">
+<button onclick="registrar()">Cadastrar</button>
+<div class="loading" id="reg-loading">A cadastrar...</div>
+<div class="login-erro" id="reg-erro"></div>
+<div class="login-ok" id="reg-ok"></div>
+<div class="link" onclick="mostrarLogin()">Voltar ao login</div>
+</div>
 </div>
 </div>
 
@@ -133,6 +151,25 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #
 
 <script>
 let usuarioLogado = null;
+let token = localStorage.getItem('auth_token');
+
+function mostrarRegistro() {
+document.getElementById('form-login').style.display = 'none';
+document.getElementById('form-registro').style.display = 'block';
+document.getElementById('login-erro').style.display = 'none';
+}
+function mostrarLogin() {
+document.getElementById('form-login').style.display = 'block';
+document.getElementById('form-registro').style.display = 'none';
+document.getElementById('reg-erro').style.display = 'none';
+document.getElementById('reg-ok').style.display = 'none';
+}
+
+function api(path, params) {
+const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+if (token) headers['X-Auth-Token'] = token;
+return fetch(path, { method: 'POST', headers, body: params });
+}
 
 function logar() {
 const u = document.getElementById('login-user').value.trim();
@@ -147,16 +184,14 @@ const params = new URLSearchParams();
 params.set('usuario', u);
 params.set('senha', p);
 
-fetch('/api/login', {
-method: 'POST',
-headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-body: params
-})
+api('/api/auth/login', params)
 .then(r => r.json())
 .then(data => {
 document.getElementById('login-loading').style.display = 'none';
 document.getElementById('btn-entrar').disabled = false;
 if (data.status === 'ok') {
+token = data.token;
+localStorage.setItem('auth_token', token);
 usuarioLogado = data;
 document.getElementById('user-info').textContent = data.nome + ' (' + data.usuario + ')';
 document.getElementById('tipo-info').textContent = data.tipo === 'usuario' ? 'Administrador' : 'Funcionario';
@@ -173,6 +208,49 @@ document.getElementById('login-loading').style.display = 'none';
 document.getElementById('btn-entrar').disabled = false;
 document.getElementById('login-erro').textContent = 'Erro de conexao';
 document.getElementById('login-erro').style.display = 'block';
+});
+}
+
+function registrar() {
+const nome = document.getElementById('reg-nome').value.trim();
+const usuario = document.getElementById('reg-usuario').value.trim();
+const email = document.getElementById('reg-email').value.trim();
+const senha = document.getElementById('reg-senha').value;
+if (!nome || !usuario || !senha) {
+document.getElementById('reg-erro').textContent = 'Preencha nome, usuario e senha';
+document.getElementById('reg-erro').style.display = 'block'; return;
+}
+
+document.getElementById('reg-erro').style.display = 'none';
+document.getElementById('reg-ok').style.display = 'none';
+document.getElementById('reg-loading').style.display = 'block';
+
+const params = new URLSearchParams();
+params.set('nome', nome);
+params.set('usuario', usuario);
+params.set('email', email);
+params.set('senha', senha);
+
+api('/api/auth/register', params)
+.then(r => r.json())
+.then(data => {
+document.getElementById('reg-loading').style.display = 'none';
+if (data.status === 'ok') {
+document.getElementById('reg-ok').textContent = 'Conta criada com sucesso! Faca login.';
+document.getElementById('reg-ok').style.display = 'block';
+document.getElementById('reg-nome').value = '';
+document.getElementById('reg-usuario').value = '';
+document.getElementById('reg-email').value = '';
+document.getElementById('reg-senha').value = '';
+} else {
+document.getElementById('reg-erro').textContent = data.mensagem || 'Erro ao cadastrar';
+document.getElementById('reg-erro').style.display = 'block';
+}
+})
+.catch(() => {
+document.getElementById('reg-loading').style.display = 'none';
+document.getElementById('reg-erro').textContent = 'Erro de conexao';
+document.getElementById('reg-erro').style.display = 'block';
 });
 }
 
@@ -201,12 +279,32 @@ return true;
 }
 
 function sair() {
-usuarioLogado = null;
+api('/api/auth/logout', new URLSearchParams()).catch(() => {});
+token = null;
+localStorage.removeItem('auth_token');
 localStorage.removeItem('pos_usuario');
+usuarioLogado = null;
 document.getElementById('login-screen').style.display = '';
 document.getElementById('menu-screen').classList.remove('ativo');
 document.getElementById('login-user').value = '';
 document.getElementById('login-pass').value = '';
+}
+
+// Auto-login se token existir
+if (token) {
+fetch('/api/auth/me', { headers: { 'X-Auth-Token': token } })
+.then(r => r.json())
+.then(data => {
+if (data.status === 'ok') {
+usuarioLogado = data.conta;
+document.getElementById('user-info').textContent = data.conta.nome + ' (' + data.conta.usuario + ')';
+document.getElementById('tipo-info').textContent = data.conta.tipo === 'usuario' ? 'Administrador' : 'Funcionario';
+document.getElementById('login-screen').style.display = 'none';
+document.getElementById('menu-screen').classList.add('ativo');
+aplicarPermissoes(data.conta);
+}
+})
+.catch(() => { localStorage.removeItem('auth_token'); });
 }
 </script>
 </body>
