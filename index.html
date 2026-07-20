@@ -27,12 +27,18 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #
 .menu-header .user-info { color: #666; font-size: .85rem; margin-top: 8px; }
 .menu-header .tipo-info { color: #1a237e; font-size: .8rem; font-weight: 600; margin-top: 2px; }
 .menu-header .logout { display: inline-block; margin-top: 8px; color: #c62828; cursor: pointer; font-size: .85rem; text-decoration: underline; }
-.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
-.menu-item { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 28px 16px; text-align: center; cursor: pointer; transition: .2s; text-decoration: none; color: #333; display: block; border: 2px solid transparent; }
-.menu-item:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(0,0,0,.12); border-color: #1a237e; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.menu-item { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.06); padding: 20px 12px; text-align: center; cursor: pointer; transition: .2s; text-decoration: none; color: #333; display: block; border: 1.5px solid transparent; }
+.menu-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.1); border-color: #1a237e; }
 .menu-item.oculto { display: none; }
-.menu-item .icon { font-size: 2.4rem; margin-bottom: 8px; }
-.menu-item .label { font-weight: 600; font-size: 1rem; color: #1a237e; }
+.menu-item .icon { font-size: 1.8rem; margin-bottom: 4px; }
+.menu-item .label { font-weight: 600; font-size: .85rem; color: #1a237e; }
+.menu-item .sub-icon { font-size: .7rem; color: #94a3b8; margin-left: 4px; }
+.submenu { display: none; grid-column: 1 / -1; }
+.submenu.open { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; padding: 8px 0 8px 16px; }
+.submenu .menu-item { padding: 14px 10px; font-size: .8rem; background: #f8fafc; border-color: #e2e8f0; }
+.submenu .menu-item .icon { font-size: 1.3rem; }
+.submenu .menu-item .label { font-size: .8rem; }
 </style>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -99,12 +105,17 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #
 <div class="icon">💰</div>
 <div class="label">Faturamento</div>
 </a>
-<a href="funcionarios.html" class="menu-item" id="menu-funcionarios">
+<div class="menu-item" id="menu-funcionarios" onclick="toggleSubmenu('rh-submenu')">
 <div class="icon">👥</div>
-<div class="label">Funcionarios</div>
+<div class="label">Funcionarios <span class="sub-icon">▼</span></div>
+</div>
+<div class="submenu" id="rh-submenu">
+<a href="funcionarios.html" class="menu-item" id="menu-cadastro">
+<div class="icon">📋</div>
+<div class="label">Cadastro</div>
 </a>
 <a href="folha.html" class="menu-item" id="menu-folha">
-<div class="icon">📋</div>
+<div class="icon">💰</div>
 <div class="label">Folha Pagto</div>
 </a>
 <a href="ponto.html" class="menu-item" id="menu-ponto">
@@ -128,7 +139,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #
 <div class="label">Estrut. Salarial</div>
 </a>
 <a href="rh_dashboard.html" class="menu-item" id="menu-rh-dashboard">
-<div class="icon">📊</div>
+<div class="icon">📈</div>
 <div class="label">RH Dashboard</div>
 </a>
 <a href="directory.html" class="menu-item" id="menu-directory">
@@ -136,7 +147,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #
 <div class="label">Diretorio</div>
 </a>
 <a href="emprestimos.html" class="menu-item" id="menu-emprestimos">
-<div class="icon">💰</div>
+<div class="icon">💳</div>
 <div class="label">Emprestimos</div>
 </a>
 <a href="disciplinar.html" class="menu-item" id="menu-disciplinar">
@@ -270,6 +281,25 @@ el.classList.remove('oculto');
 el.classList.add('oculto');
 }
 });
+// Submenu: mostrar parent se algum filho estiver visivel
+document.querySelectorAll('.submenu').forEach(sm => {
+const parent = sm.previousElementSibling;
+const visiveis = sm.querySelectorAll('.menu-item:not(.oculto)').length;
+if (visiveis > 0) {
+parent.classList.remove('oculto');
+} else {
+parent.classList.add('oculto');
+sm.classList.remove('open'); // recolher se vazio
+}
+});
+}
+
+function toggleSubmenu(id) {
+const el = document.getElementById(id);
+if (!el) return;
+el.classList.toggle('open');
+const icon = el.previousElementSibling.querySelector('.sub-icon');
+if (icon) icon.textContent = el.classList.contains('open') ? '▲' : '▼';
 }
 
 function abrirPOS() {
