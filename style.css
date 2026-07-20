@@ -283,16 +283,35 @@ tbody tr:hover { background: #f8fafc; }
 .status-badge.ativo { background: #dbeafe; color: #1e40af; }
 
 /* ===== Header / Topbar ===== */
-.header, .menu-header, .topbar {
+header, .header, .topbar {
     background: linear-gradient(135deg, var(--primary), var(--primary-light));
     color: #fff;
-    padding: 12px 20px;
-    border-radius: 0 0 var(--radius) var(--radius);
-    margin-bottom: 20px;
+    padding: 10px 24px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 20px 0;
 }
-.header h1, .menu-header h1 { color: #fff; font-size: 1.2rem; }
-.header .sub, .menu-header .sub { color: rgba(255,255,255,.7); font-size: .8rem; }
-.header .user-info, .header .tipo-info { color: rgba(255,255,255,.9); }
+header h1, .header h1, .topbar h1,
+header h2, .header h2 {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+}
+header a, .header a, .topbar a {
+    color: rgba(255,255,255,.85);
+    text-decoration: none;
+    font-size: .8rem;
+    font-weight: 500;
+    transition: opacity .2s;
+}
+header a:hover, .header a:hover { opacity: 1; color: #fff; }
+header .sub, .header .sub { color: rgba(255,255,255,.7); font-size: .8rem; }
+header .user-info, header .tipo-info { color: rgba(255,255,255,.9); }
 
 /* ===== Footer ===== */
 footer {
