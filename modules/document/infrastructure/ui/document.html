@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document Platform — BusinessCore</title>
+<link rel="stylesheet" href="../../../businessui/assets/css/core/theme.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/layout/layout.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/navigation.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/components.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/form.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/datagrid.css">
+</head>
+<body>
+
+<div class="bu-app">
+  <header class="bu-topbar">
+    <div class="bu-topbar-logo">Business<span>Core</span></div>
+    <div class="bu-topbar-search"><span class="bu-topbar-search-icon">🔍</span><input class="bu-input" placeholder="Pesquisar..."></div>
+    <nav class="bu-topbar-nav">
+      <button class="bu-topbar-btn">🔔</button>
+      <button class="bu-topbar-btn">⚙️</button>
+      <div class="bu-avatar bu-avatar-sm">AD</div>
+    </nav>
+  </header>
+
+  <div class="bu-body">
+    <aside class="bu-sidebar">
+      <div class="bu-sidebar-header">
+        <div class="bu-avatar">BC</div>
+        <div class="bu-sidebar-header-info">
+          <div class="bu-sidebar-header-name">BusinessCore</div>
+          <div class="bu-sidebar-header-role">Documentos</div>
+        </div>
+      </div>
+      <div class="bu-sidebar-scroll">
+        <div class="bu-menu-group">
+          <div class="bu-menu-label">Documentos</div>
+          <a class="bu-menu-item" href="#" onclick="switchTab('dashboard')"><span class="bu-menu-icon">📊</span><span class="bu-menu-text">Dashboard</span></a>
+          <a class="bu-menu-item active" href="#" onclick="switchTab('documents')"><span class="bu-menu-icon">📄</span><span class="bu-menu-text">Documentos</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('definitions')"><span class="bu-menu-icon">⚙️</span><span class="bu-menu-text">Definições</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('numbering')"><span class="bu-menu-icon">🔢</span><span class="bu-menu-text">Numeração</span></a>
+        </div>
+      </div>
+      <div class="bu-sidebar-footer">BusinessCore v1.0.0</div>
+    </aside>
+
+    <main class="bu-workspace">
+      <div class="bu-toolbar">
+        <div class="bu-toolbar-start">
+          <div class="bu-breadcrumb">
+            <a class="bu-breadcrumb-item" href="#">Home</a>
+            <span class="bu-breadcrumb-sep">/</span>
+            <span class="bu-breadcrumb-item active" id="pageTitle">Documentos</span>
+          </div>
+        </div>
+        <div class="bu-toolbar-end">
+          <div class="bu-toolbar-search" id="searchContainer">
+            <span class="bu-toolbar-search-icon">🔍</span>
+            <input class="bu-input bu-input-sm" id="searchInput" placeholder="Buscar..." oninput="loadContent()">
+          </div>
+          <div class="bu-toolbar-divider"></div>
+          <button class="bu-btn bu-btn-primary" id="btnNew" onclick="openCreate()">+ Novo Documento</button>
+        </div>
+      </div>
+      <div class="bu-workspace-content"><div id="dataContainer"></div></div>
+    </main>
+  </div>
+
+  <footer class="bu-statusbar">
+    <div class="bu-statusbar-start"><span><span class="bu-statusbar-dot online"></span> Document Platform</span><span>v1.0.0</span></div>
+    <div class="bu-statusbar-end"><span id="recordCount"></span></div>
+  </footer>
+</div>
+
+<div class="bu-dialog-backdrop" id="itemForm">
+  <div class="bu-dialog bu-dialog-lg">
+    <div class="bu-dialog-header"><h3 id="formTitle">Novo</h3><button class="bu-dialog-close" onclick="closeForm()">✕</button></div>
+    <div class="bu-dialog-body" id="formBody"></div>
+    <div class="bu-dialog-footer">
+      <button class="bu-btn" onclick="closeForm()">Cancelar</button>
+      <button class="bu-btn bu-btn-primary" onclick="saveItem()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8007/api';
+let currentTab = 'documents';
+let editingId = '';
+
+function switchTab(tab) {
+  currentTab = tab;
+  const tabs = ['dashboard','documents','definitions','numbering'];
+  document.querySelectorAll('.bu-menu-item').forEach((m,i) => m.classList.toggle('active', tabs[i]===tab));
+  const labels = {dashboard:'Dashboard',documents:'Documentos',definitions:'Definições',numbering:'Numeração'};
+  document.getElementById('pageTitle').textContent = labels[tab]||tab;
+  document.getElementById('btnNew').style.display = tab==='dashboard'?'none':'';
+  document.getElementById('searchContainer').style.display = tab==='dashboard'?'none':'';
+  loadContent();
+}
+
+async function apiFetch(url, options = {}) {
+  options.headers = options.headers || {};
+  options.headers['Content-Type'] = 'application/json';
+  if (options.body && typeof options.body === 'object') options.body = JSON.stringify(options.body);
+  const res = await fetch(url, options);
+  if (!res.ok) { const err = await res.json(); throw new Error(err.detail || 'API error'); }
+  return res.json();
+}
+
+function closeForm() {
+  document.getElementById('itemForm').classList.remove('open');
+  editingId = '';
+}
+
+function openCreate() {
+  editingId = '';
+  if (currentTab === 'documents') renderDocForm();
+  else if (currentTab === 'definitions') renderDefForm();
+  else if (currentTab === 'numbering') renderNumForm();
+}
+
+function saveItem() {
+  if (currentTab === 'documents') saveDoc();
+  else if (currentTab === 'definitions') saveDef();
+  else if (currentTab === 'numbering') saveNum();
+}
+
+// ── Dashboard ────────────────────────────────────────────────
+async function renderDashboard() {
+  const d = await apiFetch(`${API}/documents/dashboard`);
+  const data = d.data;
+  const defs = await apiFetch(`${API}/document-definitions`);
+  document.getElementById('dataContainer').innerHTML = `
+    <div class="bu-grid bu-grid-4" style="margin-bottom:20px">
+      <div class="bu-card"><div class="bu-card-content"><h3>📄 Total Documentos</h3><div class="bu-stat-value">${data.total_documents}</div></div></div>
+      <div class="bu-card"><div class="bu-card-content"><h3>💰 Valor Total</h3><div class="bu-stat-value">R$ ${data.total_value.toFixed(2)}</div></div></div>
+      <div class="bu-card"><div class="bu-card-content"><h3>⚙️ Definições Ativas</h3><div class="bu-stat-value">${data.active_definitions}</div></div></div>
+      <div class="bu-card"><div class="bu-card-content"><h3>🧾 Tipos de Documento</h3><div class="bu-stat-value">${Object.keys(data.by_type).length}</div></div></div>
+    </div>
+    <div class="bu-grid bu-grid-2">
+      <div class="bu-card"><div class="bu-card-header"><h3>Por Tipo</h3></div><div class="bu-card-content"><table class="bu-table"><thead><tr><th>Tipo</th><th>Qtd</th></tr></thead><tbody>${Object.entries(data.by_type).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody></table></div></div>
+      <div class="bu-card"><div class="bu-card-header"><h3>Por Status</h3></div><div class="bu-card-content"><table class="bu-table"><thead><tr><th>Status</th><th>Qtd</th></tr></thead><tbody>${Object.entries(data.by_status).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody></table></div></div>
+    </div>
+    <div class="bu-card"><div class="bu-card-header"><h3>Definições Registradas</h3></div><div class="bu-card-content"><table class="bu-table"><thead><tr><th>Nome</th><th>Código</th><th>Direção</th><th>Workflow</th><th>Status</th></tr></thead><tbody>${(defs.data||[]).map(d=>`<tr><td>${d.name}</td><td>${d.code}</td><td>${d.direction}</td><td>${d.has_workflow?'✅':'—'}</td><td>${d.active?'✅':'❌'}</td></tr>`).join('')}</tbody></table></div></div>`;
+  document.getElementById('recordCount').textContent = `${data.total_documents} documentos`;
+}
+
+// ── Documents List ───────────────────────────────────────────
+async function renderDocuments() {
+  const q = document.getElementById('searchInput').value;
+  const params = new URLSearchParams();
+  if (q) params.set('query', q);
+  const res = await apiFetch(`${API}/documents?${params}`);
+  const docs = res.data || [];
+  document.getElementById('dataContainer').innerHTML = `
+    <div class="bu-table-header">
+      <select class="bu-input bu-input-sm" id="filterType" onchange="loadContent()" style="width:auto">
+        <option value="">Todos os tipos</option>
+        ${[...new Set(docs.map(d=>d.document_type))].map(t=>`<option value="${t}">${t}</option>`)}
+      </select>
+      <select class="bu-input bu-input-sm" id="filterStatus" onchange="loadContent()" style="width:auto">
+        <option value="">Todos status</option>
+        <option value="draft">Rascunho</option>
+        <option value="open">Aberto</option>
+        <option value="pending">Pendente</option>
+        <option value="approved">Aprovado</option>
+        <option value="completed">Concluído</option>
+        <option value="cancelled">Cancelado</option>
+      </select>
+    </div>
+    <table class="bu-table">
+      <thead><tr><th>Número</th><th>Tipo</th><th>Status</th><th>Parte</th><th>Itens</th><th>Total</th><th>Criado</th><th>Ações</th></tr></thead>
+      <tbody>${docs.map(d=>`<tr><td>${d.number||'—'}</td><td>${d.document_type}</td><td><span class="bu-badge bu-badge-${d.status}">${d.status}</span></td><td>${d.party||'—'}</td><td>${d.lines}</td><td>R$ ${d.total.toFixed(2)}</td><td>${new Date(d.created_at).toLocaleDateString('pt-BR')}</td><td><button class="bu-btn bu-btn-sm bu-btn-outline" onclick="openDoc('${d.id}')">📄</button> <button class="bu-btn bu-btn-sm bu-btn-outline" onclick="deleteDoc('${d.id}')">🗑️</button></td></tr>`).join('')}</tbody>
+    </table>`;
+  document.getElementById('recordCount').textContent = `${docs.length} documentos`;
+}
+
+async function deleteDoc(id) {
+  if (!confirm('Excluir documento?')) return;
+  await apiFetch(`${API}/documents/${id}`, { method: 'DELETE' });
+  loadContent();
+}
+
+function openDoc(id) {
+  editingId = id;
+  renderDocForm();
+}
+
+async function renderDocForm() {
+  let doc = {document_type:'',number:'',header:{},lines:[],parties:[],references:[]};
+  let title = 'Novo Documento';
+  if (editingId) {
+    const r = await apiFetch(`${API}/documents/${editingId}`);
+    doc = r.data;
+    title = `Documento: ${doc.number}`;
+  }
+  const defs = await apiFetch(`${API}/document-definitions`);
+  document.getElementById('formTitle').textContent = title;
+  document.getElementById('formBody').innerHTML = `
+    <div class="bu-form-group">
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Tipo de Documento</label>
+          <select class="bu-input" id="f_document_type">${(defs.data||[]).map(d=>`<option value="${d.code}" ${doc.document_type===d.code?'selected':''}>${d.name} (${d.code})</option>`).join('')}</select></div>
+        <div class="bu-field"><label>Número</label><input class="bu-input" id="f_number" value="${doc.number||''}"></div>
+        <div class="bu-field"><label>Direção</label>
+          <select class="bu-input" id="f_direction"><option value="out" ${doc.direction==='out'?'selected':''}>Saída</option><option value="in" ${doc.direction==='in'?'selected':''}>Entrada</option><option value="internal" ${doc.direction==='internal'?'selected':''}>Interno</option></select></div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Responsável</label><input class="bu-input" id="f_responsible" value="${doc.header?.responsible||''}"></div>
+        <div class="bu-field"><label>Departamento</label><input class="bu-input" id="f_department" value="${doc.header?.department||''}"></div>
+        <div class="bu-field"><label>Centro de Custo</label><input class="bu-input" id="f_cost_center" value="${doc.header?.cost_center||''}"></div>
+      </div>
+      <div class="bu-field"><label>Observações</label><textarea class="bu-input" id="f_notes" rows="2">${doc.header?.notes||''}</textarea></div>
+    </div>
+    <h4 style="margin:12px 0 8px">Linhas (Itens)</h4>
+    <div id="linesContainer">
+      <table class="bu-table"><thead><tr><th>Item</th><th>Qtd</th><th>Preço</th><th>Desc%</th><th>Total</th><th></th></tr></thead>
+      <tbody id="linesBody">${(doc.lines||[]).map((l,i)=>renderLineRow(l,i)).join('')}</tbody></table>
+      <button class="bu-btn bu-btn-sm bu-btn-outline" onclick="addLineRow()" style="margin-top:8px">+ Adicionar Item</button>
+    </div>
+    <h4 style="margin:12px 0 8px">Partes Envolvidas</h4>
+    <div id="partiesContainer">
+      ${(doc.parties||[]).map(p=>`<div class="bu-form-row" style="margin-bottom:6px"><input class="bu-input" placeholder="Party ID" value="${p.party_id}" style="width:200px"> <select class="bu-input" style="width:auto"><option ${p.party_type==='customer'?'selected':''}>customer</option><option ${p.party_type==='supplier'?'selected':''}>supplier</option></select> <input class="bu-input" placeholder="Nome" value="${p.party_name}" style="width:200px"></div>`).join('')}
+      <button class="bu-btn bu-btn-sm bu-btn-outline" onclick="addPartyRow()">+ Adicionar Parte</button>
+    </div>`;
+  document.getElementById('itemForm').classList.add('open');
+}
+
+function renderLineRow(l, i) {
+  return `<tr><td><input class="bu-input bu-input-sm" value="${l.item_name||l.item_id||''}" placeholder="Item" style="width:120px"></td><td><input class="bu-input bu-input-sm" type="number" step="0.01" value="${l.quantity||1}" style="width:70px"></td><td><input class="bu-input bu-input-sm" type="number" step="0.01" value="${l.unit_price||0}" style="width:90px"></td><td><input class="bu-input bu-input-sm" type="number" step="0.01" value="${l.discount_pct||0}" style="width:60px"></td><td><span>R$ ${((l.quantity||1)*(l.unit_price||0)-(l.discount_value||0)+(l.tax_value||0)).toFixed(2)}</span></td><td><button class="bu-btn bu-btn-sm bu-btn-danger" onclick="this.closest('tr').remove()">✕</button></td></tr>`;
+}
+
+let lineCounter = 0;
+function addLineRow() {
+  const tbody = document.getElementById('linesBody');
+  const tr = document.createElement('tr');
+  lineCounter++;
+  tr.innerHTML = `<td><input class="bu-input bu-input-sm" placeholder="Item" style="width:120px"></td><td><input class="bu-input bu-input-sm" type="number" step="0.01" value="1" style="width:70px"></td><td><input class="bu-input bu-input-sm" type="number" step="0.01" value="0" style="width:90px"></td><td><input class="bu-input bu-input-sm" type="number" step="0.01" value="0" style="width:60px"></td><td>R$ 0.00</td><td><button class="bu-btn bu-btn-sm bu-btn-danger" onclick="this.closest('tr').remove()">✕</button></td>`;
+  tbody.appendChild(tr);
+}
+
+function addPartyRow() {
+  const c = document.getElementById('partiesContainer');
+  const d = document.createElement('div');
+  d.className = 'bu-form-row';
+  d.style.marginBottom = '6px';
+  d.innerHTML = `<input class="bu-input" placeholder="Party ID" style="width:200px"> <select class="bu-input" style="width:auto"><option>customer</option><option>supplier</option></select> <input class="bu-input" placeholder="Nome" style="width:200px"> <button class="bu-btn bu-btn-sm bu-btn-danger" onclick="this.parentElement.remove()">✕</button>`;
+  c.insertBefore(d, c.lastElementChild);
+}
+
+async function saveDoc() {
+  const lines = [];
+  document.querySelectorAll('#linesBody tr').forEach(tr => {
+    const inputs = tr.querySelectorAll('input');
+    if (inputs[0]?.value) {
+      lines.push({
+        item_name: inputs[0].value,
+        quantity: parseFloat(inputs[1].value) || 1,
+        unit_price: parseFloat(inputs[2].value) || 0,
+        discount_pct: parseFloat(inputs[3].value) || 0,
+      });
+    }
+  });
+  const parties = [];
+  document.querySelectorAll('#partiesContainer > .bu-form-row').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const sel = row.querySelector('select');
+    if (inputs[0]?.value) {
+      parties.push({ party_id: inputs[0].value, party_type: sel?.value||'customer', party_name: inputs[1]?.value||'' });
+    }
+  });
+  const body = {
+    document_type: document.getElementById('f_document_type').value,
+    number: document.getElementById('f_number').value,
+    direction: document.getElementById('f_direction').value,
+    header: {
+      responsible: document.getElementById('f_responsible').value,
+      department: document.getElementById('f_department').value,
+      cost_center: document.getElementById('f_cost_center').value,
+      notes: document.getElementById('f_notes').value,
+    },
+    lines,
+    parties,
+    created_by: 'admin',
+  };
+  if (editingId) {
+    await apiFetch(`${API}/documents/${editingId}`, { method: 'PUT', body });
+  } else {
+    await apiFetch(`${API}/documents`, { method: 'POST', body });
+  }
+  closeForm();
+  if (currentTab === 'documents') renderDocuments();
+  else switchTab('documents');
+}
+
+// ── Definitions ──────────────────────────────────────────────
+async function renderDefinitions() {
+  const res = await apiFetch(`${API}/document-definitions`);
+  const defs = res.data || [];
+  document.getElementById('dataContainer').innerHTML = `
+    <table class="bu-table"><thead><tr><th>Nome</th><th>Código</th><th>Direção</th><th>Linhas</th><th>Partes</th><th>Workflow</th><th>Comportamentos</th><th>Ativo</th><th>Ações</th></tr></thead>
+    <tbody>${defs.map(d=>`<tr><td>${d.name}</td><td>${d.code}</td><td>${d.direction}</td><td>${d.has_lines?'✅':'❌'}</td><td>${d.has_parties?'✅':'❌'}</td><td>${d.has_workflow?d.workflow_code:'—'}</td><td>${(d.behaviors||[]).join(', ')||'—'}</td><td>${d.active?'✅':'❌'}</td><td><button class="bu-btn bu-btn-sm bu-btn-outline" onclick="openDef('${d.id}')">📄</button> <button class="bu-btn bu-btn-sm bu-btn-outline" onclick="deleteDef('${d.id}')">🗑️</button></td></tr>`).join('')}</tbody></table>`;
+  document.getElementById('recordCount').textContent = `${defs.length} definições`;
+}
+
+async function openDef(id) {
+  editingId = id;
+  renderDefForm();
+}
+
+async function deleteDef(id) {
+  if (!confirm('Excluir definição?')) return;
+  const res = await fetch(`${API}/document-definitions/${id}`, { method: 'DELETE' });
+  loadContent();
+}
+
+async function renderDefForm() {
+  let def = {name:'',code:'',direction:'out',has_lines:true,has_parties:true,has_totals:true,has_workflow:false,workflow_code:'',behaviors:[],header_fields:[],line_fields:[],party_types:['customer','supplier']};
+  const title = 'Nova Definição';
+  document.getElementById('formTitle').textContent = title;
+  document.getElementById('formBody').innerHTML = `
+    <div class="bu-form-group">
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Nome *</label><input class="bu-input" id="def_name" value="${def.name}"></div>
+        <div class="bu-field"><label>Código *</label><input class="bu-input" id="def_code" value="${def.code}"></div>
+        <div class="bu-field"><label>Direção</label><select class="bu-input" id="def_direction"><option value="out">Saída</option><option value="in">Entrada</option><option value="internal">Interno</option></select></div>
+      </div>
+      <div class="bu-field"><label>Descrição</label><textarea class="bu-input" id="def_description" rows="2"></textarea></div>
+      <div class="bu-form-row">
+        <div class="bu-field"><label><input type="checkbox" id="def_has_lines" checked> Tem Linhas (Itens)</label></div>
+        <div class="bu-field"><label><input type="checkbox" id="def_has_parties" checked> Tem Partes</label></div>
+        <div class="bu-field"><label><input type="checkbox" id="def_has_totals" checked> Tem Totais</label></div>
+        <div class="bu-field"><label><input type="checkbox" id="def_has_workflow"> Tem Workflow</label></div>
+      </div>
+      <div class="bu-field"><label>Código do Workflow</label><input class="bu-input" id="def_workflow_code"></div>
+      <div class="bu-field"><label>Comportamentos (separados por vírgula)</label><input class="bu-input" id="def_behaviors" placeholder="inventory, financial, fiscal"></div>
+    </div>
+    <h4 style="margin:12px 0 8px">Campos do Cabeçalho</h4>
+    <div id="defHeaderFields"><p class="bu-text-muted">Campos personalizados serão adicionados via API</p></div>
+    <h4 style="margin:12px 0 8px">Campos das Linhas</h4>
+    <div id="defLineFields"><p class="bu-text-muted">Campos personalizados serão adicionados via API</p></div>`;
+  document.getElementById('itemForm').classList.add('open');
+}
+
+async function saveDef() {
+  const body = {
+    name: document.getElementById('def_name').value,
+    code: document.getElementById('def_code').value,
+    direction: document.getElementById('def_direction').value,
+    description: document.getElementById('def_description').value,
+    has_lines: document.getElementById('def_has_lines').checked,
+    has_parties: document.getElementById('def_has_parties').checked,
+    has_totals: document.getElementById('def_has_totals').checked,
+    has_workflow: document.getElementById('def_has_workflow').checked,
+    workflow_code: document.getElementById('def_workflow_code').value,
+    behaviors: document.getElementById('def_behaviors').value.split(',').map(s=>s.trim()).filter(Boolean),
+    header_fields: [],
+    line_fields: [],
+    party_types: ['customer', 'supplier'],
+  };
+  await apiFetch(`${API}/document-definitions`, { method: 'POST', body });
+  closeForm();
+  switchTab('definitions');
+}
+
+// ── Numbering ────────────────────────────────────────────────
+async function renderNumbering() {
+  const res = await apiFetch(`${API}/document-numbering`);
+  const nums = res.data || [];
+  document.getElementById('dataContainer').innerHTML = `
+    <table class="bu-table"><thead><tr><th>Tipo Doc</th><th>Padrão</th><th>Série</th><th>Próximo</th><th>Dígitos</th></tr></thead>
+    <tbody>${nums.map(n=>`<tr><td>${n.document_type}</td><td><code>${n.pattern}</code></td><td>${n.series}</td><td>${n.next_number}</td><td>${n.pattern.match(/\{seq:0*(\d+)\}/)?.[1]||6}</td></tr>`).join('')}</tbody></table>`;
+  document.getElementById('recordCount').textContent = `${nums.length} regras`;
+}
+
+async function renderNumForm() {
+  document.getElementById('formTitle').textContent = 'Nova Regra de Numeração';
+  document.getElementById('formBody').innerHTML = `
+    <div class="bu-form-group">
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Tipo de Documento *</label><input class="bu-input" id="num_doc_type" placeholder="sale_order"></div>
+        <div class="bu-field"><label>Série</label><input class="bu-input" id="num_series" value="1"></div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Padrão</label><input class="bu-input" id="num_pattern" value="{year}{month}{seq:06d}"></div>
+        <div class="bu-field"><label>Dígitos</label><input class="bu-input" type="number" id="num_digits" value="6"></div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Prefixo</label><input class="bu-input" id="num_prefix"></div>
+        <div class="bu-field"><label>Sufixo</label><input class="bu-input" id="num_suffix"></div>
+        <div class="bu-field"><label>Próximo Nº</label><input class="bu-input" type="number" id="num_next" value="1"></div>
+      </div>
+    </div>
+    <div class="bu-field"><p class="bu-text-muted">Placeholders: {year} {month} {day} {seq} {series}</p></div>`;
+  document.getElementById('itemForm').classList.add('open');
+}
+
+async function saveNum() {
+  const body = {
+    document_type: document.getElementById('num_doc_type').value,
+    series: document.getElementById('num_series').value,
+    pattern: document.getElementById('num_pattern').value,
+    digits: parseInt(document.getElementById('num_digits').value) || 6,
+    prefix: document.getElementById('num_prefix').value,
+    suffix: document.getElementById('num_suffix').value,
+    next_number: parseInt(document.getElementById('num_next').value) || 1,
+  };
+  await apiFetch(`${API}/document-numbering`, { method: 'POST', body });
+  closeForm();
+  switchTab('numbering');
+}
+
+// ── Content Router ──────────────────────────────────────────
+function loadContent() {
+  if (currentTab === 'dashboard') renderDashboard();
+  else if (currentTab === 'documents') renderDocuments();
+  else if (currentTab === 'definitions') renderDefinitions();
+  else if (currentTab === 'numbering') renderNumbering();
+}
+
+switchTab('documents');
+</script>
+</body>
+</html>

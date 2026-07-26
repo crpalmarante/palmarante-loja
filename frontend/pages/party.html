@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Party — BusinessUI</title>
+    <link rel="stylesheet" href="../fiscalui/build/css/fiscalui.min.css">
+    <style>
+        body { margin: 0; font-family: var(--fl-font-sans); background: var(--fl-bg); color: var(--fl-text); }
+        .app-header { background: var(--fl-primary); color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; gap: 16px; }
+        .app-header h1 { font-size: 18px; font-weight: 600; margin: 0; }
+        .app-body { display: flex; height: calc(100vh - 56px); }
+        .app-sidebar { width: 240px; background: var(--fl-surface); border-right: 1px solid var(--fl-border); padding: 16px 0; }
+        .app-sidebar a { display: block; padding: 10px 24px; color: var(--fl-text); text-decoration: none; font-size: 14px; }
+        .app-sidebar a:hover { background: var(--fl-hover); }
+        .app-sidebar a.active { background: var(--fl-primary-bg); color: var(--fl-primary); font-weight: 600; }
+        .app-content { flex: 1; padding: 24px; overflow-y: auto; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .page-header h2 { margin: 0; font-size: 22px; }
+        .filters { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+        .filters input, .filters select { padding: 8px 12px; border: 1px solid var(--fl-border); border-radius: 6px; font-size: 14px; }
+        .party-type-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .party-type-person { background: #e3f2fd; color: #1565c0; }
+        .party-type-organization { background: #f3e5f5; color: #7b1fa2; }
+        .status-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+        .status-active { background: #e8f5e9; color: #2e7d32; }
+        .status-suspended { background: #fff3e0; color: #e65100; }
+        .status-archived { background: #fafafa; color: #9e9e9e; }
+        .empty-state { text-align: center; padding: 64px 24px; color: var(--fl-muted); }
+        .empty-state h3 { margin: 0 0 8px; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .detail-field { margin-bottom: 12px; }
+        .detail-field label { display: block; font-size: 12px; color: var(--fl-muted); margin-bottom: 2px; }
+        .detail-field .value { font-size: 14px; }
+        .address-item, .contact-item { border: 1px solid var(--fl-border); border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+        .tab-content { display: none; padding: 16px 0; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <h1>BusinessUI</h1>
+        <span style="font-size:13px;opacity:.8;">Party</span>
+    </div>
+    <div class="app-body">
+        <nav class="app-sidebar">
+            <a href="#" class="active">🏢 Party</a>
+            <a href="#">📦 Produtos</a>
+            <a href="#">📋 Pedidos</a>
+            <a href="#">💰 Financeiro</a>
+            <a href="#">📊 Relatórios</a>
+        </nav>
+        <main class="app-content" id="app">
+            <div class="page-header">
+                <h2>🏢 Parties</h2>
+                <button class="fl-btn fl-btn-primary" onclick="openCreateModal()">+ Nova Party</button>
+            </div>
+
+            <div class="filters">
+                <input type="text" id="searchQuery" placeholder="Buscar por nome, documento..." oninput="loadParties()">
+                <select id="filterRole" onchange="loadParties()">
+                    <option value="">Todos os papéis</option>
+                    <option value="customer">Cliente</option>
+                    <option value="supplier">Fornecedor</option>
+                    <option value="employee">Funcionário</option>
+                    <option value="carrier">Transportadora</option>
+                    <option value="bank">Banco</option>
+                </select>
+                <select id="filterStatus" onchange="loadParties()">
+                    <option value="">Todos os status</option>
+                    <option value="active">Ativo</option>
+                    <option value="suspended">Suspenso</option>
+                    <option value="archived">Arquivado</option>
+                </select>
+            </div>
+
+            <div id="partyList">
+                <div class="empty-state" id="emptyState">
+                    <h3>Nenhuma party encontrada</h3>
+                    <p>Crie a primeira party para começar.</p>
+                </div>
+                <table class="fl-table" id="partyTable" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Documento</th>
+                            <th>Papéis</th>
+                            <th>Cidade/UF</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="partyTableBody"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Create/Edit -->
+    <dialog class="fl-modal" id="partyModal" style="width:720px;">
+        <div class="fl-modal-header">
+            <h3 id="partyModalTitle">Nova Party</h3>
+            <button class="fl-btn fl-btn-ghost" onclick="closeModal('partyModal')">✕</button>
+        </div>
+        <div class="fl-modal-body">
+            <div style="display:flex;gap:12px;margin-bottom:16px;">
+                <button class="fl-btn" id="typePersonBtn" onclick="setPartyType('person')" style="flex:1;">Pessoa Física</button>
+                <button class="fl-btn" id="typeOrgBtn" onclick="setPartyType('organization')" style="flex:1;">Pessoa Jurídica</button>
+            </div>
+            <div id="personFields">
+                <div class="fl-field">
+                    <label>Nome</label>
+                    <input class="fl-input" id="fGivenName" placeholder="Nome">
+                </div>
+                <div class="fl-field">
+                    <label>Sobrenome</label>
+                    <input class="fl-input" id="fFamilyName" placeholder="Sobrenome">
+                </div>
+            </div>
+            <div id="orgFields" style="display:none;">
+                <div class="fl-field">
+                    <label>Razão Social</label>
+                    <input class="fl-input" id="fLegalName" placeholder="Razão Social">
+                </div>
+                <div class="fl-field">
+                    <label>Nome Fantasia</label>
+                    <input class="fl-input" id="fTradeName" placeholder="Nome Fantasia">
+                </div>
+            </div>
+            <div class="fl-field">
+                <label>Documento (CPF/CNPJ)</label>
+                <input class="fl-input" id="fDocument" placeholder="000.000.000-00">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="fl-field">
+                    <label>Telefone</label>
+                    <input class="fl-input" id="fPhone" placeholder="(00) 00000-0000">
+                </div>
+                <div class="fl-field">
+                    <label>Email</label>
+                    <input class="fl-input" id="fEmail" type="email" placeholder="email@exemplo.com">
+                </div>
+            </div>
+            <fieldset style="border:1px solid var(--fl-border);border-radius:8px;padding:12px;margin-top:12px;">
+                <legend>Endereço Principal</legend>
+                <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">
+                    <input class="fl-input" id="fStreet" placeholder="Logradouro">
+                    <input class="fl-input" id="fNumber" placeholder="Número">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+                    <input class="fl-input" id="fComplement" placeholder="Complemento">
+                    <input class="fl-input" id="fDistrict" placeholder="Bairro">
+                </div>
+                <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-top:8px;">
+                    <input class="fl-input" id="fCity" placeholder="Cidade">
+                    <input class="fl-input" id="fRegion" placeholder="UF">
+                    <input class="fl-input" id="fPostalCode" placeholder="CEP">
+                </div>
+            </fieldset>
+            <div class="fl-field" style="margin-top:12px;">
+                <label>Papéis</label>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;" id="roleCheckboxes">
+                    <label><input type="checkbox" value="customer" checked> Cliente</label>
+                    <label><input type="checkbox" value="supplier"> Fornecedor</label>
+                    <label><input type="checkbox" value="employee"> Funcionário</label>
+                    <label><input type="checkbox" value="carrier"> Transportadora</label>
+                    <label><input type="checkbox" value="bank"> Banco</label>
+                </div>
+            </div>
+            <input type="hidden" id="editingPartyId">
+            <input type="hidden" id="partyType" value="person">
+        </div>
+        <div class="fl-modal-footer">
+            <button class="fl-btn" onclick="closeModal('partyModal')">Cancelar</button>
+            <button class="fl-btn fl-btn-primary" onclick="saveParty()">Salvar</button>
+        </div>
+    </dialog>
+
+    <!-- Modal: Detail -->
+    <dialog class="fl-modal" id="detailModal" style="width:800px;">
+        <div class="fl-modal-header">
+            <h3 id="detailTitle">Detalhe da Party</h3>
+            <button class="fl-btn fl-btn-ghost" onclick="closeModal('detailModal')">✕</button>
+        </div>
+        <div class="fl-modal-body">
+            <div style="display:flex;gap:8px;margin-bottom:16px;">
+                <button class="fl-btn fl-btn-sm active-tab" data-tab="general" onclick="switchTab('general')">Geral</button>
+                <button class="fl-btn fl-btn-sm" data-tab="addresses" onclick="switchTab('addresses')">Endereços</button>
+                <button class="fl-btn fl-btn-sm" data-tab="contacts" onclick="switchTab('contacts')">Contatos</button>
+                <button class="fl-btn fl-btn-sm" data-tab="documents" onclick="switchTab('documents')">Documentos</button>
+                <button class="fl-btn fl-btn-sm" data-tab="roles" onclick="switchTab('roles')">Papéis</button>
+            </div>
+            <div id="tabGeneral" class="tab-content active"></div>
+            <div id="tabAddresses" class="tab-content"></div>
+            <div id="tabContacts" class="tab-content"></div>
+            <div id="tabDocuments" class="tab-content"></div>
+            <div id="tabRoles" class="tab-content"></div>
+        </div>
+        <div class="fl-modal-footer">
+            <button class="fl-btn" onclick="closeModal('detailModal')">Fechar</button>
+            <button class="fl-btn fl-btn-warning" id="btnSuspend" onclick="suspendParty()">Suspender</button>
+            <button class="fl-btn fl-btn-danger" onclick="archiveParty()">Arquivar</button>
+        </div>
+    </dialog>
+
+    <script type="module">
+        import FiscalUI from '../fiscalui/fiscalui.js';
+        FiscalUI.init({ debug: false });
+
+        async function api(path, method = 'GET', body = null) {
+            const opts = { method, headers: { 'Content-Type': 'application/json' } };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch('/api' + path, opts);
+            return res.json();
+        }
+
+        window.loadParties = async function() {
+            const query = document.getElementById('searchQuery').value;
+            const role = document.getElementById('filterRole').value;
+            const status = document.getElementById('filterStatus').value;
+            const params = new URLSearchParams({ query, role, status });
+            const data = await api(`/parties?${params}`);
+            const tbody = document.getElementById('partyTableBody');
+            const table = document.getElementById('partyTable');
+            const empty = document.getElementById('emptyState');
+
+            if (!data.data || data.data.length === 0) {
+                table.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+            table.style.display = '';
+            empty.style.display = 'none';
+            tbody.innerHTML = data.data.map(p => {
+                const typeClass = p.party_type === 'person' ? 'party-type-person' : 'party-type-organization';
+                const typeLabel = p.party_type === 'person' ? 'PF' : 'PJ';
+                const doc = p.documents && p.documents[0] ? p.documents[0].value : '-';
+                const city = p.addresses && p.addresses[0] ? `${p.addresses[0].city || ''}/${p.addresses[0].region || ''}` : '-';
+                const roles = p.roles ? p.roles.map(r => r.role_type).join(', ') : '-';
+                return `<tr>
+                    <td><a href="#" onclick="openDetail('${p.id}')" style="color:var(--fl-primary);text-decoration:none;">${p.display_name}</a></td>
+                    <td><span class="party-type-badge ${typeClass}">${typeLabel}</span></td>
+                    <td>${doc}</td>
+                    <td style="font-size:12px;">${roles}</td>
+                    <td style="font-size:13px;">${city}</td>
+                    <td><span class="status-badge status-${p.status}">${p.status}</span></td>
+                    <td>
+                        <button class="fl-btn fl-btn-sm" onclick="event.stopPropagation();openEdit('${p.id}')">✎</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        };
+
+        window.openCreateModal = function() {
+            document.getElementById('partyModalTitle').textContent = 'Nova Party';
+            document.getElementById('editingPartyId').value = '';
+            document.getElementById('partyModal').showModal();
+            clearForm();
+        };
+
+        window.openEdit = async function(id) {
+            document.getElementById('partyModalTitle').textContent = 'Editar Party';
+            document.getElementById('editingPartyId').value = id;
+            const data = await api(`/parties/${id}`);
+            const p = data.data;
+            setPartyType(p.party_type);
+            if (p.person_name) {
+                document.getElementById('fGivenName').value = p.person_name.given_name || '';
+                document.getElementById('fFamilyName').value = p.person_name.family_name || '';
+            }
+            if (p.company_name) {
+                document.getElementById('fLegalName').value = p.company_name.legal_name || '';
+                document.getElementById('fTradeName').value = p.company_name.trade_name || '';
+            }
+            if (p.documents && p.documents[0]) {
+                document.getElementById('fDocument').value = p.documents[0].value;
+            }
+            if (p.contacts && p.contacts[0]) {
+                document.getElementById('fPhone').value = p.contacts[0].phone || '';
+                document.getElementById('fEmail').value = p.contacts[0].email || '';
+            }
+            if (p.addresses && p.addresses[0]) {
+                const a = p.addresses[0].address || p.addresses[0];
+                document.getElementById('fStreet').value = a.street || '';
+                document.getElementById('fNumber').value = a.number || '';
+                document.getElementById('fComplement').value = a.complement || '';
+                document.getElementById('fDistrict').value = a.district || '';
+                document.getElementById('fCity').value = a.city || '';
+                document.getElementById('fRegion').value = a.region || '';
+                document.getElementById('fPostalCode').value = a.postal_code || '';
+            }
+            document.querySelectorAll('#roleCheckboxes input').forEach(cb => cb.checked = false);
+            if (p.roles) {
+                p.roles.forEach(r => {
+                    const cb = document.querySelector(`#roleCheckboxes input[value="${r.role_type}"]`);
+                    if (cb) cb.checked = true;
+                });
+            }
+            document.getElementById('partyModal').showModal();
+        };
+
+        window.saveParty = async function() {
+            const editingId = document.getElementById('editingPartyId').value;
+            const partyType = document.getElementById('partyType').value;
+            const payload = { party_type: partyType };
+            if (partyType === 'person') {
+                payload.given_name = document.getElementById('fGivenName').value;
+                payload.family_name = document.getElementById('fFamilyName').value;
+                payload.display_name = `${payload.given_name} ${payload.family_name}`.trim();
+            } else {
+                payload.legal_name = document.getElementById('fLegalName').value;
+                payload.trade_name = document.getElementById('fTradeName').value;
+            }
+            payload.documents = [{ type: partyType === 'person' ? 'cpf' : 'cnpj', value: document.getElementById('fDocument').value, is_main: true }];
+            payload.contacts = [{
+                name: payload.display_name || payload.legal_name,
+                phone: document.getElementById('fPhone').value,
+                email: document.getElementById('fEmail').value,
+                is_main: true
+            }];
+            payload.addresses = [{
+                street: document.getElementById('fStreet').value,
+                number: document.getElementById('fNumber').value,
+                complement: document.getElementById('fComplement').value,
+                district: document.getElementById('fDistrict').value,
+                city: document.getElementById('fCity').value,
+                region: document.getElementById('fRegion').value,
+                postal_code: document.getElementById('fPostalCode').value,
+                is_main: true
+            }];
+            const checkedRoles = [];
+            document.querySelectorAll('#roleCheckboxes input:checked').forEach(cb => checkedRoles.push(cb.value));
+            if (checkedRoles.length === 0) checkedRoles.push('customer');
+            payload.roles = checkedRoles.map(r => ({ type: r }));
+
+            if (editingId) {
+                await api(`/parties/${editingId}`, 'PUT', payload);
+            } else {
+                await api('/parties', 'POST', payload);
+            }
+            closeModal('partyModal');
+            loadParties();
+        };
+
+        window.openDetail = async function(id) {
+            const data = await api(`/parties/${id}`);
+            const p = data.data;
+            document.getElementById('detailTitle').textContent = p.display_name;
+            document.getElementById('btnSuspend').dataset.partyId = id;
+            document.getElementById('btnSuspend').textContent = p.status === 'suspended' ? 'Reativar' : 'Suspender';
+
+            // General tab
+            const gen = document.getElementById('tabGeneral');
+            gen.innerHTML = `<div class="detail-grid">
+                <div class="detail-field"><label>Nome</label><div class="value">${p.display_name}</div></div>
+                <div class="detail-field"><label>Tipo</label><div class="value">${p.party_type === 'person' ? 'Pessoa Física' : 'Pessoa Jurídica'}</div></div>
+                <div class="detail-field"><label>Status</label><div class="value"><span class="status-badge status-${p.status}">${p.status}</span></div></div>
+                <div class="detail-field"><label>Documento</label><div class="value">${p.documents && p.documents[0] ? p.documents[0].value : '-'}</div></div>
+                <div class="detail-field"><label>Criado em</label><div class="value">${new Date(p.created_at).toLocaleString()}</div></div>
+            </div>`;
+
+            // Addresses tab
+            const addrTab = document.getElementById('tabAddresses');
+            addrTab.innerHTML = (p.addresses || []).map(a => {
+                const addr = a.address || a;
+                return `<div class="address-item">
+                    <strong>${addr.street || ''}, ${addr.number || ''}</strong>
+                    ${addr.complement ? `<br>${addr.complement}` : ''}
+                    <br>${addr.district ? addr.district + ' - ' : ''}${addr.city || ''}/${addr.region || ''}
+                    ${addr.postal_code ? `<br>CEP: ${addr.postal_code}` : ''}
+                    ${a.is_main ? ' <span class="status-badge status-active">Principal</span>' : ''}
+                </div>`;
+            }).join('') || '<p>Nenhum endereço cadastrado.</p>';
+
+            // Contacts tab
+            const contTab = document.getElementById('tabContacts');
+            contTab.innerHTML = (p.contacts || []).map(c => `
+                <div class="contact-item">
+                    <strong>${c.name || ''}</strong>
+                    ${c.phone ? `<br>📞 ${c.phone}` : ''}
+                    ${c.email ? `<br>✉ ${c.email}` : ''}
+                    ${c.is_main ? ' <span class="status-badge status-active">Principal</span>' : ''}
+                </div>
+            `).join('') || '<p>Nenhum contato cadastrado.</p>';
+
+            // Documents tab
+            const docTab = document.getElementById('tabDocuments');
+            docTab.innerHTML = (p.documents || []).map(d => `
+                <div class="contact-item">
+                    <strong>${d.type.toUpperCase()}</strong>: ${d.value}
+                    ${d.is_main ? ' <span class="status-badge status-active">Principal</span>' : ''}
+                </div>
+            `).join('') || '<p>Nenhum documento cadastrado.</p>';
+
+            // Roles tab
+            const roleTab = document.getElementById('tabRoles');
+            roleTab.innerHTML = (p.roles || []).map(r => `
+                <div class="contact-item">
+                    <strong>${r.role_type}</strong>
+                    <span class="status-badge status-${r.status}">${r.status}</span>
+                </div>
+            `).join('') || '<p>Nenhum papel atribuído.</p>';
+
+            switchTab('general');
+            document.getElementById('detailModal').showModal();
+        };
+
+        window.suspendParty = async function() {
+            const id = document.getElementById('btnSuspend').dataset.partyId;
+            const btn = document.getElementById('btnSuspend');
+            const action = btn.textContent === 'Reativar' ? 'activate' : 'suspend';
+            await api(`/parties/${id}/${action}`, 'POST');
+            closeModal('detailModal');
+            loadParties();
+        };
+
+        window.archiveParty = async function() {
+            const id = document.getElementById('btnSuspend').dataset.partyId;
+            await api(`/parties/${id}/archive`, 'POST');
+            closeModal('detailModal');
+            loadParties();
+        };
+
+        window.setPartyType = function(type) {
+            document.getElementById('partyType').value = type;
+            document.getElementById('personFields').style.display = type === 'person' ? '' : 'none';
+            document.getElementById('orgFields').style.display = type === 'organization' ? '' : 'none';
+            document.getElementById('typePersonBtn').className = `fl-btn${type === 'person' ? ' fl-btn-primary' : ''}`;
+            document.getElementById('typeOrgBtn').className = `fl-btn${type === 'organization' ? ' fl-btn-primary' : ''}`;
+        };
+
+        window.switchTab = function(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('[data-tab]').forEach(b => b.classList.remove('active-tab'));
+            document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active-tab');
+        };
+
+        window.closeModal = function(id) {
+            document.getElementById(id).close();
+        };
+
+        function clearForm() {
+            ['fGivenName','fFamilyName','fLegalName','fTradeName','fDocument','fPhone','fEmail',
+             'fStreet','fNumber','fComplement','fDistrict','fCity','fRegion','fPostalCode'].forEach(id =>
+                document.getElementById(id).value = '');
+            document.querySelectorAll('#roleCheckboxes input').forEach(cb => cb.checked = false);
+            document.querySelector('#roleCheckboxes input[value="customer"]').checked = true;
+            setPartyType('person');
+        }
+
+        loadParties();
+    </script>
+</body>
+</html>

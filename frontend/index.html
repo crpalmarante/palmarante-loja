@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>FiscalBrasil ERP</title>
+
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/variaveis.css">
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/icons.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/grid.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/themes.css">
+<link rel="stylesheet" href="css/services.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/accessibility.css">
+<link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/forms.css">
+
+</head>
+
+<body>
+
+<div id="app">
+
+    <aside id="sidebar" role="navigation" aria-label="Navegação principal"></aside>
+
+    <div class="main-area" id="main-content" role="main">
+
+        <header class="topbar">
+
+            <button class="topbar-hamburger" id="menu-toggle" onclick="toggleMobileMenu()" title="Menu">
+
+                <svg class="icon"><use href="#icon-menu"/></svg>
+
+            </button>
+
+            <div class="topbar-brand">
+
+                <svg class="icon"><use href="#icon-building"/></svg>
+
+                <span class="topbar-title">FiscalBrasil</span>
+
+            </div>
+
+            <div class="topbar-search">
+
+                <svg class="icon"><use href="#icon-search"/></svg>
+
+                <input type="text" class="topbar-search-input" placeholder="Pesquisar..." aria-label="Pesquisar no sistema">
+
+            </div>
+
+            <nav class="topbar-nav" id="topbar-nav" aria-label="Navegação rápida"></nav>
+
+            <div class="topbar-user">
+
+                <button class="topbar-icon-btn theme-toggle" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema">
+
+                    <svg class="icon" aria-hidden="true"><use id="theme-icon" href="#icon-moon"/></svg>
+
+                </button>
+
+                <button class="topbar-icon-btn" title="Notificações" aria-label="Notificações">
+
+                    <svg class="icon" aria-hidden="true"><use href="#icon-bell"/></svg>
+
+                </button>
+
+                <span id="topbar-user-name"></span>
+
+            </div>
+
+        </header>
+
+        <main class="workspace" id="workspace">
+
+            <div id="launchpad">
+
+                <div class="welcome-section">
+
+                    <h2 class="welcome-greeting" id="welcome-greeting">Bom dia</h2>
+
+                    <p class="welcome-subtitle">Bem-vindo ao Fiscal System</p>
+
+                </div>
+
+                <div class="quick-grid">
+
+                    <a class="quick-card" href="?mod=nfe">
+                        <span class="quick-icon">📄</span>
+                        <span class="quick-label">NF-e</span>
+                    </a>
+
+                    <a class="quick-card" href="?mod=nfce">
+                        <span class="quick-icon">🧾</span>
+                        <span class="quick-label">NFC-e</span>
+                    </a>
+
+                    <a class="quick-card" href="?mod=produtos">
+                        <span class="quick-icon">📦</span>
+                        <span class="quick-label">Produtos</span>
+                    </a>
+
+                    <a class="quick-card" href="?mod=clientes">
+                        <span class="quick-icon">👥</span>
+                        <span class="quick-label">Clientes</span>
+                    </a>
+
+                    <a class="quick-card" href="?mod=relatorios">
+                        <span class="quick-icon">📊</span>
+                        <span class="quick-label">Relatórios</span>
+                    </a>
+
+                    <a class="quick-card" href="?mod=empresas">
+                        <span class="quick-icon">🏢</span>
+                        <span class="quick-label">Empresas</span>
+                    </a>
+
+                    <a class="quick-card" href="?mod=config">
+                        <span class="quick-icon">⚙️</span>
+                        <span class="quick-label">Configuração</span>
+                    </a>
+
+                    <a class="quick-card" href="?mod=dashboard">
+                        <span class="quick-icon">📈</span>
+                        <span class="quick-label">Dashboard</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div id="workspace-view" style="display:none">
+
+                <div class="workspace-header" id="workspace-header">
+
+                    <div class="workspace-breadcrumb" id="workspace-breadcrumb"></div>
+
+                    <h2 class="workspace-title" id="workspace-title"></h2>
+
+                </div>
+
+                <div class="workspace-toolbar" id="workspace-toolbar"></div>
+
+                <div class="workspace-filters" id="workspace-filters" style="display:none">
+
+                    <div class="filters-row">
+
+                        <div class="filter-field">
+
+                            <input type="text" class="filter-input" placeholder="Pesquisar...">
+
+                        </div>
+
+                        <div class="filter-field">
+
+                            <select class="filter-select">
+
+                                <option value="">Status</option>
+
+                                <option>Ativo</option>
+
+                                <option>Inativo</option>
+
+                                <option>Pendente</option>
+
+                                <option>Cancelado</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="filter-field">
+
+                            <input type="date" class="filter-input">
+
+                        </div>
+
+                        <button class="filter-clear" onclick="clearFilters()">Limpar</button>
+
+                    </div>
+
+                </div>
+
+                <div class="workspace-content" id="workspace-content"></div>
+
+                <div class="status-bar" id="status-bar"></div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+</div>
+
+<script src="js/events/EventManager.js"></script>
+<script src="js/state/StateManager.js"></script>
+<script src="js/services/StorageService.js"></script>
+<script src="js/services/ToastService.js"></script>
+<script src="js/services/LoadingService.js"></script>
+<script src="js/services/ModalService.js"></script>
+<script src="js/services/IconManager.js"></script>
+<script src="js/services/FormService.js"></script>
+<script src="js/services/ErrorManager.js"></script>
+<script src="js/utils/format.js"></script>
+<script src="js/utils/helpers.js"></script>
+<script src="js/router/Router.js"></script>
+<script src="js/responsive/ResponsiveEngine.js"></script>
+<script src="js/plugins/PluginManager.js"></script>
+<script src="js/plugins/ShortcutsPlugin.js"></script>
+<script src="js/accessibility/AccessibilityEngine.js"></script>
+<script src="js/core/fiscalui.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+
+</html>

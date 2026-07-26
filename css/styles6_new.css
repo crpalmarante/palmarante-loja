@@ -1,0 +1,191 @@
+body {
+
+    background:
+    radial-gradient(
+        circle at top left,
+        #312e81,
+        transparent 40%
+    ),
+    radial-gradient(
+        circle at bottom right,
+        #0f766e,
+        transparent 40%
+    ),
+    #050816;
+
+
+    color:#e5e7eb;
+
+}
+
+
+
+/* vidro escuro */
+
+.sidebar,
+.topbar,
+.card,
+.panel {
+
+
+    background:
+
+    rgba(15,23,42,.55);
+
+
+    backdrop-filter:
+
+    blur(20px);
+
+
+    -webkit-backdrop-filter:
+
+    blur(20px);
+
+
+    border:
+
+    1px solid
+
+    rgba(255,255,255,.08);
+
+
+    box-shadow:
+
+    0 20px 50px
+
+    rgba(0,0,0,.45);
+
+
+}
+
+
+
+/* Sidebar */
+
+
+.sidebar {
+
+
+    border-radius:24px;
+
+
+}
+
+
+
+/* Menu */
+
+
+nav a {
+
+
+    color:#cbd5e1;
+
+
+}
+
+
+
+nav a:hover {
+
+
+    background:
+
+    rgba(255,255,255,.08);
+
+
+}
+
+
+
+nav .active {
+
+
+    background:
+
+    linear-gradient(
+        135deg,
+        #7c3aed,
+        #2563eb
+    );
+
+
+    color:white;
+
+
+}
+
+
+
+/* Cards */
+
+
+.card strong {
+
+
+    color:white;
+
+
+}
+
+
+.card span {
+
+
+    color:#94a3b8;
+
+
+}
+
+
+
+/* Tabela */
+
+
+th {
+
+
+    color:#94a3b8;
+
+
+}
+
+
+td {
+
+
+    color:#e2e8f0;
+
+
+    border-color:
+
+    rgba(255,255,255,.06);
+
+
+}
+
+
+
+/* Botões */
+
+
+button {
+
+
+    background:
+
+    rgba(255,255,255,.08);
+
+
+    color:white;
+
+
+    border:
+
+    1px solid
+
+    rgba(255,255,255,.15);
+
+
+}

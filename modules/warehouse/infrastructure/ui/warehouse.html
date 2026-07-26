@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Armazéns — BusinessCore</title>
+<link rel="stylesheet" href="../../../businessui/assets/css/core/theme.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/layout/layout.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/navigation.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/components.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/form.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/datagrid.css">
+</head>
+<body>
+
+<div class="bu-app">
+  <header class="bu-topbar">
+    <div class="bu-topbar-logo">Business<span>Core</span></div>
+    <div class="bu-topbar-search">
+      <span class="bu-topbar-search-icon">🔍</span>
+      <input class="bu-input" placeholder="Pesquisar...">
+    </div>
+    <nav class="bu-topbar-nav">
+      <button class="bu-topbar-btn">🔔</button>
+      <button class="bu-topbar-btn">⚙️</button>
+      <div class="bu-avatar bu-avatar-sm">AD</div>
+    </nav>
+  </header>
+
+  <div class="bu-body">
+    <aside class="bu-sidebar">
+      <div class="bu-sidebar-header">
+        <div class="bu-avatar">BC</div>
+        <div class="bu-sidebar-header-info">
+          <div class="bu-sidebar-header-name">BusinessCore</div>
+          <div class="bu-sidebar-header-role">Armazéns</div>
+        </div>
+      </div>
+      <div class="bu-sidebar-scroll">
+        <div class="bu-menu-group">
+          <div class="bu-menu-label">Logística</div>
+          <a class="bu-menu-item active" href="#" onclick="switchTab('warehouses')">
+            <span class="bu-menu-icon">🏗️</span>
+            <span class="bu-menu-text">Armazéns</span>
+          </a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('stock')">
+            <span class="bu-menu-icon">📦</span>
+            <span class="bu-menu-text">Estoque</span>
+          </a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('movements')">
+            <span class="bu-menu-icon">🔄</span>
+            <span class="bu-menu-text">Movimentações</span>
+          </a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('counts')">
+            <span class="bu-menu-icon">📋</span>
+            <span class="bu-menu-text">Inventário</span>
+          </a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('low')">
+            <span class="bu-menu-icon">⚠️</span>
+            <span class="bu-menu-text">Estoque Baixo</span>
+          </a>
+        </div>
+      </div>
+      <div class="bu-sidebar-footer">BusinessCore v1.0.0</div>
+    </aside>
+
+    <main class="bu-workspace">
+      <div class="bu-toolbar">
+        <div class="bu-toolbar-start">
+          <div class="bu-breadcrumb">
+            <a class="bu-breadcrumb-item" href="#">Home</a>
+            <span class="bu-breadcrumb-sep">/</span>
+            <span class="bu-breadcrumb-item active" id="pageTitle">Armazéns</span>
+          </div>
+        </div>
+        <div class="bu-toolbar-end">
+          <div class="bu-toolbar-search">
+            <span class="bu-toolbar-search-icon">🔍</span>
+            <input class="bu-input bu-input-sm" id="searchInput" placeholder="Buscar..." oninput="loadTable()">
+          </div>
+          <div class="bu-toolbar-divider"></div>
+          <button class="bu-btn bu-btn-primary" id="btnNew" onclick="openCreate()">+ Novo</button>
+        </div>
+      </div>
+
+      <div class="bu-workspace-content">
+        <div id="dataContainer"></div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="bu-statusbar">
+    <div class="bu-statusbar-start">
+      <span><span class="bu-statusbar-dot online"></span> BusinessCore</span>
+      <span>v1.0.0</span>
+    </div>
+    <div class="bu-statusbar-end">
+      <span id="recordCount">0 registros</span>
+    </div>
+  </footer>
+</div>
+
+<div class="bu-dialog-backdrop" id="itemForm">
+  <div class="bu-dialog bu-dialog-md">
+    <div class="bu-dialog-header">
+      <h3 id="formTitle">Novo</h3>
+      <button class="bu-dialog-close" onclick="closeForm()">✕</button>
+    </div>
+    <div class="bu-dialog-body" id="formBody">
+    </div>
+    <div class="bu-dialog-footer">
+      <button class="bu-btn" onclick="closeForm()">Cancelar</button>
+      <button class="bu-btn bu-btn-primary" onclick="saveItem()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script src="../../../businessui/assets/js/components/datagrid.js"></script>
+<script>
+const API = 'http://localhost:8004/api';
+let currentTab = 'warehouses';
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.bu-menu-item').forEach(m => m.classList.remove('active'));
+  const tabs = ['warehouses', 'stock', 'movements', 'counts', 'low'];
+  document.querySelectorAll('.bu-menu-item')[tabs.indexOf(tab)].classList.add('active');
+  const labels = { warehouses: 'Armazéns', stock: 'Estoque', movements: 'Movimentações', counts: 'Inventário', low: 'Estoque Baixo' };
+  document.getElementById('pageTitle').textContent = labels[tab] || tab;
+  document.getElementById('btnNew').style.display = tab === 'low' ? 'none' : '';
+  loadTable();
+}
+
+function openCreate() {
+  const labels = { warehouses: 'Novo Armazém', stock: 'Ajustar Estoque', movements: 'Nova Movimentação', counts: 'Nova Contagem' };
+  document.getElementById('formTitle').textContent = labels[currentTab] || 'Novo';
+  document.getElementById('formBody').innerHTML = getFormHTML(currentTab);
+  document.getElementById('itemForm').classList.add('open');
+}
+
+function getFormHTML(tab) {
+  switch (tab) {
+    case 'warehouses':
+      return `<div class="bu-form-row">
+        <div class="bu-form-field">
+          <label class="bu-form-label">Nome <span class="bu-form-required">*</span></label>
+          <input class="bu-input" id="fName" placeholder="Ex: Armazém Central">
+        </div>
+        <div class="bu-form-field">
+          <label class="bu-form-label">Código <span class="bu-form-required">*</span></label>
+          <input class="bu-input" id="fCode" placeholder="Ex: AC">
+        </div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-form-field">
+          <label class="bu-form-label">Endereço</label>
+          <input class="bu-input" id="fAddress" placeholder="Endereço completo">
+        </div>
+        <div class="bu-form-field">
+          <label class="bu-form-label">Responsável</label>
+          <input class="bu-input" id="fResponsible" placeholder="Nome do responsável">
+        </div>
+      </div>
+      <div class="bu-form-field">
+        <label class="bu-form-label">Descrição</label>
+        <textarea class="bu-input" id="fDescription" rows="2" placeholder="Descrição..."></textarea>
+      </div>`;
+    case 'stock':
+      return `<div class="bu-form-row">
+        <div class="bu-form-field">
+          <label class="bu-form-label">ID do Item <span class="bu-form-required">*</span></label>
+          <input class="bu-input" id="fItemId" placeholder="UUID do item">
+        </div>
+        <div class="bu-form-field">
+          <label class="bu-form-label">Quantidade <span class="bu-form-required">*</span></label>
+          <input class="bu-input" id="fQty" type="number" step="0.001" placeholder="Quantidade (+/-)">
+        </div>
+      </div>
+      <div class="bu-form-field">
+        <label class="bu-form-label">Observação</label>
+        <textarea class="bu-input" id="fNotes" rows="2" placeholder="Motivo do ajuste..."></textarea>
+      </div>`;
+    case 'movements':
+      return `<div class="bu-form-row">
+        <div class="bu-form-field">
+          <label class="bu-form-label">Item <span class="bu-form-required">*</span></label>
+          <input class="bu-input" id="fItemId" placeholder="UUID do item">
+        </div>
+        <div class="bu-form-field">
+          <label class="bu-form-label">Tipo <span class="bu-form-required">*</span></label>
+          <select class="bu-select" id="fType">
+            <option value="in">Entrada</option>
+            <option value="out">Saída</option>
+            <option value="transfer">Transferência</option>
+            <option value="adjustment">Ajuste</option>
+            <option value="reservation">Reserva</option>
+          </select>
+        </div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-form-field">
+          <label class="bu-form-label">Quantidade <span class="bu-form-required">*</span></label>
+          <input class="bu-input" id="fQty" type="number" step="0.001" placeholder="0">
+        </div>
+        <div class="bu-form-field">
+          <label class="bu-form-label">Armazém Destino</label>
+          <input class="bu-input" id="fTargetWh" placeholder="UUID (se transferência)">
+        </div>
+      </div>
+      <div class="bu-form-field">
+        <label class="bu-form-label">Observação</label>
+        <textarea class="bu-input" id="fNotes" rows="2" placeholder="Observação..."></textarea>
+      </div>`;
+    case 'counts':
+      return `<div class="bu-form-row">
+        <div class="bu-form-field">
+          <label class="bu-form-label">Item <span class="bu-form-required">*</span></label>
+          <input class="bu-input" id="fItemId" placeholder="UUID do item">
+        </div>
+        <div class="bu-form-field">
+          <label class="bu-form-label">Qtd Esperada</label>
+          <input class="bu-input" id="fExpected" type="number" step="0.001" placeholder="0">
+        </div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-form-field">
+          <label class="bu-form-label">Qtd Real <span class="bu-form-required">*</span></label>
+          <input class="bu-input" id="fActual" type="number" step="0.001" placeholder="0">
+        </div>
+        <div class="bu-form-field">
+          <label class="bu-form-label">Contado por</label>
+          <input class="bu-input" id="fCountedBy" placeholder="Nome do conferente">
+        </div>
+      </div>
+      <div class="bu-form-field">
+        <label class="bu-form-label">Observação</label>
+        <textarea class="bu-input" id="fNotes" rows="2" placeholder="Observação..."></textarea>
+      </div>`;
+    default:
+      return '';
+  }
+}
+
+function closeForm() {
+  document.getElementById('itemForm').classList.remove('open');
+}
+
+async function saveItem() {
+  const get = id => (document.getElementById(id) || {}).value || '';
+
+  try {
+    let whId = '';
+    const urlParams = new URLSearchParams(window.location.search);
+    const selWh = urlParams.get('warehouse_id') || '';
+
+    switch (currentTab) {
+      case 'warehouses': {
+        const name = get('fName'), code = get('fCode');
+        if (!name || !code) { alert('Nome e Código são obrigatórios'); return; }
+        await fetch(API + '/warehouses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, code, description: get('fDescription'), address: get('fAddress'), responsible: get('fResponsible') }) });
+        break;
+      }
+      case 'stock': {
+        whId = selWh || prompt('ID do Armazém:');
+        if (!whId) return;
+        await fetch(API + '/warehouses/' + whId + '/stock/adjust', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ item_id: get('fItemId'), quantity: parseFloat(get('fQty')) || 0, notes: get('fNotes') }) });
+        break;
+      }
+      case 'movements': {
+        whId = selWh || prompt('ID do Armazém:');
+        if (!whId) return;
+        await fetch(API + '/warehouses/' + whId + '/movements', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ item_id: get('fItemId'), movement_type: get('fType'), quantity: parseFloat(get('fQty')) || 0, target_warehouse_id: get('fTargetWh'), notes: get('fNotes') }) });
+        break;
+      }
+      case 'counts': {
+        whId = selWh || prompt('ID do Armazém:');
+        if (!whId) return;
+        await fetch(API + '/warehouses/' + whId + '/counts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ item_id: get('fItemId'), expected_quantity: parseFloat(get('fExpected')) || 0, actual_quantity: parseFloat(get('fActual')) || 0, counted_by: get('fCountedBy'), notes: get('fNotes') }) });
+        break;
+      }
+    }
+    closeForm();
+    loadTable();
+  } catch (e) {
+    alert('Erro: ' + e.message);
+  }
+}
+
+async function loadTable() {
+  const q = document.getElementById('searchInput').value;
+  const container = document.getElementById('dataContainer');
+
+  try {
+    if (currentTab === 'warehouses') {
+      const r = await fetch(API + '/warehouses?query=' + encodeURIComponent(q));
+      const d = await r.json();
+      const data = d.data || [];
+      document.getElementById('recordCount').textContent = data.length + ' armazéns';
+      if (!data.length) { container.innerHTML = '<div class="bu-empty-state"><div class="bu-empty-state-icon">🏗️</div><div class="bu-empty-state-text">Nenhum armazém</div><div class="bu-empty-state-hint">Clique em "+ Novo" para cadastrar.</div></div>'; return; }
+      let html = '<table class="bu-table"><thead><tr><th>Nome</th><th>Código</th><th>Status</th><th>Estoque</th><th>Ações</th></tr></thead><tbody>';
+      for (const w of data) {
+        const sr = await fetch(API + '/warehouses/' + w.id + '/stock');
+        const sd = await sr.json();
+        const totalItems = (sd.data || []).length;
+        html += `<tr><td><strong>${w.name}</strong></td><td>${w.code}</td>
+          <td><span class="bu-badge ${w.active ? 'bu-badge-success' : 'bu-badge-neutral'}">${w.active ? 'ativo' : 'inativo'}</span></td>
+          <td>${totalItems} itens</td>
+          <td>
+            <button class="bu-btn bu-btn-ghost bu-btn-sm" onclick="viewWarehouse('${w.id}')">📋 Estoque</button>
+            <button class="bu-btn bu-btn-ghost bu-btn-sm" onclick="viewMovements('${w.id}')">🔄 Mov.</button>
+          </td></tr>`;
+      }
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    } else if (currentTab === 'stock') {
+      const whId = new URLSearchParams(window.location.search).get('warehouse_id') || '';
+      const url = whId ? API + '/warehouses/' + whId + '/stock' : API + '/stock';
+      const r = await fetch(url);
+      const d = await r.json();
+      const data = d.data || [];
+      document.getElementById('recordCount').textContent = data.length + ' itens';
+      if (!data.length) { container.innerHTML = '<div class="bu-empty-state">Nenhum item em estoque</div>'; return; }
+      let html = '<table class="bu-table"><thead><tr><th>Item</th><th>Armazém</th><th>Quantidade</th><th>Reservado</th><th>Disponível</th><th>Est. Min</th></tr></thead><tbody>';
+      data.forEach(s => {
+        const low = s.min_stock > 0 && s.quantity <= s.min_stock;
+        html += `<tr${low ? ' style="background:var(--bu-danger-bg)"' : ''}>
+          <td>${s.item_id}</td><td>${s.warehouse_id || whId}</td>
+          <td><strong>${s.quantity}</strong></td><td>${s.reserved || 0}</td>
+          <td>${s.available !== undefined ? s.available : s.quantity}</td>
+          <td>${s.min_stock || 0}${low ? ' ⚠️' : ''}</td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    } else if (currentTab === 'movements') {
+      const whId = new URLSearchParams(window.location.search).get('warehouse_id') || '';
+      const url = whId ? API + '/warehouses/' + whId + '/movements' : '';
+      if (!url) { container.innerHTML = '<div class="bu-empty-state">Selecione um armazém para ver movimentações</div>'; return; }
+      const r = await fetch(url);
+      const d = await r.json();
+      const data = d.data || [];
+      document.getElementById('recordCount').textContent = data.length + ' movimentações';
+      if (!data.length) { container.innerHTML = '<div class="bu-empty-state">Nenhuma movimentação</div>'; return; }
+      let html = '<table class="bu-table"><thead><tr><th>Item</th><th>Tipo</th><th>Qtd</th><th>Status</th><th>Data</th></tr></thead><tbody>';
+      const typeLabels = { in: 'Entrada', out: 'Saída', transfer: 'Transferência', adjustment: 'Ajuste', reservation: 'Reserva' };
+      const statusColors = { pending: 'warning', confirmed: 'success', cancelled: 'danger' };
+      data.forEach(m => {
+        html += `<tr><td>${m.item_id}</td>
+          <td><span class="bu-badge bu-badge-info">${typeLabels[m.type] || m.type}</span></td>
+          <td>${m.quantity}</td>
+          <td><span class="bu-badge bu-badge-${statusColors[m.status] || 'neutral'}">${m.status}</span></td>
+          <td>${m.created_at ? new Date(m.created_at).toLocaleString('pt-BR') : '-'}</td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    } else if (currentTab === 'counts') {
+      const whId = new URLSearchParams(window.location.search).get('warehouse_id') || '';
+      const url = whId ? API + '/warehouses/' + whId + '/counts' : '';
+      if (!url) { container.innerHTML = '<div class="bu-empty-state">Selecione um armazém para ver contagens</div>'; return; }
+      const r = await fetch(url);
+      const d = await r.json();
+      const data = d.data || [];
+      document.getElementById('recordCount').textContent = data.length + ' contagens';
+      if (!data.length) { container.innerHTML = '<div class="bu-empty-state">Nenhuma contagem registrada</div>'; return; }
+      let html = '<table class="bu-table"><thead><tr><th>Item</th><th>Esperado</th><th>Real</th><th>Diferença</th><th>Conferente</th></tr></thead><tbody>';
+      data.forEach(c => {
+        const diffClass = c.difference === 0 ? 'bu-badge-success' : (Math.abs(c.difference) < 5 ? 'bu-badge-warning' : 'bu-badge-danger');
+        html += `<tr><td>${c.item_id}</td><td>${c.expected}</td><td>${c.actual}</td>
+          <td><span class="bu-badge ${diffClass}">${c.difference >= 0 ? '+' : ''}${c.difference}</span></td>
+          <td>${c.counted_by || '-'}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    } else if (currentTab === 'low') {
+      const r = await fetch(API + '/stock/low');
+      const d = await r.json();
+      const data = d.data || [];
+      document.getElementById('recordCount').textContent = data.length + ' itens críticos';
+      if (!data.length) { container.innerHTML = '<div class="bu-empty-state"><div class="bu-empty-state-icon">✅</div><div class="bu-empty-state-text">Nenhum item com estoque baixo</div></div>'; return; }
+      let html = '<table class="bu-table"><thead><tr><th>Item</th><th>Armazém</th><th>Quantidade</th><th>Est. Mínimo</th></tr></thead><tbody>';
+      data.forEach(s => {
+        html += `<tr style="background:var(--bu-danger-bg)">
+          <td><strong>${s.item_id}</strong></td><td>${s.warehouse_id}</td>
+          <td style="color:var(--bu-danger);font-weight:bold;">${s.quantity}</td>
+          <td>${s.min_stock}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+  } catch (e) {
+    container.innerHTML = '<div class="bu-empty-state">Erro ao carregar dados: ' + e.message + '</div>';
+  }
+}
+
+function viewWarehouse(id) {
+  window.location = '?warehouse_id=' + id;
+  switchTab('stock');
+}
+
+function viewMovements(id) {
+  window.location = '?warehouse_id=' + id;
+  switchTab('movements');
+}
+
+switchTab('warehouses');
+</script>
+</body>
+</html>

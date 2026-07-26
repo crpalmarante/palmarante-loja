@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BusinessUI — Showcase</title>
+<link rel="stylesheet" href="../assets/css/core/theme.css">
+<link rel="stylesheet" href="../assets/css/layout/layout.css">
+<link rel="stylesheet" href="../assets/css/components/components.css">
+<link rel="stylesheet" href="../assets/css/components/navigation.css">
+<link rel="stylesheet" href="../assets/css/components/window.css">
+<link rel="stylesheet" href="../assets/css/components/form.css">
+<link rel="stylesheet" href="../assets/css/components/datagrid.css">
+<link rel="stylesheet" href="../assets/css/components/dashboard.css">
+<style>
+.s { max-width: 960px; margin: 0 auto; padding: var(--bu-space-10) var(--bu-space-7); }
+.s h1 { font-size: var(--bu-font-3xl); font-weight: var(--bu-font-bold); margin-bottom: var(--bu-space-2); }
+.s h2 { font-size: var(--bu-font-xl); font-weight: var(--bu-font-semibold); margin: var(--bu-space-10) 0 var(--bu-space-5); padding-bottom: var(--bu-space-2); border-bottom: 1px solid var(--bu-border); }
+.s h3 { font-size: var(--bu-font-base); font-weight: var(--bu-font-semibold); color: var(--bu-text-secondary); margin-bottom: var(--bu-space-4); }
+.s .sub { font-size: var(--bu-font-sm); color: var(--bu-text-muted); margin-bottom: var(--bu-space-7); }
+.s-box { display: flex; flex-wrap: wrap; gap: var(--bu-space-3); align-items: center; padding: var(--bu-space-5); background: var(--bu-bg); border-radius: var(--bu-radius-md); margin-bottom: var(--bu-space-7); }
+.s-code { font-family: var(--bu-font-mono); font-size: var(--bu-font-xs); color: var(--bu-text-muted); background: var(--bu-surface); padding: 1px var(--bu-space-2); border-radius: var(--bu-radius-sm); border: 1px solid var(--bu-border-light); }
+.s-section { margin-bottom: var(--bu-space-3); }
+.s-col2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--bu-space-7); }
+@media (max-width:768px){ .s-col2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body style="background:var(--bu-bg);">
+
+<div class="s">
+  <h1>BusinessUI Showcase</h1>
+  <p class="sub">Catálogo oficial de componentes do framework. Use como referência antes de criar qualquer módulo.</p>
+
+  <!-- ════════════════════════════════════════════ -->
+  <h2>1. Buttons</h2>
+  <div class="s-box" style="flex-direction:column;align-items:stretch;">
+    <div class="s-section"><strong>Variants</strong></div>
+    <div style="display:flex;flex-wrap:wrap;gap:var(--bu-space-3);">
+      <button class="bu-btn"><span class="s-code">.bu-btn</span> Default</button>
+      <button class="bu-btn bu-btn-primary">Primary</button>
+      <button class="bu-btn bu-btn-success">Success</button>
+      <button class="bu-btn bu-btn-warning">Warning</button>
+      <button class="bu-btn bu-btn-danger">Danger</button>
+      <button class="bu-btn bu-btn-ghost">Ghost</button>
+      <button class="bu-btn bu-btn-link">Link</button>
+    </div>
+    <div class="s-section" style="margin-top:var(--bu-space-4);"><strong>Sizes</strong></div>
+    <div style="display:flex;flex-wrap:wrap;gap:var(--bu-space-3);align-items:center;">
+      <button class="bu-btn bu-btn-sm bu-btn-primary">Small</button>
+      <button class="bu-btn bu-btn-primary">Default</button>
+      <button class="bu-btn bu-btn-lg bu-btn-primary">Large</button>
+      <button class="bu-btn bu-btn-icon bu-btn-sm bu-btn-primary" title="Icon small">🔍</button>
+      <button class="bu-btn bu-btn-icon bu-btn-primary" title="Icon default">🔍</button>
+      <button class="bu-btn bu-btn-icon bu-btn-lg bu-btn-primary" title="Icon large">🔍</button>
+    </div>
+    <div class="s-section" style="margin-top:var(--bu-space-4);"><strong>States</strong></div>
+    <div style="display:flex;flex-wrap:wrap;gap:var(--bu-space-3);">
+      <button class="bu-btn bu-btn-primary">Normal</button>
+      <button class="bu-btn bu-btn-primary" disabled>Disabled</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <h2>2. Inputs & Selects</h2>
+  <div class="s-box" style="flex-direction:column;align-items:stretch;">
+    <div class="s-col2">
+      <div style="display:flex;flex-direction:column;gap:var(--bu-space-4);">
+        <div><span class="s-code">.bu-input</span></div>
+        <input class="bu-input" placeholder="Texto padrão">
+        <input class="bu-input bu-input-error" placeholder="Estado de erro" value="valor inválido">
+        <input class="bu-input" placeholder="Desabilitado" disabled>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--bu-space-4);">
+        <div><span class="s-code">.bu-input-sm / .bu-input-lg</span></div>
+        <input class="bu-input bu-input-sm" placeholder="Small">
+        <input class="bu-input" placeholder="Default">
+        <input class="bu-input bu-input-lg" placeholder="Large">
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:var(--bu-space-4;margin-top:var(--bu-space-5);">
+      <div><span class="s-code">.bu-select</span></div>
+      <div style="display:flex;gap:var(--bu-space-4);">
+        <select class="bu-select" style="max-width:200px;">
+          <option>Opção 1</option>
+          <option>Opção 2</option>
+          <option>Opção 3</option>
+        </select>
+        <select class="bu-select bu-select-sm" style="max-width:160px;">
+          <option>Small</option>
+          <option>Opção</option>
+        </select>
+        <select class="bu-select bu-select-lg" style="max-width:240px;">
+          <option>Large</option>
+          <option>Opção</option>
+        </select>
+        <select class="bu-select" disabled style="max-width:200px;">
+          <option>Desabilitado</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:var(--bu-space-5);">
+      <div><span class="s-code">textarea.bu-input</span></div>
+      <textarea class="bu-input" placeholder="Texto longo..." rows="3" style="max-width:400px;"></textarea>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <h2>3. Checkbox & Radio</h2>
+  <div class="s-box">
+    <div style="display:flex;flex-direction:column;gap:var(--bu-space-3);">
+      <div><span class="s-code">.bu-checkbox</span></div>
+      <label class="bu-checkbox"><input type="checkbox" checked> Opção selecionada</label>
+      <label class="bu-checkbox"><input type="checkbox"> Opção não selecionada</label>
+      <label class="bu-checkbox"><input type="checkbox" disabled> Desabilitado</label>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:var(--bu-space-3);">
+      <div><span class="s-code">.bu-radio</span></div>
+      <label class="bu-radio"><input type="radio" name="r" checked> Opção A</label>
+      <label class="bu-radio"><input type="radio" name="r"> Opção B</label>
+      <label class="bu-radio"><input type="radio" name="r" disabled> Desabilitado</label>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <h2>4. Badges</h2>
+  <div class="s-box">
+    <span class="bu-badge bu-badge-primary"><span class="s-code">primary</span> Primary</span>
+    <span class="bu-badge bu-badge-success">Success</span>
+    <span class="bu-badge bu-badge-warning">Warning</span>
+    <span class="bu-badge bu-badge-danger">Danger</span>
+    <span class="bu-badge bu-badge-info">Info</span>
+    <span class="bu-badge bu-badge-neutral">Neutral</span>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <h2>5. Avatars</h2>
+  <div class="s-box">
+    <div><span class="s-code">.bu-avatar-sm</span></div>
+    <div class="bu-avatar bu-avatar-sm">AB</div>
+    <div><span class="s-code">.bu-avatar</span></div>
+    <div class="bu-avatar">JD</div>
+    <div class="bu-avatar bu-avatar-success">OK</div>
+    <div class="bu-avatar bu-avatar-warning">!</div>
+    <div class="bu-avatar bu-avatar-danger">X</div>
+    <div><span class="s-code">.bu-avatar-lg</span></div>
+    <div class="bu-avatar bu-avatar-lg">MP</div>
+    <div><span class="s-code">.bu-avatar-xl</span></div>
+    <div class="bu-avatar bu-avatar-xl">CP</div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <h2>6. Cards</h2>
+  <div class="s-col2">
+    <div>
+      <div class="bu-card">
+        <div class="bu-card-header"><h3>Título do Card</h3><span class="bu-badge bu-badge-info">Tag</span></div>
+        <div class="bu-card-body"><p style="font-size:var(--bu-font-sm);color:var(--bu-text-secondary);">Conteúdo do card com <strong>header</strong>, body, e footer.</p></div>
+        <div class="bu-card-footer"><button class="bu-btn bu-btn-sm">Cancelar</button><button class="bu-btn bu-btn-sm bu-btn-primary">Salvar</button></div>
+      </div>
+      <p style="font-size:var(--bu-font-xs);color:var(--bu-text-muted);margin-top:var(--bu-space-2);"><span class="s-code">.bu-card</span></p>
+    </div>
+    <div>
+      <div class="bu-card bu-card-glass">
+        <div class="bu-card-body"><p style="font-size:var(--bu-font-sm);color:var(--bu-text-secondary);">Card com efeito glass.<br><span class="s-code">.bu-card-glass</span></p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <h2>7. Tabs</h2>
+  <div>
+    <div class="bu-tabs">
+      <button class="bu-tab active" onclick="this.closest('.bu-tabs').querySelectorAll('.bu-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.getElementById('stab1').classList.add('active');document.getElementById('stab2').classList.remove('active');document.getElementById('stab3').classList.remove('active');">Guia 1</button>
+      <button class="bu-tab" onclick="this.closest('.bu-tabs').querySelectorAll('.bu-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.getElementById('stab2').classList.add('active');document.getElementById('stab1').classList.remove('active');document.getElementById('stab3').classList.remove('active');">Guia 2</button>
+      <button class="bu-tab" onclick="this.closest('.bu-tabs').querySelectorAll('.bu-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.getElementById('stab3').classList.add('active');document.getElementById('stab1').classList.remove('active');document.getElementById('stab2').classList.remove('active');">Guia 3</button>
+    </div>
+    <div class="bu-tab-content active" id="stab1"><p style="font-size:var(--bu-font-sm);color:var(--bu-text-secondary);padding:var(--bu-space-4) 0;">Conteúdo da guia 1.</p></div>
+    <div class="bu-tab-content" id="stab2"><p style="font-size:var(--bu-font-sm);color:var(--bu-text-secondary);padding:var(--bu-space-4) 0;">Conteúdo da guia 2.</p></div>
+    <div class="bu-tab-content" id="stab3"><p style="font-size:var(--bu-font-sm);color:var(--bu-text-secondary);padding:var(--bu-space-4) 0;">Conteúdo da guia 3.</p></div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <h2>8. Dialog</h2>
+  <button class="bu-btn bu-btn-primary" onclick="document.getElementById('showcaseDialog').classList.add('open')">Abrir Dialog</button>
+  <div class="bu-dialog-backdrop" id="showcaseDialog">
+    <div class="bu-dialog">
+      <div class="bu-dialog-header">
+        <h3>Confirmação</h3>
+        <button class="bu-dialog-close" onclick="this.closest('.bu-dialog-backdrop').classList.remove('open')">✕</button>
+      </div>
+      <div class="bu-dialog-body">
+        <p style="font-size:var(--bu-font-sm);color:var(--bu-text-secondary);">Tem certeza que deseja excluir este registro? Esta ação não poderá ser desfeita.</p>
+      </div>
+      <div class="bu-dialog-footer">
+        <button class="bu-btn" onclick="this.closest('.bu-dialog-backdrop').classList.remove('open')">Cancelar</button>
+        <button class="bu-btn bu-btn-danger" onclick="this.closest('.bu-dialog-backdrop').classList.remove('open')">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <h2>9. Toast</h2>
+  <div class="s-box" style="flex-direction:column;align-items:stretch;">
+    <p style="font-size:var(--bu-font-xs);color:var(--bu-text-muted);margin-bottom:var(--bu-space-3);">Toasts são renderizados no canto superior direito. Abaixo, exemplo estático:</p>
+    <div class="bu-toast bu-toast-success" style="position:relative;top:auto;right:auto;max-width:100%;">
+      <span class="bu-toast-icon">✓</span>
+      <span class="bu-toast-message">Registro salvo com sucesso.</span>
+      <button class="bu-toast-close">✕</button>
+    </div>
+    <div class="bu-toast bu-toast-error" style="position:relative;top:auto;right:auto;max-width:100%;">
+      <span class="bu-toast-icon">✕</span>
+      <span class="bu-toast-message">Erro ao salvar o registro.</span>
+      <button class="bu-toast-close">✕</button>
+    </div>
+    <div class="bu-toast bu-toast-warning" style="position:relative;top:auto;right:auto;max-width:100%;">
+      <span class="bu-toast-icon">⚠</span>
+      <span class="bu-toast-message">Campo obrigatório não preenchido.</span>
+      <button class="bu-toast-close">✕</button>
+    </div>
+    <div class="bu-toast bu-toast-info" style="position:relative;top:auto;right:auto;max-width:100%;">
+      <span class="bu-toast-icon">ℹ</span>
+      <span class="bu-toast-message">Processamento concluído.</span>
+      <button class="bu-toast-close">✕</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <h2>10. Navigation</h2>
+  <div class="s-col2">
+    <div>
+      <h3>Breadcrumb</h3>
+      <div class="bu-breadcrumb">
+        <a class="bu-breadcrumb-item" href="#">Home</a>
+        <span class="bu-breadcrumb-sep">/</span>
+        <a class="bu-breadcrumb-item" href="#">Cadastros</a>
+        <span class="bu-breadcrumb-sep">/</span>
+        <span class="bu-breadcrumb-item active">Pessoas</span>
+      </div>
+    </div>
+    <div>
+      <h3>Toolbar</h3>
+      <div class="bu-toolbar" style="border:1px solid var(--bu-border);border-radius:var(--bu-radius-md);">
+        <div class="bu-toolbar-start">
+          <div class="bu-toolbar-search" style="max-width:200px;">
+            <span class="bu-toolbar-search-icon">🔍</span>
+            <input class="bu-input bu-input-sm" placeholder="Buscar...">
+          </div>
+        </div>
+        <div class="bu-toolbar-end">
+          <button class="bu-btn bu-btn-sm bu-btn-primary">+ Novo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:var(--bu-space-5);">
+    <h3>Sidebar (miniatura)</h3>
+    <div class="bu-sidebar" style="width:100%;max-width:300px;border:1px solid var(--bu-border);border-radius:var(--bu-radius-md);max-height:280px;">
+      <div class="bu-sidebar-header">
+        <div class="bu-avatar">JD</div>
+        <div class="bu-sidebar-header-info">
+          <div class="bu-sidebar-header-name">João</div>
+          <div class="bu-sidebar-header-role">Admin</div>
+        </div>
+      </div>
+      <div class="bu-sidebar-scroll" style="flex:none;max-height:200px;">
+        <div class="bu-menu-group">
+          <a class="bu-menu-item active" href="#"><span class="bu-menu-icon">👤</span><span class="bu-menu-text">Pessoas</span></a>
+          <a class="bu-menu-item" href="#"><span class="bu-menu-icon">📦</span><span class="bu-menu-text">Produtos</span></a>
+          <div class="bu-menu-item" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+            <span class="bu-menu-icon">📋</span><span class="bu-menu-text">Pedidos</span><span class="bu-menu-chevron">▶</span>
+          </div>
+          <div class="bu-submenu open">
+            <a class="bu-submenu-item" href="#"><span class="bu-submenu-dot"></span>Nova Venda</a>
+            <a class="bu-submenu-item active" href="#"><span class="bu-submenu-dot"></span>Meus Pedidos</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <h2>11. Window</h2>
+  <div class="bu-window" style="max-width:600px;">
+    <div class="bu-window-header">
+      <span class="bu-window-icon">📄</span>
+      <span class="bu-window-title">Janela Padrão</span>
+      <div class="bu-window-actions">
+        <button class="bu-btn bu-btn-sm">Cancelar</button>
+        <button class="bu-btn bu-btn-sm bu-btn-primary">Salvar</button>
+      </div>
+    </div>
+    <div class="bu-window-toolbar">
+      <input class="bu-input bu-input-sm" placeholder="Filtrar..." style="max-width:200px;">
+      <button class="bu-btn bu-btn-sm bu-btn-primary">+ Novo</button>
+    </div>
+    <div class="bu-window-content">
+      <p style="font-size:var(--bu-font-sm);color:var(--bu-text-secondary);">Conteúdo da janela.</p>
+    </div>
+    <div class="bu-window-status">
+      <span>3 registros</span>
+      <span>Pronto</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <h2>12. Form</h2>
+  <div class="bu-window" style="max-width:600px;">
+    <div class="bu-window-header">
+      <span class="bu-window-icon">📝</span>
+      <span class="bu-window-title">Formulário Padrão</span>
+    </div>
+    <div class="bu-window-content">
+      <form class="bu-form" onsubmit="event.preventDefault();">
+        <div class="bu-form-section">
+          <div class="bu-form-section-title">Informações Gerais</div>
+          <div class="bu-form-row">
+            <div class="bu-form-field">
+              <label class="bu-form-label">Nome <span class="bu-form-required">*</span></label>
+              <input class="bu-input" placeholder="Nome">
+            </div>
+            <div class="bu-form-field">
+              <label class="bu-form-label">Sobrenome <span class="bu-form-required">*</span></label>
+              <input class="bu-input" placeholder="Sobrenome">
+            </div>
+          </div>
+          <div class="bu-form-row">
+            <div class="bu-form-field">
+              <label class="bu-form-label">CPF</label>
+              <input class="bu-input" placeholder="000.000.000-00">
+            </div>
+            <div class="bu-form-field">
+              <label class="bu-form-label">Email</label>
+              <input class="bu-input" type="email" placeholder="email@exemplo.com">
+            </div>
+          </div>
+        </div>
+        <hr class="bu-form-divider">
+        <div class="bu-form-section">
+          <div class="bu-form-section-title">Observações</div>
+          <div class="bu-form-row bu-form-row-full">
+            <textarea class="bu-input" placeholder="Observações..." rows="2"></textarea>
+          </div>
+        </div>
+        <div class="bu-form-buttons">
+          <button class="bu-btn">Cancelar</button>
+          <button class="bu-btn bu-btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <h2>13. Dashboard</h2>
+  <div><span class="s-code">.bu-dash-grid-4</span> KPI Cards</div>
+  <div class="bu-dash-grid-4" style="margin-top:var(--bu-space-4);margin-bottom:var(--bu-space-7);">
+    <div class="bu-kpi">
+      <div class="bu-kpi-header"><span class="bu-kpi-label">Receita</span><span class="bu-kpi-icon bu-kpi-icon-success">💰</span></div>
+      <div class="bu-kpi-value">R$ 847K</div>
+      <div><span class="bu-kpi-trend bu-kpi-trend-up">▲ 12,5%</span></div>
+    </div>
+    <div class="bu-kpi">
+      <div class="bu-kpi-header"><span class="bu-kpi-label">Pedidos</span><span class="bu-kpi-icon bu-kpi-icon-primary">📋</span></div>
+      <div class="bu-kpi-value">342</div>
+      <div><span class="bu-kpi-trend bu-kpi-trend-up">▲ 8</span></div>
+    </div>
+    <div class="bu-kpi">
+      <div class="bu-kpi-header"><span class="bu-kpi-label">Clientes</span><span class="bu-kpi-icon bu-kpi-icon-primary">👤</span></div>
+      <div class="bu-kpi-value">1.284</div>
+      <div><span class="bu-kpi-trend bu-kpi-trend-up">▲ 3,2%</span></div>
+    </div>
+    <div class="bu-kpi">
+      <div class="bu-kpi-header"><span class="bu-kpi-label">Ticket</span><span class="bu-kpi-icon bu-kpi-icon-warning">📊</span></div>
+      <div class="bu-kpi-value">R$ 2.847</div>
+      <div><span class="bu-kpi-trend bu-kpi-trend-down">▼ 5,1%</span></div>
+    </div>
+  </div>
+
+  <div class="s-col2">
+    <div>
+      <div class="bu-timeline">
+        <div class="bu-timeline-header"><h3>Timeline</h3></div>
+        <div class="bu-timeline-body">
+          <div class="bu-timeline-item">
+            <div class="bu-timeline-dot"><div class="bu-timeline-dot-circle bu-timeline-dot-circle-success"></div></div>
+            <div class="bu-timeline-content"><div class="bu-timeline-text">Pedido aprovado</div><div class="bu-timeline-meta"><span>há 5 min</span></div></div>
+          </div>
+          <div class="bu-timeline-item">
+            <div class="bu-timeline-dot"><div class="bu-timeline-dot-circle bu-timeline-dot-circle-primary"></div></div>
+            <div class="bu-timeline-content"><div class="bu-timeline-text">Cliente cadastrado</div><div class="bu-timeline-meta"><span>há 18 min</span></div></div>
+          </div>
+          <div class="bu-timeline-item">
+            <div class="bu-timeline-dot"><div class="bu-timeline-dot-circle bu-timeline-dot-circle-danger"></div></div>
+            <div class="bu-timeline-content"><div class="bu-timeline-text">Nota rejeitada</div><div class="bu-timeline-meta"><span>há 1h</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="bu-alerts">
+        <div class="bu-alerts-header"><h3>Alertas</h3><span class="bu-badge bu-badge-danger">3</span></div>
+        <div class="bu-alerts-body">
+          <div class="bu-alert-item">
+            <span class="bu-alert-icon bu-alert-icon-danger">⚠</span>
+            <div class="bu-alert-content"><div class="bu-alert-title">Certificado expira</div><div class="bu-alert-desc">Em 15 dias.</div></div>
+            <span class="bu-alert-time">urgente</span>
+          </div>
+          <div class="bu-alert-item">
+            <span class="bu-alert-icon bu-alert-icon-warning">⚠</span>
+            <div class="bu-alert-content"><div class="bu-alert-title">Estoque baixo</div><div class="bu-alert-desc">Restam 3 unidades.</div></div>
+            <span class="bu-alert-time">hoje</span>
+          </div>
+          <div class="bu-alert-item">
+            <span class="bu-alert-icon bu-alert-icon-info">ℹ</span>
+            <div class="bu-alert-content"><div class="bu-alert-title">SAP 5.2 disponível</div><div class="bu-alert-desc">Nova versão.</div></div>
+            <span class="bu-alert-time">2 dias</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <h2>14. DataGrid</h2>
+  <div id="showcase-datagrid"></div>
+
+  <p style="text-align:center;margin-top:var(--bu-space-12);font-size:var(--bu-font-sm);color:var(--bu-text-muted);">BusinessUI — Showcase v1.0.0</p>
+</div>
+
+<script src="../assets/js/components/datagrid.js"></script>
+<script>
+new DataGrid(document.getElementById('showcase-datagrid'), {
+  columns: [
+    { field: 'name', label: 'Nome', sortable: true },
+    { field: 'email', label: 'Email', sortable: true },
+    { field: 'status', label: 'Status', sortable: true,
+      formatter: function (v) {
+        const c = { Ativo: 'success', Inativo: 'neutral' };
+        return `<span class="bu-badge bu-badge-${c[v] || 'neutral'}">${v}</span>`;
+      }
+    }
+  ],
+  data: [
+    { name: 'João da Silva', email: 'joao@email.com', status: 'Ativo' },
+    { name: 'Maria Oliveira', email: 'maria@email.com', status: 'Ativo' },
+    { name: 'Carlos Pereira', email: 'carlos@email.com', status: 'Inativo' },
+    { name: 'Ana Souza', email: 'ana@email.com', status: 'Ativo' },
+    { name: 'Pedro Santos', email: 'pedro@email.com', status: 'Ativo' }
+  ],
+  pageSize: 5,
+  selectable: true,
+  searchable: true,
+  actions: [
+    { label: 'Editar', icon: '✎', action: function (r) { alert('Editar: ' + r.name); } }
+  ]
+});
+</script>
+
+</body>
+</html>

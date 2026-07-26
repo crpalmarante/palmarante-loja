@@ -1,0 +1,105 @@
+/* ══════════════════════════════════════════════════════════════
+   BusinessUI — Formulário Padrão
+   v1.0.0
+   ─────────────────────────────────────────────────────────────
+   Todo formulário do sistema segue exatamente esta estrutura.
+   Sem exceções.
+   ══════════════════════════════════════════════════════════════ */
+
+.bu-form {
+  max-width: 800px;
+}
+
+/* ── Title ────────────────────────────────────────────────── */
+.bu-form-title {
+  font-size: var(--bu-font-2xl);
+  font-weight: var(--bu-font-semibold);
+  color: var(--bu-text);
+  margin-bottom: var(--bu-space-7);
+}
+
+/* ── Section ─────────────────────────────────────────────── */
+.bu-form-section {
+  margin-bottom: var(--bu-space-8);
+}
+
+.bu-form-section-title {
+  font-size: var(--bu-font-sm);
+  font-weight: var(--bu-font-semibold);
+  color: var(--bu-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--bu-tracking-wide);
+  margin-bottom: var(--bu-space-5);
+  padding-bottom: var(--bu-space-2);
+  border-bottom: var(--bu-border-thin) solid var(--bu-border-light);
+}
+
+/* ── Divider ──────────────────────────────────────────────── */
+.bu-form-divider {
+  border: none;
+  border-top: var(--bu-border-thin) solid var(--bu-border-light);
+  margin: var(--bu-space-7) 0;
+}
+
+/* ── Row ──────────────────────────────────────────────────── */
+.bu-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--bu-space-5);
+  margin-bottom: var(--bu-space-5);
+}
+.bu-form-row-full {
+  grid-template-columns: 1fr;
+}
+.bu-form-row-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.bu-form-row-4 {
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+/* ── Field ────────────────────────────────────────────────── */
+.bu-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bu-space-1);
+}
+
+.bu-form-label {
+  font-size: var(--bu-font-sm);
+  font-weight: var(--bu-font-medium);
+  color: var(--bu-text-secondary);
+}
+
+.bu-form-required {
+  color: var(--bu-danger);
+  margin-left: 2px;
+}
+
+.bu-form-hint {
+  font-size: var(--bu-font-xs);
+  color: var(--bu-text-muted);
+}
+
+.bu-form-error {
+  font-size: var(--bu-font-xs);
+  color: var(--bu-danger);
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.bu-form-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--bu-space-3);
+  padding-top: var(--bu-space-7);
+  border-top: var(--bu-border-thin) solid var(--bu-border-light);
+  margin-top: var(--bu-space-8);
+}
+
+/* ── Inline field group ──────────────────────────────────── */
+.bu-form-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--bu-space-3);
+}

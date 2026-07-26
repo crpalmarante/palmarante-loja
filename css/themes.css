@@ -1,0 +1,280 @@
+/*=========================================================
+    FiscalBrasil UI
+    File    : themes.css
+    Sistema de Temas do FiscalUI.
+    Cada tema sobrescreve apenas Design Tokens.
+=========================================================*/
+
+/*=========================================================
+  THEME: LIGHT
+=========================================================*/
+
+[data-theme="light"]{
+
+    --bg-gradient:
+
+        linear-gradient(
+            135deg,
+            #f0f4f8,
+            #e2e8f0,
+            #cbd5e1
+        );
+
+    --body-background:var(--bg-gradient);
+
+    --glass-bg:rgba(255,255,255,.7);
+
+    --glass-blur:blur(20px);
+
+    --glass-border:rgba(0,0,0,.1);
+
+    --glass-shadow:0 8px 30px rgba(0,0,0,.08);
+
+    --glass-highlight:inset 0 1px 0 rgba(255,255,255,.8);
+
+    --surface-glass:rgba(255,255,255,.7);
+
+    --surface-glass-hover:rgba(255,255,255,.85);
+
+    --surface-container:rgba(255,255,255,.5);
+
+    --surface-panel:rgba(255,255,255,.4);
+
+    --surface-overlay:rgba(0,0,0,.3);
+
+    --text-primary:#1a202c;
+
+    --text-secondary:#4a5568;
+
+    --text-muted:rgba(0,0,0,.45);
+
+    --text-disabled:rgba(0,0,0,.2);
+
+    --text-inverse:#FFFFFF;
+
+    --color-primary:#0f766e;
+
+    --color-primary-hover:#0d5c55;
+
+    --color-primary-active:#0a4a44;
+
+    --color-secondary:#2563EB;
+
+    --color-secondary-hover:#1D4ED8;
+
+    --color-secondary-active:#1e40af;
+
+    --color-success:#16A34A;
+
+    --color-success-hover:#15803D;
+
+    --color-warning:#D97706;
+
+    --color-warning-hover:#B45309;
+
+    --color-danger:#DC2626;
+
+    --color-danger-hover:#B91C1C;
+
+    --color-info:#0891B2;
+
+    --color-info-hover:#0E7490;
+
+    --border-color:rgba(0,0,0,.1);
+
+    --border-hover:rgba(0,0,0,.18);
+
+    --border-focus:var(--color-primary);
+
+    --border-active:var(--color-primary);
+
+    --shadow-xs:0 1px 2px rgba(0,0,0,.04);
+
+    --shadow-sm:0 2px 4px rgba(0,0,0,.05);
+
+    --shadow-md:0 4px 12px rgba(0,0,0,.06);
+
+    --shadow-lg:0 8px 24px rgba(0,0,0,.08);
+
+    --shadow-xl:0 16px 48px rgba(0,0,0,.1);
+
+}
+
+[data-theme="light"] #sidebar{
+
+    background:rgba(255,255,255,.8);
+
+    backdrop-filter:blur(20px);
+
+    border-right:1px solid var(--glass-border);
+
+}
+
+[data-theme="light"] .topbar{
+
+    background:rgba(255,255,255,.7);
+
+}
+
+[data-theme="light"] .menu-item:hover{
+
+    background:rgba(0,0,0,.05);
+
+}
+
+[data-theme="light"] .menu-item.active{
+
+    background:rgba(15,118,110,.1);
+
+}
+
+[data-theme="light"] .glass-panel{
+
+    background:rgba(255,255,255,.7);
+
+}
+
+[data-theme="light"] .quick-card{
+
+    background:rgba(255,255,255,.65);
+
+}
+
+[data-theme="light"] .quick-card:hover{
+
+    background:rgba(255,255,255,.85);
+
+}
+
+[data-theme="light"] .toolbar-btn{
+
+    background:rgba(0,0,0,.05);
+
+    border-color:var(--glass-border);
+
+}
+
+[data-theme="light"] .toolbar-btn:hover{
+
+    background:rgba(0,0,0,.1);
+
+}
+
+[data-theme="light"] .form input,
+
+[data-theme="light"] .filter-input,
+
+[data-theme="light"] .filter-select{
+
+    background:rgba(0,0,0,.03);
+
+    color:var(--text-primary);
+
+}
+
+[data-theme="light"] .topbar-search{
+
+    background:rgba(0,0,0,.04);
+
+}
+
+[data-theme="light"] .topbar-search:focus-within{
+
+    background:rgba(0,0,0,.06);
+
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track{
+
+    background:#e2e8f0;
+
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb{
+
+    background:#94a3b8;
+
+}
+
+/*=========================================================
+  THEME: DARK (ativo por padrão — variaveis.css)
+  Nenhuma sobrescrita necessária.
+=========================================================*/
+
+/*=========================================================
+  THEME: HIGH CONTRAST
+=========================================================*/
+
+[data-theme="high-contrast"]{
+
+    --bg-gradient:#000;
+
+    --body-background:#000;
+
+    --glass-bg:#111;
+
+    --glass-blur:blur(0);
+
+    --glass-border:#fff;
+
+    --glass-shadow:none;
+
+    --glass-highlight:none;
+
+    --surface-glass:#111;
+
+    --surface-glass-hover:#222;
+
+    --surface-container:#111;
+
+    --surface-panel:#111;
+
+    --surface-overlay:#000;
+
+    --text-primary:#fff;
+
+    --text-secondary:#ddd;
+
+    --text-muted:#aaa;
+
+    --text-disabled:#666;
+
+    --text-inverse:#000;
+
+    --color-primary:#00e5ff;
+
+    --color-primary-hover:#00b8d4;
+
+    --color-primary-active:#0097a7;
+
+    --border-color:#fff;
+
+    --border-hover:#fff;
+
+    --border-focus:var(--color-primary);
+
+}
+
+[data-theme="high-contrast"] .glass-panel{
+
+    border:2px solid #fff;
+
+}
+
+[data-theme="high-contrast"] .topbar{
+
+    border:2px solid #fff;
+
+}
+
+[data-theme="high-contrast"] #sidebar{
+
+    border-right:2px solid #fff;
+
+}
+
+[data-theme="high-contrast"] .menu-item.active{
+
+    border:1px solid var(--color-primary);
+
+}

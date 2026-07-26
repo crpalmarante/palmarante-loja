@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palmarante Loja - Login</title>
+<link rel="stylesheet" href="index.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="login-screen" id="login-screen">
+<h1>Palmarante Loja</h1>
+<div class="sub">Sistema de Gestao</div>
+
+<div class="login-box" id="login-box">
+<div id="form-login">
+<input type="text" id="login-user" placeholder="Usuario" autocomplete="off">
+<input type="password" id="login-pass" placeholder="Senha" onkeydown="if(event.key==='Enter')logar()">
+<button onclick="logar()" id="btn-entrar">Entrar</button>
+<div class="loading" id="login-loading">A autenticar...</div>
+<div class="login-erro" id="login-erro">Usuario ou senha incorretos</div>
+<div class="link" onclick="mostrarRegistro()">Cadastrar-se</div>
+</div>
+
+<div id="form-registro" style="display:none">
+<input type="text" id="reg-nome" placeholder="Nome completo">
+<input type="text" id="reg-usuario" placeholder="Usuario">
+<input type="email" id="reg-email" placeholder="Email (opcional)">
+<input type="password" id="reg-senha" placeholder="Senha (min 4 caracteres)">
+<button onclick="registrar()">Cadastrar</button>
+<div class="loading" id="reg-loading">A cadastrar...</div>
+<div class="login-erro" id="reg-erro"></div>
+<div class="login-ok" id="reg-ok"></div>
+<div class="link" onclick="mostrarLogin()">Voltar ao login</div>
+</div>
+</div>
+</div>
+
+<script>
+let token = localStorage.getItem('auth_token');
+
+if (token) {
+  window.location.href = 'index.html';
+}
+
+function mostrarRegistro() {
+document.getElementById('form-login').style.display = 'none';
+document.getElementById('form-registro').style.display = 'block';
+document.getElementById('login-erro').style.display = 'none';
+}
+function mostrarLogin() {
+document.getElementById('form-login').style.display = 'block';
+document.getElementById('form-registro').style.display = 'none';
+document.getElementById('reg-erro').style.display = 'none';
+document.getElementById('reg-ok').style.display = 'none';
+}
+
+function api(path, params) {
+const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+if (token) headers['X-Auth-Token'] = token;
+return fetch(path, { method: 'POST', headers, body: params });
+}
+
+function logar() {
+const u = document.getElementById('login-user').value.trim();
+const p = document.getElementById('login-pass').value.trim();
+if (!u || !p) { document.getElementById('login-erro').style.display = 'block'; return; }
+
+document.getElementById('login-erro').style.display = 'none';
+document.getElementById('login-loading').style.display = 'block';
+document.getElementById('btn-entrar').disabled = true;
+
+const params = new URLSearchParams();
+params.set('usuario', u);
+params.set('senha', p);
+
+api('/api/auth/login', params)
+.then(r => r.json())
+.then(data => {
+document.getElementById('login-loading').style.display = 'none';
+document.getElementById('btn-entrar').disabled = false;
+if (data.status === 'ok') {
+token = data.token;
+localStorage.setItem('auth_token', token);
+localStorage.setItem('pos_usuario', JSON.stringify(data));
+window.location.href = 'index.html';
+} else {
+document.getElementById('login-erro').textContent = data.mensagem || 'Usuario ou senha incorretos';
+document.getElementById('login-erro').style.display = 'block';
+}
+})
+.catch(() => {
+document.getElementById('login-loading').style.display = 'none';
+document.getElementById('btn-entrar').disabled = false;
+document.getElementById('login-erro').textContent = 'Erro de conexao';
+document.getElementById('login-erro').style.display = 'block';
+});
+}
+
+function registrar() {
+const nome = document.getElementById('reg-nome').value.trim();
+const usuario = document.getElementById('reg-usuario').value.trim();
+const email = document.getElementById('reg-email').value.trim();
+const senha = document.getElementById('reg-senha').value;
+if (!nome || !usuario || !senha) {
+document.getElementById('reg-erro').textContent = 'Preencha nome, usuario e senha';
+document.getElementById('reg-erro').style.display = 'block'; return;
+}
+
+document.getElementById('reg-erro').style.display = 'none';
+document.getElementById('reg-ok').style.display = 'none';
+document.getElementById('reg-loading').style.display = 'block';
+
+const params = new URLSearchParams();
+params.set('nome', nome);
+params.set('usuario', usuario);
+params.set('email', email);
+params.set('senha', senha);
+
+api('/api/auth/register', params)
+.then(r => r.json())
+.then(data => {
+document.getElementById('reg-loading').style.display = 'none';
+if (data.status === 'ok') {
+document.getElementById('reg-ok').textContent = 'Conta criada com sucesso! Faca login.';
+document.getElementById('reg-ok').style.display = 'block';
+document.getElementById('reg-nome').value = '';
+document.getElementById('reg-usuario').value = '';
+document.getElementById('reg-email').value = '';
+document.getElementById('reg-senha').value = '';
+} else {
+document.getElementById('reg-erro').textContent = data.mensagem || 'Erro ao cadastrar';
+document.getElementById('reg-erro').style.display = 'block';
+}
+})
+.catch(() => {
+document.getElementById('reg-loading').style.display = 'none';
+document.getElementById('reg-erro').textContent = 'Erro de conexao';
+document.getElementById('reg-erro').style.display = 'block';
+});
+}
+</script>
+<footer style="text-align:center;padding:16px 0;margin-top:32px;font-size:.8rem;color:#999;border-top:1px solid #e0e0e0">Powered by <strong>COBOL</strong> &mdash; Palmarante Loja</footer>
+</body>
+</html>

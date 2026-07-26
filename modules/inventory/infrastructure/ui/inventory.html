@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory Platform — BusinessCore</title>
+<link rel="stylesheet" href="../../../businessui/assets/css/core/theme.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/layout/layout.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/navigation.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/components.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/form.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/datagrid.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/dashboard.css">
+</head>
+<body>
+
+<div class="bu-app">
+  <header class="bu-topbar">
+    <div class="bu-topbar-logo">Business<span>Core</span></div>
+    <div class="bu-topbar-search">
+      <span class="bu-topbar-search-icon">🔍</span>
+      <input class="bu-input" placeholder="Pesquisar...">
+    </div>
+    <nav class="bu-topbar-nav">
+      <button class="bu-topbar-btn">🔔</button>
+      <button class="bu-topbar-btn">⚙️</button>
+      <div class="bu-avatar bu-avatar-sm">AD</div>
+    </nav>
+  </header>
+
+  <div class="bu-body">
+    <aside class="bu-sidebar">
+      <div class="bu-sidebar-header">
+        <div class="bu-avatar">BC</div>
+        <div class="bu-sidebar-header-info">
+          <div class="bu-sidebar-header-name">BusinessCore</div>
+          <div class="bu-sidebar-header-role">Inventory</div>
+        </div>
+      </div>
+      <div class="bu-sidebar-scroll">
+        <div class="bu-menu-group">
+          <div class="bu-menu-label">Estoque</div>
+          <a class="bu-menu-item" href="#" onclick="switchTab('dashboard')"><span class="bu-menu-icon">📊</span><span class="bu-menu-text">Dashboard</span></a>
+          <a class="bu-menu-item active" href="#" onclick="switchTab('balance')"><span class="bu-menu-icon">⚖️</span><span class="bu-menu-text">Saldos</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('movements')"><span class="bu-menu-icon">🔄</span><span class="bu-menu-text">Movimentações</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('reservations')"><span class="bu-menu-icon">📌</span><span class="bu-menu-text">Reservas</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('transfers')"><span class="bu-menu-icon">🚚</span><span class="bu-menu-text">Transferências</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('counts')"><span class="bu-menu-icon">📋</span><span class="bu-menu-text">Inventários</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('adjustments')"><span class="bu-menu-icon">🔧</span><span class="bu-menu-text">Ajustes</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('lots')"><span class="bu-menu-icon">🏷️</span><span class="bu-menu-text">Lotes</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('serials')"><span class="bu-menu-icon">🔢</span><span class="bu-menu-text">Séries</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('trace')"><span class="bu-menu-icon">🔍</span><span class="bu-menu-text">Rastreabilidade</span></a>
+        </div>
+      </div>
+      <div class="bu-sidebar-footer">BusinessCore v2.0.0</div>
+    </aside>
+
+    <main class="bu-workspace">
+      <div class="bu-toolbar">
+        <div class="bu-toolbar-start">
+          <div class="bu-breadcrumb">
+            <a class="bu-breadcrumb-item" href="#">Home</a>
+            <span class="bu-breadcrumb-sep">/</span>
+            <span class="bu-breadcrumb-item active" id="pageTitle">Saldos</span>
+          </div>
+        </div>
+        <div class="bu-toolbar-end">
+          <div class="bu-toolbar-search">
+            <span class="bu-toolbar-search-icon">🔍</span>
+            <input class="bu-input bu-input-sm" id="searchInput" placeholder="Item ID..." oninput="loadContent()">
+          </div>
+          <div class="bu-toolbar-divider"></div>
+          <button class="bu-btn bu-btn-primary" id="btnNew" onclick="openCreate()">+ Novo</button>
+        </div>
+      </div>
+      <div class="bu-workspace-content"><div id="dataContainer"></div></div>
+    </main>
+  </div>
+
+  <footer class="bu-statusbar">
+    <div class="bu-statusbar-start">
+      <span><span class="bu-statusbar-dot online"></span> BusinessCore Inventory Platform</span>
+      <span>v2.0.0</span>
+    </div>
+    <div class="bu-statusbar-end"><span id="recordCount">Stock Ledger</span></div>
+  </footer>
+</div>
+
+<div class="bu-dialog-backdrop" id="itemForm">
+  <div class="bu-dialog bu-dialog-md">
+    <div class="bu-dialog-header"><h3 id="formTitle">Novo</h3><button class="bu-dialog-close" onclick="closeForm()">✕</button></div>
+    <div class="bu-dialog-body" id="formBody"></div>
+    <div class="bu-dialog-footer">
+      <button class="bu-btn" onclick="closeForm()">Cancelar</button>
+      <button class="bu-btn bu-btn-primary" onclick="saveItem()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8005/api/inventory';
+let currentTab = 'balance';
+
+function switchTab(tab) {
+  currentTab = tab;
+  const tabs = ['dashboard','balance','movements','reservations','transfers','counts','adjustments','lots','serials','trace'];
+  document.querySelectorAll('.bu-menu-item').forEach((m,i) => m.classList.toggle('active', tabs[i]===tab));
+  const labels = {dashboard:'Dashboard',balance:'Saldos',movements:'Movimentações',reservations:'Reservas',
+    transfers:'Transferências',counts:'Inventários',adjustments:'Ajustes',lots:'Lotes',serials:'Séries',trace:'Rastreabilidade'};
+  document.getElementById('pageTitle').textContent = labels[tab]||tab;
+  document.getElementById('btnNew').style.display = tab==='dashboard'||tab==='trace'?'none':'';
+  loadContent();
+}
+
+async function loadContent() {
+  const q = document.getElementById('searchInput').value;
+  const c = document.getElementById('dataContainer');
+  document.getElementById('recordCount').textContent = 'carregando...';
+
+  try {
+    if (currentTab === 'dashboard') {
+      return await loadDashboard();
+    }
+    if (currentTab === 'trace' && !q) {
+      c.innerHTML = '<div class="bu-empty-state"><div class="bu-empty-state-icon">🔍</div><div class="bu-empty-state-text">Digite um Item ID, Serial ou Lote</div></div>';
+      document.getElementById('recordCount').textContent = '';
+      return;
+    }
+    const urls = {
+      balance: API+'/balance'+(q?'?item_id='+encodeURIComponent(q):''),
+      movements: API+'/movements'+(q?'?item_id='+encodeURIComponent(q):''),
+      reservations: API+'/reservations'+(q?'?item_id='+encodeURIComponent(q):''),
+      transfers: API+'/transfers',
+      counts: API+'/counts',
+      adjustments: API+'/movements?movement_type=adjustment'+(q?'&item_id='+encodeURIComponent(q):''),
+      lots: API+'/lots'+(q?'?item_id='+encodeURIComponent(q):''),
+      serials: API+'/serials'+(q?'?serial='+encodeURIComponent(q):''),
+      trace: API+'/trace?'+(q.startsWith('SN')?'serial=':'item_id=')+encodeURIComponent(q),
+    };
+    const r = await fetch(urls[currentTab]||API+'/balance');
+    const d = await r.json();
+    const data = d.data||[];
+    const items = data.layers||data;
+    const count = Array.isArray(data)?data.length:(Array.isArray(items)?items.length:1);
+    document.getElementById('recordCount').textContent = count+' registro'+(count!==1?'s':'');
+
+    if (!items||!items.length) { c.innerHTML = '<div class="bu-empty-state">Nenhum registro</div>'; return; }
+
+    c.innerHTML = renderTable(items);
+  } catch(e) {
+    c.innerHTML = '<div class="bu-empty-state">Erro: '+e.message+'</div>';
+  }
+}
+
+function renderTable(items) {
+  if (currentTab==='trace') return renderTrace(items[0]);
+  const cols = getColumns();
+  let html = '<table class="bu-table"><thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'<th>Ações</th></tr></thead><tbody>';
+  items.forEach(item => {
+    html += '<tr>'+cols.map(c=>'<td>'+getVal(item,c)+'</td>').join('')+'<td>'+getActions(item)+'</td></tr>';
+  });
+  html += '</tbody></table>';
+  return html;
+}
+
+function renderTrace(item) {
+  return '<div style="padding:var(--bu-space-5);background:var(--bu-surface);border-radius:var(--bu-radius-md);border:1px solid var(--bu-border);">'+
+    '<table class="bu-table"><tbody>'+
+    Object.entries(item).map(([k,v])=>'<tr><td style="font-weight:600;width:200px;">'+k.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase())+'</td><td>'+v+'</td></tr>').join('')+
+    '</tbody></table></div>';
+}
+
+function getColumns() {
+  return {
+    balance: ['Item','Armazém','Físico','Reservado','Disponível'],
+    movements: ['Item','Tipo','Qtd','Doc','Ref','Status','Data'],
+    reservations: ['Item','Qtd','Status','Pedido','Criado em'],
+    transfers: ['Origem','Destino','Status','Itens','Criado em'],
+    counts: ['Armazém','Status','Linhas','Diferença','Conferente'],
+    adjustments: ['Item','Qtd','Doc','Ref','Data'],
+    lots: ['Lote','Item','Fornec.','Fabricação','Validade','Status'],
+    serials: ['Serial','Item','Status','Lote'],
+  }[currentTab]||['Nome','Valor'];
+}
+
+function getVal(item, col) {
+  const m = {
+    'Item': item.item_id||'-',
+    'Armazém': item.warehouse_id||'-',
+    'Físico': '<strong>'+item.physical+'</strong>',
+    'Reservado': item.reserved,
+    'Disponível': '<span style="color:'+(item.available>0?'var(--bu-success)':'var(--bu-danger)')+';font-weight:bold;">'+item.available+'</span>',
+    'Tipo': '<span class="bu-badge bu-badge-'+(item.type==='in'?'success':item.type==='out'?'danger':'info')+'">'+(item.type||'')+'</span>',
+    'Qtd': item.quantity,
+    'Doc': item.document_number||'-',
+    'Ref': (item.reference_type?item.reference_type+'#'+item.reference_id:'-').slice(0,20),
+    'Status': '<span class="bu-badge bu-badge-'+(item.status==='confirmed'||item.status==='active'||item.status==='completed'?'success':item.status==='cancelled'||item.status==='expired'?'danger':'warning')+'">'+(item.status||'')+'</span>',
+    'Data': item.created_at?new Date(item.created_at).toLocaleString('pt-BR'):'-',
+    'Pedido': (item.order_type?item.order_type+' #'+item.order_id:'-').slice(0,20),
+    'Criado em': item.created_at?new Date(item.created_at).toLocaleString('pt-BR'):'-',
+    'Origem': item.from,
+    'Destino': item.to,
+    'Itens': item.items||'-',
+    'Linhas': item.lines||'-',
+    'Diferença': '<span style="color:'+(item.total_difference<0?'var(--bu-danger)':item.total_difference>0?'var(--bu-warning)':'var(--bu-success)')+'">'+(item.total_difference>=0?'+':'')+item.total_difference+'</span>',
+    'Conferente': item.counted_by||'-',
+    'Lote': item.lot_number||item.id||'-',
+    'Fornec.': item.supplier_lot||'-',
+    'Fabricação': item.manufacturing_date||'-',
+    'Validade': item.expiry_date||'-',
+    'Serial': item.serial||'-',
+  };
+  return m[col]||item[col]||'-';
+}
+
+function getActions(item) {
+  let acts = '';
+  if (currentTab==='serials'&&item.status==='available') acts += '<button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="apiPost(\'serials/'+item.serial+'/reserve\')">📌</button>';
+  if (currentTab==='serials'&&(item.status==='available'||item.status==='reserved')) acts += '<button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="apiPost(\'serials/'+item.serial+'/sell\')">💰</button>';
+  if (currentTab==='transfers'&&item.status==='draft') acts += '<button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="apiPost(\'transfers/'+item.id+'/send\')">🚚 Enviar</button>';
+  if (currentTab==='transfers'&&item.status==='sent') acts += '<button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="apiPost(\'transfers/'+item.id+'/receive\')">📥 Receber</button>';
+  if (currentTab==='transfers'&&item.status==='received') acts += '<button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="apiPost(\'transfers/'+item.id+'/complete\')">✅ Concluir</button>';
+  if (currentTab==='counts'&&item.status==='draft') acts += '<button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="apiPost(\'counts/'+item.id+'/complete\')">✅ Finalizar</button>';
+  return acts;
+}
+
+async function apiPost(path) {
+  await fetch(API+'/'+path, {method:'POST'});
+  loadContent();
+}
+
+async function loadDashboard() {
+  const r = await fetch(API+'/dashboard');
+  const d = await r.json();
+  const data = d.data||{};
+  document.getElementById('recordCount').textContent = '';
+  document.getElementById('dataContainer').innerHTML =
+    '<div class="bu-kpi-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--bu-space-5);margin-bottom:var(--bu-space-7);">'+
+    kpi('📦','Itens em Estoque',data.total_items_in_stock,'primary')+
+    kpi('📌','Reservado',data.total_reserved,'warning')+
+    kpi('✅','Disponível',data.total_available,'success')+
+    kpi('🔄','Mov. Hoje',data.movements_today,'info')+
+    kpi('📋','Inventários Pend.',data.inventory_counts_pending,'neutral')+
+    kpi('🚚','Transferências',data.transfers_pending,'neutral')+
+    kpi('⚠️','Lotes Vencidos',data.expired_lots,'danger')+
+    kpi('💰','Valor Total','R$ '+parseFloat(data.total_value).toFixed(2),'primary')+
+    '</div>';
+}
+
+function kpi(icon, label, value, color) {
+  return '<div class="bu-stat-card" style="background:var(--bu-surface);border-radius:var(--bu-radius-md);padding:var(--bu-space-5);border:1px solid var(--bu-border);box-shadow:var(--bu-shadow-sm);">'+
+    '<div style="font-size:24px;margin-bottom:var(--bu-space-2);">'+icon+'</div>'+
+    '<div style="font-size:var(--bu-font-sm);color:var(--bu-text-muted);">'+label+'</div>'+
+    '<div style="font-size:var(--bu-font-2xl);font-weight:bold;color:var(--bu-'+color+');">'+value+'</div></div>';
+}
+
+function openCreate() {
+  const labels = {balance:'Nova Movimentação',movements:'Nova Movimentação',reservations:'Nova Reserva',
+    transfers:'Nova Transferência',counts:'Novo Inventário',adjustments:'Novo Ajuste',
+    lots:'Novo Lote',serials:'Registrar Serial'};
+  document.getElementById('formTitle').textContent = labels[currentTab]||'Novo';
+  document.getElementById('formBody').innerHTML = getFormHTML(currentTab);
+  document.getElementById('itemForm').classList.add('open');
+}
+
+function getFormHTML(tab) {
+  switch(tab) {
+    case 'balance':case 'movements':case 'adjustments':
+      return `<div class="bu-form-row">
+        <div class="bu-form-field"><label>Item *</label><input class="bu-input" id="fItemId"></div>
+        <div class="bu-form-field"><label>Armazém *</label><input class="bu-input" id="fWhId"></div></div>
+      <div class="bu-form-row">
+        <div class="bu-form-field"><label>Tipo</label><select class="bu-select" id="fType">
+          ${(tab==='adjustments'?'<option value="adjustment">Ajuste</option>':'<option value="in">Entrada</option><option value="out">Saída</option><option value="adjustment">Ajuste</option><option value="production">Produção</option><option value="consumption">Consumo</option><option value="return">Devolução</option>')}
+        </select></div>
+        <div class="bu-form-field"><label>Qtd *</label><input class="bu-input" id="fQty" type="number" step="0.001"></div></div>
+      <div class="bu-form-row">
+        <div class="bu-form-field"><label>Documento</label><input class="bu-input" id="fDoc" placeholder="Ex: NF-001"></div>
+        <div class="bu-form-field"><label>Ref. Tipo</label><input class="bu-input" id="fRefType" placeholder="Ex: purchase"></div></div>
+      <div class="bu-form-row">
+        <div class="bu-form-field"><label>Ref. ID</label><input class="bu-input" id="fRefId"></div>
+        <div class="bu-form-field"><label>Custo Unit.</label><input class="bu-input" id="fCost" type="number" step="0.01"></div></div>
+      <div class="bu-form-field"><textarea class="bu-input" id="fNotes" rows="2" placeholder="Observação..."></textarea></div>`;
+    case 'reservations':
+      return `<div class="bu-form-row">
+        <div class="bu-form-field"><label>Item *</label><input class="bu-input" id="fItemId"></div>
+        <div class="bu-form-field"><label>Armazém *</label><input class="bu-input" id="fWhId"></div></div>
+      <div class="bu-form-row">
+        <div class="bu-form-field"><label>Qtd *</label><input class="bu-input" id="fQty" type="number" step="0.001"></div>
+        <div class="bu-form-field"><label>Tipo Pedido</label><input class="bu-input" id="fOrderType" placeholder="Ex: sale"></div></div>
+      <div class="bu-form-row">
+        <div class="bu-form-field"><label>Pedido ID</label><input class="bu-input" id="fOrderId"></div>
+        <div class="bu-form-field"><label>Expira</label><input class="bu-input" id="fExpires" type="datetime-local"></div></div>`;
+    case 'transfers':
+      return `<div class="bu-form-row">
+        <div class="bu-form-field"><label>Origem *</label><input class="bu-input" id="fFrom"></div>
+        <div class="bu-form-field"><label>Destino *</label><input class="bu-input" id="fTo"></div></div>
+      <div class="bu-form-field"><label>Itens (JSON)</label><textarea class="bu-input" id="fItems" rows="3" placeholder='[{"item_id":"i1","quantity":10}]'></textarea></div>`;
+    case 'counts':
+      return `<div class="bu-form-field"><label>Armazém *</label><input class="bu-input" id="fWhId"></div>
+      <div class="bu-form-field"><label>Linhas (JSON)</label><textarea class="bu-input" id="fLines" rows="4" placeholder='[{"item_id":"i1","expected_quantity":100,"actual_quantity":97}]'></textarea></div>
+      <div class="bu-form-field"><label>Conferente</label><input class="bu-input" id="fCountedBy"></div>`;
+    case 'lots':
+      return `<div class="bu-form-row">
+        <div class="bu-form-field"><label>Item *</label><input class="bu-input" id="fItemId"></div>
+        <div class="bu-form-field"><label>Armazém *</label><input class="bu-input" id="fWhId"></div></div>
+      <div class="bu-form-row">
+        <div class="bu-form-field"><label>Nº Lote *</label><input class="bu-input" id="fLotNumber"></div>
+        <div class="bu-form-field"><label>Lote Fornec.</label><input class="bu-input" id="fSupplierLot"></div></div>
+      <div class="bu-form-row">
+        <div class="bu-form-field"><label>Fabricação</label><input class="bu-input" id="fMfg" type="date"></div>
+        <div class="bu-form-field"><label>Validade</label><input class="bu-input" id="fExpiry" type="date"></div></div>`;
+    case 'serials':
+      return `<div class="bu-form-row">
+        <div class="bu-form-field"><label>Item *</label><input class="bu-input" id="fItemId"></div>
+        <div class="bu-form-field"><label>Armazém *</label><input class="bu-input" id="fWhId"></div></div>
+      <div class="bu-form-row">
+        <div class="bu-form-field"><label>Serial *</label><input class="bu-input" id="fSerial"></div>
+        <div class="bu-form-field"><label>Lote</label><input class="bu-input" id="fLotId"></div></div>`;
+    default: return '';
+  }
+}
+
+function closeForm() { document.getElementById('itemForm').classList.remove('open'); }
+
+async function saveItem() {
+  const g=id=>(document.getElementById(id)||{}).value||'';
+  try {
+    switch(currentTab) {
+      case 'balance':case 'movements':case 'adjustments':
+        await fetch(API+'/movements',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({item_id:g('fItemId'),warehouse_id:g('fWhId'),movement_type:g('fType'),quantity:parseFloat(g('fQty'))||0,
+            document_number:g('fDoc'),reference_type:g('fRefType'),reference_id:g('fRefId'),unit_cost:parseFloat(g('fCost'))||0,notes:g('fNotes')})});
+        break;
+      case 'reservations':
+        await fetch(API+'/reservations',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({item_id:g('fItemId'),warehouse_id:g('fWhId'),quantity:parseFloat(g('fQty'))||0,
+            order_type:g('fOrderType'),order_id:g('fOrderId'),expires_at:g('fExpires')?new Date(g('fExpires')).toISOString():''})});
+        break;
+      case 'transfers':
+        await fetch(API+'/transfers',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({from_warehouse_id:g('fFrom'),to_warehouse_id:g('fTo'),items:JSON.parse(g('fItems')||'[]')})});
+        break;
+      case 'counts':
+        await fetch(API+'/counts',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({warehouse_id:g('fWhId'),lines:JSON.parse(g('fLines')||'[]'),counted_by:g('fCountedBy')})});
+        break;
+      case 'lots':
+        await fetch(API+'/lots',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({item_id:g('fItemId'),warehouse_id:g('fWhId'),lot_number:g('fLotNumber'),
+            supplier_lot:g('fSupplierLot'),manufacturing_date:g('fMfg'),expiry_date:g('fExpiry')})});
+        break;
+      case 'serials':
+        await fetch(API+'/serials',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({item_id:g('fItemId'),warehouse_id:g('fWhId'),serial:g('fSerial'),lot_id:g('fLotId')})});
+        break;
+    }
+    closeForm();
+    loadContent();
+  } catch(e) { alert('Erro: '+e.message); }
+}
+
+switchTab('dashboard');
+</script>
+</body>
+</html>

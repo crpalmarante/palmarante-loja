@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Platform — BusinessCore</title>
+<link rel="stylesheet" href="../../../businessui/assets/css/core/theme.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/layout/layout.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/navigation.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/components.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/form.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/datagrid.css">
+</head>
+<body>
+
+<div class="bu-app">
+  <header class="bu-topbar">
+    <div class="bu-topbar-logo">Business<span>Core</span></div>
+    <div class="bu-topbar-search"><span class="bu-topbar-search-icon">🔍</span><input class="bu-input" placeholder="Pesquisar..."></div>
+    <nav class="bu-topbar-nav">
+      <button class="bu-topbar-btn">🔔</button>
+      <button class="bu-topbar-btn">⚙️</button>
+      <div class="bu-avatar bu-avatar-sm">AD</div>
+    </nav>
+  </header>
+
+  <div class="bu-body">
+    <aside class="bu-sidebar">
+      <div class="bu-sidebar-header">
+        <div class="bu-avatar">BC</div>
+        <div class="bu-sidebar-header-info">
+          <div class="bu-sidebar-header-name">BusinessCore</div>
+          <div class="bu-sidebar-header-role">Sales</div>
+        </div>
+      </div>
+      <div class="bu-sidebar-scroll">
+        <div class="bu-menu-group">
+          <div class="bu-menu-label">Sales</div>
+          <a class="bu-menu-item" href="#" onclick="switchTab('dashboard')"><span class="bu-menu-icon">📊</span><span class="bu-menu-text">Dashboard</span></a>
+          <a class="bu-menu-item active" href="#" onclick="switchTab('opportunities')"><span class="bu-menu-icon">🎯</span><span class="bu-menu-text">Oportunidades</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('orders')"><span class="bu-menu-icon">📄</span><span class="bu-menu-text">Pedidos</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('deliveries')"><span class="bu-menu-icon">🚚</span><span class="bu-menu-text">Entregas</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('contracts')"><span class="bu-menu-icon">📋</span><span class="bu-menu-text">Contratos</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('config')"><span class="bu-menu-icon">⚙️</span><span class="bu-menu-text">Config</span></a>
+        </div>
+      </div>
+      <div class="bu-sidebar-footer">BusinessCore v1.0.0</div>
+    </aside>
+
+    <main class="bu-workspace">
+      <div class="bu-toolbar">
+        <div class="bu-toolbar-start">
+          <div class="bu-breadcrumb">
+            <a class="bu-breadcrumb-item" href="#">Home</a>
+            <span class="bu-breadcrumb-sep">/</span>
+            <span class="bu-breadcrumb-item active" id="pageTitle">Dashboard</span>
+          </div>
+        </div>
+        <div class="bu-toolbar-end">
+          <div class="bu-toolbar-search" id="searchContainer">
+            <span class="bu-toolbar-search-icon">🔍</span>
+            <input class="bu-input bu-input-sm" id="searchInput" placeholder="Buscar..." oninput="loadContent()">
+          </div>
+          <div class="bu-toolbar-divider"></div>
+          <button class="bu-btn bu-btn-primary" id="btnNew" onclick="openCreate()">+ Novo</button>
+        </div>
+      </div>
+      <div class="bu-workspace-content"><div id="dataContainer"></div></div>
+    </main>
+  </div>
+
+  <footer class="bu-statusbar">
+    <div class="bu-statusbar-start"><span><span class="bu-statusbar-dot online"></span> Sales Platform</span><span>v1.0.0</span></div>
+    <div class="bu-statusbar-end"><span id="recordCount"></span></div>
+  </footer>
+</div>
+
+<div class="bu-dialog-backdrop" id="itemForm">
+  <div class="bu-dialog bu-dialog-lg">
+    <div class="bu-dialog-header"><h3 id="formTitle">Novo</h3><button class="bu-dialog-close" onclick="closeForm()">✕</button></div>
+    <div class="bu-dialog-body" id="formBody"></div>
+    <div class="bu-dialog-footer">
+      <button class="bu-btn" onclick="closeForm()">Cancelar</button>
+      <button class="bu-btn bu-btn-primary" onclick="saveItem()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8008/api';
+const DOC_API = 'http://localhost:8007/api';
+let currentTab = 'dashboard';
+let editingId = '';
+
+function switchTab(tab) {
+  currentTab = tab;
+  const tabs = ['dashboard','opportunities','orders','deliveries','contracts','config'];
+  document.querySelectorAll('.bu-menu-item').forEach((m,i) => m.classList.toggle('active', tabs[i]===tab));
+  const labels = {dashboard:'Dashboard',opportunities:'Oportunidades',orders:'Pedidos',deliveries:'Entregas',contracts:'Contratos',config:'Configurações'};
+  document.getElementById('pageTitle').textContent = labels[tab]||tab;
+  document.getElementById('btnNew').style.display = tab==='dashboard'?'none':'';
+  document.getElementById('searchContainer').style.display = tab==='dashboard'?'none':'';
+  loadContent();
+}
+
+async function apiFetch(url, options = {}) {
+  options.headers = options.headers || {};
+  options.headers['Content-Type'] = 'application/json';
+  if (options.body && typeof options.body === 'object') options.body = JSON.stringify(options.body);
+  const res = await fetch(url, options);
+  if (!res.ok) { let err; try { err = await res.json(); } catch(e) { err = {detail: res.statusText}; } throw new Error(err.detail || 'API error'); }
+  return res.json();
+}
+
+function closeForm() {
+  document.getElementById('itemForm').classList.remove('open');
+  editingId = '';
+}
+
+function openCreate() {
+  editingId = '';
+  if (currentTab === 'opportunities') renderOppForm();
+  else if (currentTab === 'orders') renderOrderForm();
+  else if (currentTab === 'contracts') renderContractForm();
+  else if (currentTab === 'config') renderConfigForm('price-list');
+}
+
+function saveItem() {
+  if (currentTab === 'opportunities') saveOpp();
+  else if (currentTab === 'orders') saveOrder();
+  else if (currentTab === 'contracts') saveContract();
+  else if (currentTab === 'config') saveConfig();
+}
+
+// ── Dashboard ────────────────────────────────────────────────
+async function renderDashboard() {
+  const d = await apiFetch(`${API}/sales/dashboard`);
+  const data = d.data;
+  document.getElementById('dataContainer').innerHTML = `
+    <div class="bu-grid bu-grid-4" style="margin-bottom:20px">
+      <div class="bu-card"><div class="bu-card-content"><h3>🎯 Oportunidades</h3><div class="bu-stat-value">${data.total_opportunities}</div></div></div>
+      <div class="bu-card"><div class="bu-card-content"><h3>💰 Pipeline</h3><div class="bu-stat-value">R$ ${(data.pipeline_value||0).toFixed(2)}</div></div></div>
+      <div class="bu-card"><div class="bu-card-content"><h3>🏆 Ganhas</h3><div class="bu-stat-value">${data.won_count} (R$ ${(data.won_value||0).toFixed(2)})</div></div></div>
+      <div class="bu-card"><div class="bu-card-content"><h3>📊 Pipelines</h3><div class="bu-stat-value">${data.pipelines}</div></div></div>
+    </div>
+    <div class="bu-grid bu-grid-2">
+      <div class="bu-card"><div class="bu-card-header"><h3>Funil por Estágio</h3></div><div class="bu-card-content"><table class="bu-table"><thead><tr><th>Estágio</th><th>Qtd</th></tr></thead><tbody>${Object.entries(data.by_stage||{}).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')||'<tr><td colspan="2">Nenhum dado</td></tr>'}</tbody></table></div></div>
+      <div class="bu-card"><div class="bu-card-header"><h3>Ações Rápidas</h3></div><div class="bu-card-content"><button class="bu-btn bu-btn-primary" onclick="switchTab('opportunities')" style="margin:4px">🎯 Nova Oportunidade</button><button class="bu-btn" onclick="switchTab('orders')" style="margin:4px">📄 Novo Pedido</button><button class="bu-btn" onclick="switchTab('contracts')" style="margin:4px">📋 Novo Contrato</button></div></div>
+    </div>`;
+  document.getElementById('recordCount').textContent = `${data.total_opportunities} oportunidades`;
+}
+
+// ── Opportunities ────────────────────────────────────────────
+async function renderOpportunities() {
+  const q = document.getElementById('searchInput').value;
+  const params = new URLSearchParams();
+  if (q) params.set('customer_id', q);
+  const r = await apiFetch(`${API}/sales/opportunities?${params}`);
+  const opps = r.data || [];
+  document.getElementById('dataContainer').innerHTML = `
+    <table class="bu-table"><thead><tr><th>Título</th><th>Cliente</th><th>Valor</th><th>Prob.</th><th>Status</th><th>Vendedor</th><th>Criado</th><th>Ações</th></tr></thead>
+    <tbody>${opps.map(o=>`<tr><td>${o.title}</td><td>${o.customer_name||o.customer_id}</td><td>R$ ${o.expected_value.toFixed(2)}</td><td>${o.probability}%</td><td><span class="bu-badge bu-badge-${o.status}">${o.status}</span></td><td>${o.sales_rep||'—'}</td><td>${new Date(o.created_at).toLocaleDateString('pt-BR')}</td><td><button class="bu-btn bu-btn-sm bu-btn-outline" onclick="closeOpp('${o.id}','won')">🏆</button> <button class="bu-btn bu-btn-sm bu-btn-outline" onclick="closeOpp('${o.id}','lost')">❌</button> <button class="bu-btn bu-btn-sm bu-btn-outline" onclick="orderFromOpp('${o.id}')">📄</button></td></tr>`).join('')}</tbody></table>`;
+  document.getElementById('recordCount').textContent = `${opps.length} oportunidades`;
+}
+
+async function closeOpp(id, result) {
+  const reason = result === 'lost' ? prompt('Motivo da perda:') : '';
+  await apiFetch(`${API}/sales/opportunities/${id}/close`, { method:'POST', body:{ result, reason }});
+  renderOpportunities();
+}
+
+async function orderFromOpp(id) {
+  const r = await apiFetch(`${API}/sales/opportunities`);
+  const opp = (r.data||[]).find(o => o.id === id);
+  if (!opp) return;
+  editingId = id;
+  document.getElementById('formTitle').textContent = `Novo Pedido de ${opp.title}`;
+  document.getElementById('formBody').innerHTML = `
+    <div class="bu-form-group">
+      <p>Cliente: <strong>${opp.customer_name}</strong></p>
+      <p>Valor Esperado: R$ ${opp.expected_value.toFixed(2)}</p>
+      <div class="bu-field"><label>Vendedor</label><input class="bu-input" id="ord_sales_rep" value="${opp.sales_rep||''}"></div>
+      <div class="bu-field"><label>Observações</label><textarea class="bu-input" id="ord_notes" rows="2">Gerado da oportunidade: ${opp.title}</textarea></div>
+      <input type="hidden" id="ord_customer_id" value="${opp.customer_id}">
+      <input type="hidden" id="ord_customer_name" value="${opp.customer_name}">
+      <input type="hidden" id="ord_opp_id" value="${id}">
+    </div>
+    <h4 style="margin:12px 0 8px">Itens</h4>
+    <div id="ordLines"><p class="bu-text-muted">Adicione itens manualmente ou use a tabela de preços</p></div>`;
+  document.getElementById('itemForm').classList.add('open');
+}
+
+async function renderOppForm() {
+  document.getElementById('formTitle').textContent = 'Nova Oportunidade';
+  document.getElementById('formBody').innerHTML = `
+    <div class="bu-form-group">
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Título *</label><input class="bu-input" id="opp_title"></div>
+        <div class="bu-field"><label>Cliente ID *</label><input class="bu-input" id="opp_customer_id"></div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Nome Cliente</label><input class="bu-input" id="opp_customer_name"></div>
+        <div class="bu-field"><label>Valor Esperado</label><input class="bu-input" type="number" step="0.01" id="opp_value"></div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Probabilidade (%)</label><input class="bu-input" type="number" id="opp_prob" value="50"></div>
+        <div class="bu-field"><label>Fonte</label><input class="bu-input" id="opp_source"></div>
+        <div class="bu-field"><label>Vendedor</label><input class="bu-input" id="opp_sales_rep"></div>
+      </div>
+      <div class="bu-field"><label>Anotações</label><textarea class="bu-input" id="opp_notes" rows="2"></textarea></div>
+    </div>`;
+  document.getElementById('itemForm').classList.add('open');
+}
+
+async function saveOpp() {
+  await apiFetch(`${API}/sales/opportunities`, { method:'POST', body:{
+    title: document.getElementById('opp_title').value,
+    customer_id: document.getElementById('opp_customer_id').value,
+    customer_name: document.getElementById('opp_customer_name').value,
+    expected_value: parseFloat(document.getElementById('opp_value').value)||0,
+    probability: parseInt(document.getElementById('opp_prob').value)||50,
+    source: document.getElementById('opp_source').value,
+    sales_rep: document.getElementById('opp_sales_rep').value,
+    notes: document.getElementById('opp_notes').value,
+  }});
+  closeForm(); switchTab('opportunities');
+}
+
+// ── Orders ───────────────────────────────────────────────────
+async function renderOrders() {
+  const r = await apiFetch(`${DOC_API}/documents?document_type=sale_order`);
+  const orders = r.data || [];
+  document.getElementById('dataContainer').innerHTML = `
+    <table class="bu-table"><thead><tr><th>Número</th><th>Status</th><th>Parte</th><th>Itens</th><th>Total</th><th>Criado</th><th>Ações</th></tr></thead>
+    <tbody>${orders.map(o=>`<tr><td>${o.number}</td><td><span class="bu-badge bu-badge-${o.status}">${o.status}</span></td><td>${o.party||'—'}</td><td>${o.lines}</td><td>R$ ${o.total.toFixed(2)}</td><td>${new Date(o.created_at).toLocaleDateString('pt-BR')}</td><td><button class="bu-btn bu-btn-sm bu-btn-outline" onclick="approveOrder('${o.id}')">✅</button> <button class="bu-btn bu-btn-sm bu-btn-outline" onclick="deliverOrder('${o.id}')">🚚</button> <button class="bu-btn bu-btn-sm bu-btn-outline" onclick="invoiceOrder('${o.id}')">🧾</button></td></tr>`).join('')}</tbody></table>`;
+  document.getElementById('recordCount').textContent = `${orders.length} pedidos`;
+}
+
+async function approveOrder(id) {
+  await apiFetch(`${API}/sales/orders/${id}/approve`, { method:'POST' });
+  renderOrders();
+}
+
+async function deliverOrder(id) {
+  await apiFetch(`${API}/sales/deliveries`, { method:'POST', body:{ document_id:id, carrier:'Transportadora Padrão', origin_warehouse:'default', created_by:'admin' }});
+  await apiFetch(`${API}/sales/orders/${id}/reserve`, { method:'POST' });
+  renderOrders();
+}
+
+async function invoiceOrder(id) {
+  await apiFetch(`${API}/sales/orders/${id}/invoice`, { method:'POST' });
+  renderOrders();
+}
+
+async function renderOrderForm() {
+  document.getElementById('formTitle').textContent = 'Novo Pedido';
+  document.getElementById('formBody').innerHTML = `
+    <div class="bu-form-group">
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Cliente ID *</label><input class="bu-input" id="ord_customer_id"></div>
+        <div class="bu-field"><label>Nome Cliente</label><input class="bu-input" id="ord_customer_name"></div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Vendedor</label><input class="bu-input" id="ord_sales_rep"></div>
+        <div class="bu-field"><label>Cond. Pagamento</label><input class="bu-input" id="ord_payment" placeholder="30 dias"></div>
+      </div>
+      <div class="bu-field"><label>Observações</label><textarea class="bu-input" id="ord_notes" rows="2"></textarea></div>
+    </div>
+    <h4>Itens (insira manualmente)</h4>
+    <table class="bu-table"><thead><tr><th>Item ID</th><th>Nome</th><th>Qtd</th><th>Preço</th></tr></thead>
+    <tbody id="ordLinesBody"><tr id="ord_row_0"><td><input class="bu-input bu-input-sm" id="ord_i_0_id" style="width:120px"></td><td><input class="bu-input bu-input-sm" id="ord_i_0_name" style="width:150px"></td><td><input class="bu-input bu-input-sm" type="number" id="ord_i_0_qty" value="1" style="width:60px"></td><td><input class="bu-input bu-input-sm" type="number" step="0.01" id="ord_i_0_price" style="width:90px"></td></tr></tbody></table>
+    <button class="bu-btn bu-btn-sm bu-btn-outline" onclick="addOrderLine()">+ Item</button>`;
+  document.getElementById('itemForm').classList.add('open');
+}
+
+let ordLineCount = 1;
+function addOrderLine() {
+  const i = ordLineCount++;
+  const tbody = document.getElementById('ordLinesBody');
+  const tr = document.createElement('tr'); tr.id = `ord_row_${i}`;
+  tr.innerHTML = `<td><input class="bu-input bu-input-sm" id="ord_i_${i}_id" style="width:120px"></td><td><input class="bu-input bu-input-sm" id="ord_i_${i}_name" style="width:150px"></td><td><input class="bu-input bu-input-sm" type="number" id="ord_i_${i}_qty" value="1" style="width:60px"></td><td><input class="bu-input bu-input-sm" type="number" step="0.01" id="ord_i_${i}_price" style="width:90px"></td></tr>`;
+  tbody.appendChild(tr);
+}
+
+async function saveOrder() {
+  const lines = [];
+  for (let i = 0; i < ordLineCount; i++) {
+    const row = document.getElementById(`ord_row_${i}`);
+    if (!row) continue;
+    const itemId = document.getElementById(`ord_i_${i}_id`)?.value;
+    const itemName = document.getElementById(`ord_i_${i}_name`)?.value;
+    if (!itemId && !itemName) continue;
+    lines.push({
+      item_id: itemId || '',
+      item_name: itemName || itemId,
+      quantity: parseFloat(document.getElementById(`ord_i_${i}_qty`)?.value) || 1,
+      unit_price: parseFloat(document.getElementById(`ord_i_${i}_price`)?.value) || 0,
+    });
+  }
+  const customerId = document.getElementById('ord_customer_id').value;
+  if (!customerId) { alert('Cliente ID é obrigatório'); return; }
+  const body = {
+    customer_id: customerId,
+    customer_name: document.getElementById('ord_customer_name').value,
+    items: lines,
+    sales_rep: document.getElementById('ord_sales_rep').value,
+    notes: document.getElementById('ord_notes').value,
+    payment_terms: document.getElementById('ord_payment').value,
+    opportunity_id: document.getElementById('ord_opp_id')?.value || '',
+  };
+  await apiFetch(`${API}/sales/orders`, { method:'POST', body });
+  closeForm(); switchTab('orders');
+}
+
+// ── Deliveries ───────────────────────────────────────────────
+async function renderDeliveries() {
+  const r = await apiFetch(`${API}/sales/deliveries`);
+  const dels = r.data || [];
+  document.getElementById('dataContainer').innerHTML = `
+    <table class="bu-table"><thead><tr><th>Documento</th><th>Transportadora</th><th>Cód. Rastreio</th><th>Status</th><th>Itens</th><th>Criado</th><th>Ações</th></tr></thead>
+    <tbody>${dels.map(d=>`<tr><td>${d.document_number||d.document_id}</td><td>${d.carrier||'—'}</td><td>${d.tracking_code||'—'}</td><td><span class="bu-badge bu-badge-${d.status}">${d.status}</span></td><td>${d.items}</td><td>${new Date(d.created_at).toLocaleDateString('pt-BR')}</td><td><button class="bu-btn bu-btn-sm bu-btn-outline" onclick="shipDel('${d.id}')">🚚</button> <button class="bu-btn bu-btn-sm bu-btn-outline" onclick="completeDel('${d.id}')">✅</button></td></tr>`).join('')}</tbody></table>`;
+  document.getElementById('recordCount').textContent = `${dels.length} entregas`;
+}
+
+async function shipDel(id) {
+  const track = prompt('Código de rastreio:') || '';
+  await apiFetch(`${API}/sales/deliveries/${id}/ship`, { method:'POST', body:{ tracking:track }});
+  renderDeliveries();
+}
+
+async function completeDel(id) {
+  await apiFetch(`${API}/sales/deliveries/${id}/deliver`, { method:'POST' });
+  renderDeliveries();
+}
+
+// ── Contracts ────────────────────────────────────────────────
+async function renderContracts() {
+  const r = await apiFetch(`${API}/sales/contracts`);
+  const contracts = r.data || [];
+  document.getElementById('dataContainer').innerHTML = `
+    <table class="bu-table"><thead><tr><th>Contrato</th><th>Cliente</th><th>Valor</th><th>Ciclo</th><th>Início</th><th>Fim</th><th>Status</th></tr></thead>
+    <tbody>${contracts.map(c=>`<tr><td>${c.title||c.contract_number}</td><td>${c.customer_name}</td><td>R$ ${c.value.toFixed(2)}</td><td>${c.billing_cycle}</td><td>${c.start_date}</td><td>${c.end_date}</td><td><span class="bu-badge bu-badge-${c.status}">${c.status}</span></td></tr>`).join('')}</tbody></table>`;
+  document.getElementById('recordCount').textContent = `${contracts.length} contratos`;
+}
+
+async function renderContractForm() {
+  document.getElementById('formTitle').textContent = 'Novo Contrato';
+  document.getElementById('formBody').innerHTML = `
+    <div class="bu-form-group">
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Cliente ID *</label><input class="bu-input" id="ctr_customer_id"></div>
+        <div class="bu-field"><label>Nome Cliente</label><input class="bu-input" id="ctr_customer_name"></div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Título</label><input class="bu-input" id="ctr_title"></div>
+        <div class="bu-field"><label>Valor</label><input class="bu-input" type="number" step="0.01" id="ctr_value"></div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Início</label><input class="bu-input" type="date" id="ctr_start"></div>
+        <div class="bu-field"><label>Fim</label><input class="bu-input" type="date" id="ctr_end"></div>
+        <div class="bu-field"><label>Ciclo</label><select class="bu-input" id="ctr_cycle"><option>monthly</option><option>quarterly</option><option>yearly</option></select></div>
+      </div>
+      <div class="bu-field"><label>Vendedor</label><input class="bu-input" id="ctr_sales_rep"></div>
+    </div>`;
+  document.getElementById('itemForm').classList.add('open');
+}
+
+async function saveContract() {
+  await apiFetch(`${API}/sales/contracts`, { method:'POST', body:{
+    customer_id: document.getElementById('ctr_customer_id').value,
+    customer_name: document.getElementById('ctr_customer_name').value,
+    title: document.getElementById('ctr_title').value,
+    value: parseFloat(document.getElementById('ctr_value').value)||0,
+    start_date: document.getElementById('ctr_start').value,
+    end_date: document.getElementById('ctr_end').value,
+    billing_cycle: document.getElementById('ctr_cycle').value,
+    sales_rep: document.getElementById('ctr_sales_rep').value,
+  }});
+  closeForm(); switchTab('contracts');
+}
+
+// ── Config ───────────────────────────────────────────────────
+async function renderConfig() {
+  const [pls, drs, crs] = await Promise.all([
+    apiFetch(`${API}/sales/price-lists`),
+    apiFetch(`${API}/sales/discount-rules`),
+    apiFetch(`${API}/sales/commission-rules`),
+  ]);
+  document.getElementById('dataContainer').innerHTML = `
+    <div class="bu-tabs" style="margin-bottom:16px">
+      <button class="bu-btn bu-btn-sm bu-btn-outline config-tab active" onclick="renderConfigSub('price-list')" id="ctab_price-list">Tabelas de Preço</button>
+      <button class="bu-btn bu-btn-sm bu-btn-outline config-tab" onclick="renderConfigSub('discount')" id="ctab_discount">Regras de Desconto</button>
+      <button class="bu-btn bu-btn-sm bu-btn-outline config-tab" onclick="renderConfigSub('commission')" id="ctab_commission">Comissões</button>
+    </div>
+    <div id="configContent">
+      <table class="bu-table"><thead><tr><th>Nome</th><th>Código</th><th>Itens</th><th>Ativo</th></tr></thead>
+      <tbody>${(pls.data||[]).map(p=>`<tr><td>${p.name}</td><td>${p.code}</td><td>${p.items}</td><td>${p.active?'✅':'❌'}</td></tr>`).join('')}</tbody></table>
+      <button class="bu-btn bu-btn-sm bu-btn-primary" onclick="renderConfigForm('price-list')" style="margin-top:8px">+ Nova Tabela</button>
+    </div>`;
+}
+
+async function renderConfigSub(tab) {
+  document.querySelectorAll('.config-tab').forEach(b => b.classList.toggle('active', b.id === `ctab_${tab}`));
+  if (tab === 'price-list') {
+    const r = await apiFetch(`${API}/sales/price-lists`);
+    document.getElementById('configContent').innerHTML = `<table class="bu-table"><thead><tr><th>Nome</th><th>Código</th><th>Itens</th><th>Ativo</th></tr></thead><tbody>${(r.data||[]).map(p=>`<tr><td>${p.name}</td><td>${p.code}</td><td>${p.items}</td><td>${p.active?'✅':'❌'}</td></tr>`).join('')}</tbody></table><button class="bu-btn bu-btn-sm bu-btn-primary" onclick="renderConfigForm('price-list')" style="margin-top:8px">+ Nova Tabela</button>`;
+  } else if (tab === 'discount') {
+    const r = await apiFetch(`${API}/sales/discount-rules`);
+    document.getElementById('configContent').innerHTML = `<table class="bu-table"><thead><tr><th>Nome</th><th>Código</th><th>Tipo</th><th>Valor</th><th>Pedido Mín</th><th>Prioridade</th></tr></thead><tbody>${(r.data||[]).map(d=>`<tr><td>${d.name}</td><td>${d.code}</td><td>${d.type}</td><td>${d.value}%</td><td>R$ ${d.min_order_value.toFixed(2)}</td><td>${d.priority}</td></tr>`).join('')}</tbody></table><button class="bu-btn bu-btn-sm bu-btn-primary" onclick="renderConfigForm('discount')" style="margin-top:8px">+ Nova Regra</button>`;
+  } else if (tab === 'commission') {
+    const r = await apiFetch(`${API}/sales/commission-rules`);
+    document.getElementById('configContent').innerHTML = `<table class="bu-table"><thead><tr><th>Nome</th><th>Código</th><th>Tipo</th><th>Taxa</th></tr></thead><tbody>${(r.data||[]).map(c=>`<tr><td>${c.name}</td><td>${c.code}</td><td>${c.type}</td><td>${c.rate}%</td></tr>`).join('')}</tbody></table><button class="bu-btn bu-btn-sm bu-btn-primary" onclick="renderConfigForm('commission')" style="margin-top:8px">+ Nova Regra</button>`;
+  }
+}
+
+function renderConfigForm(type) {
+  editingId = type;
+  const titles = {'price-list':'Nova Tabela de Preço','discount':'Nova Regra de Desconto','commission':'Nova Regra de Comissão'};
+  document.getElementById('formTitle').textContent = titles[type]||type;
+  if (type === 'price-list') {
+    document.getElementById('formBody').innerHTML = `<div class="bu-form-group"><div class="bu-field"><label>Nome</label><input class="bu-input" id="cfg_name"></div><div class="bu-field"><label>Código</label><input class="bu-input" id="cfg_code"></div></div>`;
+  } else if (type === 'discount') {
+    document.getElementById('formBody').innerHTML = `<div class="bu-form-group"><div class="bu-form-row"><div class="bu-field"><label>Nome</label><input class="bu-input" id="cfg_name"></div><div class="bu-field"><label>Valor %</label><input class="bu-input" type="number" id="cfg_value"></div></div><div class="bu-form-row"><div class="bu-field"><label>Pedido Mínimo</label><input class="bu-input" type="number" id="cfg_min" value="0"></div><div class="bu-field"><label>Prioridade</label><input class="bu-input" type="number" id="cfg_priority" value="0"></div></div></div>`;
+  } else {
+    document.getElementById('formBody').innerHTML = `<div class="bu-form-group"><div class="bu-form-row"><div class="bu-field"><label>Nome</label><input class="bu-input" id="cfg_name"></div><div class="bu-field"><label>Taxa %</label><input class="bu-input" type="number" id="cfg_rate"></div></div></div>`;
+  }
+  document.getElementById('itemForm').classList.add('open');
+}
+
+async function saveConfig() {
+  const type = editingId;
+  if (type === 'price-list') {
+    await apiFetch(`${API}/sales/price-lists`, { method:'POST', body:{
+      name: document.getElementById('cfg_name').value,
+      code: document.getElementById('cfg_code').value, items: [],
+    }});
+  } else if (type === 'discount') {
+    await apiFetch(`${API}/sales/discount-rules`, { method:'POST', body:{
+      name: document.getElementById('cfg_name').value,
+      value: parseFloat(document.getElementById('cfg_value').value)||0,
+      min_order_value: parseFloat(document.getElementById('cfg_min').value)||0,
+      priority: parseInt(document.getElementById('cfg_priority').value)||0,
+    }});
+  } else if (type === 'commission') {
+    await apiFetch(`${API}/sales/commission-rules`, { method:'POST', body:{
+      name: document.getElementById('cfg_name').value,
+      rate: parseFloat(document.getElementById('cfg_rate').value)||0,
+    }});
+  }
+  closeForm(); renderConfig();
+}
+
+function loadContent() {
+  if (currentTab === 'dashboard') renderDashboard();
+  else if (currentTab === 'opportunities') renderOpportunities();
+  else if (currentTab === 'orders') renderOrders();
+  else if (currentTab === 'deliveries') renderDeliveries();
+  else if (currentTab === 'contracts') renderContracts();
+  else if (currentTab === 'config') renderConfig();
+}
+
+switchTab('dashboard');
+</script>
+</body>
+</html>

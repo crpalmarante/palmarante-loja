@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Party — BusinessCore</title>
+<link rel="stylesheet" href="../../../businessui/assets/css/core/theme.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/layout/layout.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/navigation.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/components.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/datagrid.css">
+</head>
+<body>
+
+<div class="bu-app">
+  <header class="bu-topbar">
+    <div class="bu-topbar-logo">Business<span>Core</span></div>
+    <div class="bu-topbar-search">
+      <span class="bu-topbar-search-icon">🔍</span>
+      <input class="bu-input" placeholder="Pesquisar...">
+    </div>
+    <nav class="bu-topbar-nav">
+      <button class="bu-topbar-btn">🔔</button>
+      <button class="bu-topbar-btn">⚙️</button>
+      <div class="bu-avatar bu-avatar-sm">AD</div>
+    </nav>
+  </header>
+
+  <div class="bu-body">
+    <aside class="bu-sidebar">
+      <div class="bu-sidebar-header">
+        <div class="bu-avatar">BC</div>
+        <div class="bu-sidebar-header-info">
+          <div class="bu-sidebar-header-name">BusinessCore</div>
+          <div class="bu-sidebar-header-role">Party Module</div>
+        </div>
+      </div>
+      <div class="bu-sidebar-scroll">
+        <div class="bu-menu-group">
+          <div class="bu-menu-label">Party</div>
+          <a class="bu-menu-item active" href="#">
+            <span class="bu-menu-icon">👤</span>
+            <span class="bu-menu-text">Pessoas</span>
+          </a>
+          <a class="bu-menu-item" href="#">
+            <span class="bu-menu-icon">🏢</span>
+            <span class="bu-menu-text">Empresas</span>
+          </a>
+        </div>
+        <div class="bu-menu-group">
+          <div class="bu-menu-label">Por Papel</div>
+          <a class="bu-menu-item" href="#" onclick="filterRole('customer')">
+            <span class="bu-menu-icon">🛒</span>
+            <span class="bu-menu-text">Clientes</span>
+          </a>
+          <a class="bu-menu-item" href="#" onclick="filterRole('supplier')">
+            <span class="bu-menu-icon">📦</span>
+            <span class="bu-menu-text">Fornecedores</span>
+          </a>
+          <a class="bu-menu-item" href="#" onclick="filterRole('employee')">
+            <span class="bu-menu-icon">👔</span>
+            <span class="bu-menu-text">Funcionários</span>
+          </a>
+          <a class="bu-menu-item" href="#" onclick="filterRole('carrier')">
+            <span class="bu-menu-icon">🚚</span>
+            <span class="bu-menu-text">Transportadoras</span>
+          </a>
+        </div>
+      </div>
+      <div class="bu-sidebar-footer">BusinessCore v1.0.0</div>
+    </aside>
+
+    <main class="bu-workspace">
+      <div class="bu-toolbar">
+        <div class="bu-toolbar-start">
+          <div class="bu-breadcrumb">
+            <a class="bu-breadcrumb-item" href="#">Home</a>
+            <span class="bu-breadcrumb-sep">/</span>
+            <span class="bu-breadcrumb-item active">Pessoas</span>
+          </div>
+        </div>
+        <div class="bu-toolbar-end">
+          <div class="bu-toolbar-search">
+            <span class="bu-toolbar-search-icon">🔍</span>
+            <input class="bu-input bu-input-sm" id="searchInput" placeholder="Buscar por nome, CPF, email..." oninput="searchParties()">
+          </div>
+          <div class="bu-toolbar-divider"></div>
+          <button class="bu-btn bu-btn-primary" onclick="openCreate()">+ Nova Pessoa</button>
+        </div>
+      </div>
+
+      <div class="bu-workspace-content">
+        <div id="party-datagrid"></div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="bu-statusbar">
+    <div class="bu-statusbar-start">
+      <span><span class="bu-statusbar-dot online"></span> BusinessCore</span>
+      <span>v1.0.0</span>
+    </div>
+    <div class="bu-statusbar-end">
+      <span id="partyCount">0 registros</span>
+    </div>
+  </footer>
+</div>
+
+<!-- Dialog: Nova Pessoa / Editar -->
+<div class="bu-dialog-backdrop" id="partyForm">
+  <div class="bu-dialog bu-dialog-lg">
+    <div class="bu-dialog-header">
+      <h3 id="formTitle">Nova Pessoa</h3>
+      <button class="bu-dialog-close" onclick="closeForm()">✕</button>
+    </div>
+    <div class="bu-dialog-body">
+      <div class="bu-tabs" id="formTabs">
+        <button class="bu-tab active" onclick="switchFormTab(event,'tabGeral')">Dados Gerais</button>
+        <button class="bu-tab" onclick="switchFormTab(event,'tabDocs')">Documentos</button>
+        <button class="bu-tab" onclick="switchFormTab(event,'tabAddr')">Endereços</button>
+        <button class="bu-tab" onclick="switchFormTab(event,'tabCont')">Contatos</button>
+        <button class="bu-tab" onclick="switchFormTab(event,'tabRoles')">Papéis</button>
+      </div>
+
+      <div class="bu-tab-content active" id="tabGeral">
+        <div class="bu-form-section">
+          <div class="bu-form-section-title">Informações Gerais</div>
+          <div class="bu-form-row">
+            <div class="bu-form-field">
+              <label class="bu-form-label">Tipo <span class="bu-form-required">*</span></label>
+              <select class="bu-select" id="fType" onchange="togglePersonCompany()">
+                <option value="person">Pessoa Física</option>
+                <option value="company">Pessoa Jurídica</option>
+              </select>
+            </div>
+            <div class="bu-form-field">
+              <label class="bu-form-label">Nome / Razão Social <span class="bu-form-required">*</span></label>
+              <input class="bu-input" id="fDisplayName" placeholder="Nome completo ou razão social">
+            </div>
+          </div>
+          <div class="bu-form-row" id="personFields">
+            <div class="bu-form-field">
+              <label class="bu-form-label">Nome</label>
+              <input class="bu-input" id="fGivenName" placeholder="Nome">
+            </div>
+            <div class="bu-form-field">
+              <label class="bu-form-label">Sobrenome</label>
+              <input class="bu-input" id="fFamilyName" placeholder="Sobrenome">
+            </div>
+          </div>
+          <div class="bu-form-row" id="companyFields" style="display:none;">
+            <div class="bu-form-field">
+              <label class="bu-form-label">Nome Fantasia</label>
+              <input class="bu-input" id="fTradeName" placeholder="Nome fantasia">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bu-tab-content" id="tabDocs">
+        <div class="bu-form-section">
+          <div class="bu-form-section-title">Documentos</div>
+          <div id="documentsContainer">
+            <div class="bu-form-row doc-row">
+              <div class="bu-form-field">
+                <label class="bu-form-label">Tipo</label>
+                <select class="bu-select doc-type">
+                  <option value="cpf">CPF</option>
+                  <option value="cnpj">CNPJ</option>
+                  <option value="rg">RG</option>
+                  <option value="ie">Inscrição Estadual</option>
+                  <option value="im">Inscrição Municipal</option>
+                </select>
+              </div>
+              <div class="bu-form-field">
+                <label class="bu-form-label">Número</label>
+                <input class="bu-input doc-value" placeholder="Número do documento">
+              </div>
+              <div class="bu-form-field" style="max-width:100px;">
+                <label class="bu-form-label">&nbsp;</label>
+                <label class="bu-checkbox"><input type="checkbox" class="doc-main" checked> Principal</label>
+              </div>
+              <div class="bu-form-field" style="max-width:40px;">
+                <label class="bu-form-label">&nbsp;</label>
+                <button class="bu-btn bu-btn-ghost bu-btn-sm bu-btn-icon" onclick="this.closest('.doc-row').remove()">✕</button>
+              </div>
+            </div>
+          </div>
+          <button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="addDocRow()" style="margin-top:var(--bu-space-3);">+ Adicionar documento</button>
+        </div>
+      </div>
+
+      <div class="bu-tab-content" id="tabAddr">
+        <div class="bu-form-section">
+          <div class="bu-form-section-title">Endereços</div>
+          <div id="addressesContainer">
+            <div class="addr-row" style="border:1px solid var(--bu-border-light);border-radius:var(--bu-radius-md);padding:var(--bu-space-5);margin-bottom:var(--bu-space-4);">
+              <div class="bu-form-row">
+                <div class="bu-form-field">
+                  <label class="bu-form-label">CEP</label>
+                  <input class="bu-input addr-cep" placeholder="00000-000">
+                </div>
+                <div class="bu-form-field">
+                  <label class="bu-form-label">Cidade</label>
+                  <input class="bu-input addr-city" placeholder="Cidade">
+                </div>
+                <div class="bu-form-field">
+                  <label class="bu-form-label">UF</label>
+                  <input class="bu-input addr-state" placeholder="UF" maxlength="2">
+                </div>
+              </div>
+              <div class="bu-form-row">
+                <div class="bu-form-field">
+                  <label class="bu-form-label">Logradouro</label>
+                  <input class="bu-input addr-street" placeholder="Rua, Av...">
+                </div>
+                <div class="bu-form-field">
+                  <label class="bu-form-label">Número</label>
+                  <input class="bu-input addr-number" placeholder="Nº">
+                </div>
+              </div>
+              <div class="bu-form-row">
+                <div class="bu-form-field">
+                  <label class="bu-form-label">Bairro</label>
+                  <input class="bu-input addr-district" placeholder="Bairro">
+                </div>
+                <div class="bu-form-field">
+                  <label class="bu-form-label">Complemento</label>
+                  <input class="bu-input addr-complement" placeholder="Apto, Bloco...">
+                </div>
+              </div>
+              <div class="bu-checkbox" style="margin-top:var(--bu-space-2);">
+                <input type="checkbox" class="addr-main" checked> Principal
+              </div>
+            </div>
+          </div>
+          <button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="addAddressRow()">+ Adicionar endereço</button>
+        </div>
+      </div>
+
+      <div class="bu-tab-content" id="tabCont">
+        <div class="bu-form-section">
+          <div class="bu-form-section-title">Contatos</div>
+          <div id="contactsContainer">
+            <div class="bu-form-row cont-row">
+              <div class="bu-form-field">
+                <label class="bu-form-label">Tipo</label>
+                <select class="bu-select cont-type">
+                  <option value="email">Email</option>
+                  <option value="phone">Telefone</option>
+                  <option value="mobile">Celular</option>
+                  <option value="whatsapp">WhatsApp</option>
+                </select>
+              </div>
+              <div class="bu-form-field">
+                <label class="bu-form-label">Valor</label>
+                <input class="bu-input cont-value" placeholder="email@exemplo.com">
+              </div>
+              <div class="bu-form-field" style="max-width:100px;">
+                <label class="bu-form-label">&nbsp;</label>
+                <label class="bu-checkbox"><input type="checkbox" class="cont-main" checked> Principal</label>
+              </div>
+              <div class="bu-form-field" style="max-width:40px;">
+                <label class="bu-form-label">&nbsp;</label>
+                <button class="bu-btn bu-btn-ghost bu-btn-sm bu-btn-icon" onclick="this.closest('.cont-row').remove()">✕</button>
+              </div>
+            </div>
+          </div>
+          <button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="addContactRow()" style="margin-top:var(--bu-space-3);">+ Adicionar contato</button>
+        </div>
+      </div>
+
+      <div class="bu-tab-content" id="tabRoles">
+        <div class="bu-form-section">
+          <div class="bu-form-section-title">Papéis</div>
+          <p class="bu-form-hint" style="margin-bottom:var(--bu-space-4);">Uma party pode ter múltiplos papéis simultaneamente.</p>
+          <div class="bu-checkbox-group" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--bu-space-3);">
+            <label class="bu-checkbox"><input type="checkbox" class="role-cb" value="customer" checked> 🛒 Cliente</label>
+            <label class="bu-checkbox"><input type="checkbox" class="role-cb" value="supplier"> 📦 Fornecedor</label>
+            <label class="bu-checkbox"><input type="checkbox" class="role-cb" value="employee"> 👔 Funcionário</label>
+            <label class="bu-checkbox"><input type="checkbox" class="role-cb" value="carrier"> 🚚 Transportadora</label>
+            <label class="bu-checkbox"><input type="checkbox" class="role-cb" value="vendor"> 🏭 Representante</label>
+            <label class="bu-checkbox"><input type="checkbox" class="role-cb" value="prospect"> 🔍 Prospect</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bu-dialog-footer">
+      <button class="bu-btn" onclick="closeForm()">Cancelar</button>
+      <button class="bu-btn bu-btn-primary" onclick="saveParty()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script src="../../../businessui/assets/js/components/datagrid.js"></script>
+<script>
+const API = 'http://localhost:8000/api/parties';
+let editingId = '';
+let grid = null;
+
+function togglePersonCompany() {
+  const isPerson = document.getElementById('fType').value === 'person';
+  document.getElementById('personFields').style.display = isPerson ? '' : 'none';
+  document.getElementById('companyFields').style.display = isPerson ? 'none' : '';
+}
+
+function addDocRow() {
+  const c = document.getElementById('documentsContainer');
+  const row = c.querySelector('.doc-row').cloneNode(true);
+  row.querySelectorAll('input').forEach(i => i.value = '');
+  row.querySelector('.doc-main').checked = false;
+  c.appendChild(row);
+}
+
+function addAddressRow() {
+  const c = document.getElementById('addressesContainer');
+  const row = c.querySelector('.addr-row').cloneNode(true);
+  row.querySelectorAll('input').forEach(i => i.value = '');
+  row.querySelector('.addr-main').checked = false;
+  c.appendChild(row);
+}
+
+function addContactRow() {
+  const c = document.getElementById('contactsContainer');
+  const row = c.querySelector('.cont-row').cloneNode(true);
+  row.querySelectorAll('input').forEach(i => i.value = '');
+  row.querySelector('.cont-main').checked = false;
+  c.appendChild(row);
+}
+
+function switchFormTab(e, id) {
+  document.querySelectorAll('#formTabs .bu-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.bu-dialog-body .bu-tab-content').forEach(t => t.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+function openCreate() {
+  editingId = '';
+  document.getElementById('formTitle').textContent = 'Nova Pessoa';
+  document.querySelectorAll('#partyForm input, #partyForm select').forEach(el => {
+    if (el.type === 'checkbox') el.checked = el.value === 'customer' || el.classList.contains('doc-main') || el.classList.contains('cont-main') || el.classList.contains('addr-main');
+    else el.value = '';
+  });
+  document.getElementById('fType').value = 'person';
+  togglePersonCompany();
+  document.getElementById('partyForm').classList.add('open');
+}
+
+async function openEdit(id) {
+  editingId = id;
+  document.getElementById('formTitle').textContent = 'Editar Pessoa';
+  const r = await fetch(API + '/' + id);
+  const d = await r.json();
+  const p = d.data;
+
+  document.getElementById('fType').value = p.party_type;
+  togglePersonCompany();
+  document.getElementById('fDisplayName').value = p.display_name;
+  document.getElementById('fGivenName').value = p.given_name || '';
+  document.getElementById('fFamilyName').value = p.family_name || '';
+  document.getElementById('fTradeName').value = p.trade_name || '';
+
+  // Docs
+  const dc = document.getElementById('documentsContainer');
+  dc.innerHTML = '';
+  (p.documents || []).forEach(doc => {
+    addDocRow();
+    const row = dc.lastElementChild;
+    row.querySelector('.doc-type').value = doc.type;
+    row.querySelector('.doc-value').value = doc.value;
+    row.querySelector('.doc-main').checked = doc.is_main;
+  });
+  if (!p.documents || !p.documents.length) addDocRow();
+
+  // Addresses
+  const ac = document.getElementById('addressesContainer');
+  ac.innerHTML = '';
+  (p.addresses || []).forEach(addr => {
+    addAddressRow();
+    const row = ac.lastElementChild;
+    row.querySelector('.addr-cep').value = addr.postal_code || '';
+    row.querySelector('.addr-city').value = addr.city || '';
+    row.querySelector('.addr-state').value = addr.state || '';
+    row.querySelector('.addr-street').value = addr.street || '';
+    row.querySelector('.addr-number').value = addr.number || '';
+    row.querySelector('.addr-district').value = addr.district || '';
+    row.querySelector('.addr-complement').value = addr.complement || '';
+    row.querySelector('.addr-main').checked = addr.is_main;
+  });
+  if (!p.addresses || !p.addresses.length) addAddressRow();
+
+  // Contacts
+  const cc = document.getElementById('contactsContainer');
+  cc.innerHTML = '';
+  (p.contacts || []).forEach(cont => {
+    addContactRow();
+    const row = cc.lastElementChild;
+    row.querySelector('.cont-type').value = cont.type;
+    row.querySelector('.cont-value').value = cont.value;
+    row.querySelector('.cont-main').checked = cont.is_main;
+  });
+  if (!p.contacts || !p.contacts.length) addContactRow();
+
+  // Roles
+  document.querySelectorAll('.role-cb').forEach(cb => cb.checked = false);
+  (p.roles || []).forEach(r => {
+    const cb = document.querySelector(`.role-cb[value="${r.role_type}"]`);
+    if (cb && r.status === 'active') cb.checked = true;
+  });
+
+  document.getElementById('partyForm').classList.add('open');
+}
+
+function closeForm() {
+  document.getElementById('partyForm').classList.remove('open');
+}
+
+function collectDocs() {
+  return Array.from(document.querySelectorAll('#documentsContainer .doc-row')).map(row => ({
+    type: row.querySelector('.doc-type').value,
+    value: row.querySelector('.doc-value').value,
+    is_main: row.querySelector('.doc-main').checked,
+  })).filter(d => d.value);
+}
+
+function collectAddresses() {
+  return Array.from(document.querySelectorAll('#addressesContainer .addr-row')).map(row => ({
+    postal_code: row.querySelector('.addr-cep').value,
+    city: row.querySelector('.addr-city').value,
+    state: row.querySelector('.addr-state').value,
+    street: row.querySelector('.addr-street').value,
+    number: row.querySelector('.addr-number').value,
+    district: row.querySelector('.addr-district').value,
+    complement: row.querySelector('.addr-complement').value,
+    is_main: row.querySelector('.addr-main').checked,
+  })).filter(a => a.street || a.city);
+}
+
+function collectContacts() {
+  return Array.from(document.querySelectorAll('#contactsContainer .cont-row')).map(row => ({
+    type: row.querySelector('.cont-type').value,
+    value: row.querySelector('.cont-value').value,
+    is_main: row.querySelector('.cont-main').checked,
+  })).filter(c => c.value);
+}
+
+function collectRoles() {
+  return Array.from(document.querySelectorAll('.role-cb:checked')).map(cb => ({ type: cb.value }));
+}
+
+async function saveParty() {
+  const type = document.getElementById('fType').value;
+  const payload = {
+    party_type: type,
+    display_name: document.getElementById('fDisplayName').value,
+    given_name: document.getElementById('fGivenName').value,
+    family_name: document.getElementById('fFamilyName').value,
+    trade_name: document.getElementById('fTradeName').value,
+    documents: collectDocs(),
+    addresses: collectAddresses(),
+    contacts: collectContacts(),
+    roles: collectRoles(),
+  };
+  if (!payload.display_name) { alert('Nome é obrigatório.'); return; }
+
+  try {
+    if (editingId) {
+      await fetch(API + '/' + editingId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    } else {
+      await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    }
+    closeForm();
+    loadGrid();
+  } catch (e) {
+    alert('Erro ao salvar: ' + e.message);
+  }
+}
+
+async function loadGrid() {
+  const q = document.getElementById('searchInput').value;
+  const r = await fetch(API + '?query=' + encodeURIComponent(q) + '&limit=100');
+  const d = await r.json();
+
+  document.getElementById('partyCount').textContent = d.total + ' registro' + (d.total !== 1 ? 's' : '');
+
+  if (grid) { grid.load(d.data); return; }
+
+  grid = new DataGrid(document.getElementById('party-datagrid'), {
+    columns: [
+      { field: 'display_name', label: 'Nome', sortable: true, width: '220px',
+        formatter: function (v, row) {
+          const icon = row.party_type === 'company' ? '🏢' : '👤';
+          return '<span>' + icon + ' <strong>' + v + '</strong></span>';
+        }
+      },
+      { field: 'party_type', label: 'Tipo', sortable: true, width: '80px',
+        formatter: function (v) { return v === 'company' ? 'PJ' : 'PF'; }
+      },
+      { field: 'documents', label: 'CPF/CNPJ', width: '140px',
+        formatter: function (v) { return v && v.length ? v[0].value : '-'; }
+      },
+      { field: 'addresses', label: 'Cidade', sortable: true,
+        formatter: function (v) {
+          const main = v ? v.find(a => a.is_main) || v[0] : null;
+          return main ? main.city + (main.state ? '/' + main.state : '') : '-';
+        }
+      },
+      { field: 'roles', label: 'Papéis', sortable: true,
+        formatter: function (v) {
+          if (!v || !v.length) return '<span class="bu-badge bu-badge-neutral">—</span>';
+          const colors = { customer: 'info', supplier: 'warning', employee: 'success', carrier: 'neutral', vendor: 'primary', prospect: 'neutral' };
+          return v.filter(r => r.status === 'active').map(r =>
+            '<span class="bu-badge bu-badge-' + (colors[r.role_type] || 'neutral') + '">' + r.role_type + '</span>'
+          ).join(' ');
+        }
+      },
+      { field: 'contacts', label: 'Contato',
+        formatter: function (v) {
+          const main = v ? v.find(c => c.is_main) || v[0] : null;
+          return main ? main.value : '-';
+        }
+      },
+      { field: 'status', label: 'Status', sortable: true, width: '100px',
+        formatter: function (v) {
+          const colors = { active: 'success', inactive: 'warning', archived: 'danger' };
+          return '<span class="bu-badge bu-badge-' + (colors[v] || 'neutral') + '">' + v + '</span>';
+        }
+      },
+    ],
+    data: d.data,
+    pageSize: 10,
+    selectable: false,
+    searchable: false,
+    actions: [
+      { label: 'Editar', icon: '✎', action: function (row) { openEdit(row.id); } },
+      { label: 'Ativar/Desativar', icon: '🔄', action: function (row) { toggleStatus(row.id, row.status); } },
+    ],
+  });
+}
+
+function searchParties() {
+  if (grid) loadGrid();
+}
+
+function filterRole(role) {
+  window.location = '?role=' + role;
+}
+
+async function toggleStatus(id, current) {
+  const endpoint = current === 'active' ? 'deactivate' : 'activate';
+  await fetch(API + '/' + id + '/' + endpoint, { method: 'POST' });
+  loadGrid();
+}
+
+loadGrid();
+</script>
+</body>
+</html>

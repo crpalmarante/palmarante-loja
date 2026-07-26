@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Produtos — BusinessCore</title>
+<link rel="stylesheet" href="../../../businessui/assets/css/core/theme.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/layout/layout.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/navigation.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/components.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/datagrid.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/form.css">
+</head>
+<body>
+
+<div class="bu-app">
+  <header class="bu-topbar">
+    <div class="bu-topbar-logo">Business<span>Core</span></div>
+    <div class="bu-topbar-search">
+      <span class="bu-topbar-search-icon">🔍</span>
+      <input class="bu-input" placeholder="Pesquisar...">
+    </div>
+    <nav class="bu-topbar-nav">
+      <button class="bu-topbar-btn">🔔</button>
+      <button class="bu-topbar-btn">⚙️</button>
+      <div class="bu-avatar bu-avatar-sm">AD</div>
+    </nav>
+  </header>
+
+  <div class="bu-body">
+    <aside class="bu-sidebar">
+      <nav class="bu-menu">
+        <div class="bu-menu-group">
+          <div class="bu-menu-group-title">Cadastros</div>
+          <a class="bu-menu-item" href="../../party/ui/party.html">
+            <span class="bu-menu-icon">👤</span> Pessoas e Organizações
+          </a>
+          <a class="bu-menu-item bu-menu-item-active" href="#">
+            <span class="bu-menu-icon">📦</span> Produtos
+          </a>
+        </div>
+        <div class="bu-menu-group">
+          <div class="bu-menu-group-title">Filtros</div>
+          <a class="bu-menu-item" href="#" onclick="filterType('')">Todos</a>
+          <a class="bu-menu-item" href="#" onclick="filterType('product')">Produtos</a>
+          <a class="bu-menu-item" href="#" onclick="filterType('service')">Serviços</a>
+          <a class="bu-menu-item" href="#" onclick="filterStatus('active')">Ativos</a>
+          <a class="bu-menu-item" href="#" onclick="filterStatus('inactive')">Inativos</a>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="bu-workspace">
+      <div class="bu-toolbar">
+        <div class="bu-toolbar-left">
+          <h2 class="bu-page-title">📦 Produtos</h2>
+        </div>
+        <div class="bu-toolbar-right">
+          <input class="bu-input" id="searchInput" placeholder="Buscar produto..." onkeyup="searchProducts()">
+          <button class="bu-btn bu-btn-primary" onclick="openCreate()">+ Novo Produto</button>
+        </div>
+      </div>
+
+      <div class="bu-workspace-content">
+        <div id="productGrid"></div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="bu-statusbar">
+    <span id="statusInfo">Produtos: 0</span>
+    <span>BusinessCore v1.0.0</span>
+  </footer>
+</div>
+
+<div class="bu-dialog-overlay" id="productDialog">
+  <div class="bu-dialog bu-dialog-lg">
+    <div class="bu-dialog-header">
+      <h3 id="dialogTitle">Novo Produto</h3>
+      <button class="bu-dialog-close" onclick="closeDialog()">&times;</button>
+    </div>
+    <div class="bu-dialog-body">
+      <div class="bu-form">
+        <div class="bu-form-section">
+          <div class="bu-form-section-title">Informações Gerais</div>
+          <div class="bu-form-grid bu-form-grid-2">
+            <div class="bu-field">
+              <label class="bu-label">Nome *</label>
+              <input class="bu-input" id="prodName" placeholder="Nome do produto">
+            </div>
+            <div class="bu-field">
+              <label class="bu-label">Tipo</label>
+              <select class="bu-select" id="prodType">
+                <option value="product">Produto</option>
+                <option value="service">Serviço</option>
+              </select>
+            </div>
+            <div class="bu-field">
+              <label class="bu-label">SKU</label>
+              <input class="bu-input" id="prodSku" placeholder="Código SKU">
+            </div>
+            <div class="bu-field">
+              <label class="bu-label">Unidade</label>
+              <select class="bu-select" id="prodUnit">
+                <option value="unit">Unidade</option>
+                <option value="kg">Kg</option>
+                <option value="g">Grama</option>
+                <option value="l">Litro</option>
+                <option value="ml">Mililitro</option>
+                <option value="m">Metro</option>
+                <option value="m2">Metro²</option>
+                <option value="m3">Metro³</option>
+                <option value="pc">Peça</option>
+                <option value="cx">Caixa</option>
+                <option value="other">Outro</option>
+              </select>
+            </div>
+            <div class="bu-field">
+              <label class="bu-label">NCM</label>
+              <input class="bu-input" id="prodNcm" placeholder="0000.00.00" maxlength="10">
+            </div>
+            <div class="bu-field">
+              <label class="bu-label">EAN</label>
+              <input class="bu-input" id="prodEan" placeholder="Código de barras">
+            </div>
+          </div>
+        </div>
+
+        <div class="bu-form-divider"></div>
+
+        <div class="bu-form-section">
+          <div class="bu-form-section-title">Preços e Estoque</div>
+          <div class="bu-form-grid bu-form-grid-3">
+            <div class="bu-field">
+              <label class="bu-label">Preço de Custo</label>
+              <input class="bu-input" id="prodCost" type="number" step="0.01" min="0" placeholder="0,00">
+            </div>
+            <div class="bu-field">
+              <label class="bu-label">Preço de Venda</label>
+              <input class="bu-input" id="prodPrice" type="number" step="0.01" min="0" placeholder="0,00">
+            </div>
+            <div class="bu-field">
+              <label class="bu-label">Estoque Atual</label>
+              <input class="bu-input" id="prodStock" type="number" step="0.001" min="0" placeholder="0">
+            </div>
+            <div class="bu-field">
+              <label class="bu-label">Estoque Mínimo</label>
+              <input class="bu-input" id="prodMinStock" type="number" step="0.001" min="0" placeholder="0">
+            </div>
+            <div class="bu-field">
+              <label class="bu-label">Categoria</label>
+              <input class="bu-input" id="prodCategory" placeholder="Ex: Eletrônicos">
+            </div>
+            <div class="bu-field">
+              <label class="bu-label">Fornecedor (ID)</label>
+              <input class="bu-input" id="prodSupplier" placeholder="UUID do Party">
+            </div>
+          </div>
+        </div>
+
+        <div class="bu-form-divider"></div>
+
+        <div class="bu-form-section">
+          <div class="bu-form-section-title">Observações</div>
+          <div class="bu-field">
+            <textarea class="bu-input" id="prodNotes" rows="3" placeholder="Observações..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bu-dialog-footer">
+      <button class="bu-btn" onclick="closeDialog()">Cancelar</button>
+      <button class="bu-btn bu-btn-primary" onclick="saveProduct()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script src="../../../businessui/assets/js/components/datagrid.js"></script>
+<script>
+const API = 'http://localhost:8001/api/products';
+let editingId = null;
+
+function loadGrid(data) {
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = '';
+  if (!data || data.length === 0) {
+    grid.innerHTML = '<div class="bu-empty-state">Nenhum produto encontrado</div>';
+    document.getElementById('statusInfo').textContent = 'Produtos: 0';
+    return;
+  }
+  const table = document.createElement('table');
+  table.className = 'bu-table';
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Tipo</th>
+        <th>SKU</th>
+        <th>NCM</th>
+        <th>Preço Venda</th>
+        <th>Estoque</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${data.map(p => {
+        const statusClass = p.status === 'active' ? 'bu-badge bu-badge-success' :
+                          p.status === 'inactive' ? 'bu-badge bu-badge-warning' :
+                          'bu-badge bu-badge-danger';
+        const typeLabel = p.product_type === 'product' ? 'Produto' : 'Serviço';
+        return `<tr>
+          <td><strong>${p.name}</strong></td>
+          <td>${typeLabel}</td>
+          <td>${p.sku || '-'}</td>
+          <td>${p.ncm || '-'}</td>
+          <td>R$ ${parseFloat(p.sale_price).toFixed(2)}</td>
+          <td>${p.stock} ${p.unit}</td>
+          <td><span class="${statusClass}">${p.status}</span></td>
+          <td>
+            <button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="openEdit('${p.id}')">✏️</button>
+            <button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="toggleStatus('${p.id}', '${p.status}')">
+              ${p.status === 'active' ? '⏸️' : '▶️'}
+            </button>
+            <button class="bu-btn bu-btn-sm bu-btn-ghost bu-btn-danger" onclick="deleteProduct('${p.id}')">🗑️</button>
+          </td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  `;
+  grid.appendChild(table);
+  document.getElementById('statusInfo').textContent = `Produtos: ${data.length}`;
+}
+
+async function fetchProducts() {
+  const query = document.getElementById('searchInput').value;
+  const params = new URLSearchParams();
+  if (query) params.set('query', query);
+  const res = await fetch(`${API}?${params}`);
+  const json = await res.json();
+  loadGrid(json.data);
+}
+
+function filterType(type) {
+  window.location = `?type=${type}`;
+}
+
+function filterStatus(status) {
+  window.location = `?status=${status}`;
+}
+
+function searchProducts() {
+  fetchProducts();
+}
+
+function openCreate() {
+  editingId = null;
+  document.getElementById('dialogTitle').textContent = 'Novo Produto';
+  ['prodName','prodSku','prodNcm','prodEan','prodCost','prodPrice','prodStock','prodMinStock','prodCategory','prodSupplier','prodNotes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('prodType').value = 'product';
+  document.getElementById('prodUnit').value = 'unit';
+  document.getElementById('productDialog').style.display = 'flex';
+}
+
+async function openEdit(id) {
+  const res = await fetch(`${API}/${id}`);
+  const json = await res.json();
+  const p = json.data;
+  editingId = id;
+  document.getElementById('dialogTitle').textContent = 'Editar Produto';
+  document.getElementById('prodName').value = p.name;
+  document.getElementById('prodType').value = p.product_type;
+  document.getElementById('prodSku').value = p.sku;
+  document.getElementById('prodUnit').value = p.unit;
+  document.getElementById('prodNcm').value = p.ncm;
+  document.getElementById('prodEan').value = p.ean;
+  document.getElementById('prodCost').value = p.cost_price;
+  document.getElementById('prodPrice').value = p.sale_price;
+  document.getElementById('prodStock').value = p.stock;
+  document.getElementById('prodMinStock').value = p.min_stock;
+  document.getElementById('prodCategory').value = p.category;
+  document.getElementById('prodSupplier').value = p.supplier_id;
+  document.getElementById('prodNotes').value = p.notes;
+  document.getElementById('productDialog').style.display = 'flex';
+}
+
+function closeDialog() {
+  document.getElementById('productDialog').style.display = 'none';
+}
+
+async function saveProduct() {
+  const name = document.getElementById('prodName').value.trim();
+  if (!name) { alert('Nome é obrigatório'); return; }
+
+  const body = {
+    name,
+    product_type: document.getElementById('prodType').value,
+    sku: document.getElementById('prodSku').value.trim(),
+    unit: document.getElementById('prodUnit').value,
+    ncm: document.getElementById('prodNcm').value.trim(),
+    ean: document.getElementById('prodEan').value.trim(),
+    cost_price: parseFloat(document.getElementById('prodCost').value) || 0,
+    sale_price: parseFloat(document.getElementById('prodPrice').value) || 0,
+    stock: parseFloat(document.getElementById('prodStock').value) || 0,
+    min_stock: parseFloat(document.getElementById('prodMinStock').value) || 0,
+    category: document.getElementById('prodCategory').value.trim(),
+    supplier_id: document.getElementById('prodSupplier').value.trim(),
+    notes: document.getElementById('prodNotes').value.trim(),
+  };
+
+  const url = editingId ? `${API}/${editingId}` : API;
+  const method = editingId ? 'PUT' : 'POST';
+
+  const res = await fetch(url, {
+    method,
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) { alert('Erro ao salvar'); return; }
+  closeDialog();
+  fetchProducts();
+}
+
+async function toggleStatus(id, current) {
+  const action = current === 'active' ? 'deactivate' : 'activate';
+  await fetch(`${API}/${id}/${action}`, {method: 'POST'});
+  fetchProducts();
+}
+
+async function deleteProduct(id) {
+  if (!confirm('Excluir produto?')) return;
+  await fetch(`${API}/${id}`, {method: 'DELETE'});
+  fetchProducts();
+}
+
+fetchProducts();
+</script>
+
+</body>
+</html>

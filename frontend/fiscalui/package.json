@@ -1,0 +1,59 @@
+{
+    "name": "fiscalui",
+    "version": "1.0.0",
+    "description": "FiscalUI — Framework de componentes para sistemas fiscais",
+    "type": "module",
+    "main": "fiscalui.js",
+    "module": "fiscalui.js",
+    "scripts": {
+        "dev": "node build/scripts/dev-server.js",
+        "build": "npm run build:css && npm run build:js",
+        "build:css": "node build/scripts/build-css.js",
+        "build:js": "node build/scripts/build-js.js",
+        "build:icons": "node build/scripts/build-icons.js",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage",
+        "lint": "eslint core/ components/ services/ forms/ utils/ fiscalui.js",
+        "lint:css": "stylelint '**/*.css'",
+        "format": "prettier --write '**/*.{js,css,md}'"
+    },
+    "devDependencies": {
+        "postcss": "^8.4.0",
+        "autoprefixer": "^10.4.0",
+        "cssnano": "^6.0.0",
+        "esbuild": "^0.19.0",
+        "vitest": "^1.0.0",
+        "eslint": "^8.0.0",
+        "stylelint": "^15.0.0",
+        "prettier": "^3.0.0",
+        "svg-sprite": "^3.0.0",
+        "chokidar": "^3.0.0"
+    },
+    "dependencies": {},
+    "files": [
+        "fiscalui.js",
+        "core/",
+        "components/",
+        "services/",
+        "forms/",
+        "utils/",
+        "layout/",
+        "theme/",
+        "tokens/",
+        "icons/svg/",
+        "LICENSE",
+        "README.md"
+    ],
+    "exports": {
+        ".": "./fiscalui.js",
+        "./core/event-bus": "./core/event-bus/event-bus.js",
+        "./core/state-manager": "./core/state/state-manager.js",
+        "./core/router": "./core/router/router.js",
+        "./core/component": "./core/component/ui-component.js",
+        "./core/di": "./core/di/service-container.js",
+        "./styles": "./dist/css/fiscalui.min.css"
+    },
+    "keywords": ["ui", "components", "fiscal", "nfe", "erp", "vanilla-js"],
+    "license": "MIT"
+}

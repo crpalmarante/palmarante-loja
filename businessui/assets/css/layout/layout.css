@@ -1,0 +1,209 @@
+/* ══════════════════════════════════════════════════════════════
+   BusinessUI — Layout Principal (Odoo 19-inspired)
+   v1.0.0
+   ─────────────────────────────────────────────────────────────
+   Apenas a casca estrutural. Navegação (sidebar, menu, toolbar)
+   e componentes estão em arquivos separados.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Reset Básico ────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: var(--bu-font-base);
+  height: 100%;
+}
+
+body {
+  font-family: var(--bu-font-sans);
+  font-size: var(--bu-font-base);
+  line-height: var(--bu-leading);
+  color: var(--bu-text);
+  background: var(--bu-bg);
+  height: 100%;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--bu-text-link);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* ── App Container ───────────────────────────────────────── */
+.bu-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.bu-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Topbar ──────────────────────────────────────────────── */
+.bu-topbar {
+  display: flex;
+  align-items: center;
+  height: var(--bu-topbar-height);
+  background: var(--bu-surface);
+  border-bottom: var(--bu-border-thin) solid var(--bu-border);
+  padding: 0 var(--bu-space-7);
+  gap: var(--bu-space-5);
+  flex-shrink: 0;
+  z-index: var(--bu-z-sticky);
+}
+
+.bu-topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--bu-space-3);
+  font-size: var(--bu-font-lg);
+  font-weight: var(--bu-font-bold);
+  color: var(--bu-primary);
+  white-space: nowrap;
+}
+.bu-topbar-logo span {
+  color: var(--bu-text);
+  font-weight: var(--bu-font-normal);
+}
+
+.bu-topbar-search {
+  position: relative;
+  flex: 1;
+  max-width: 360px;
+}
+.bu-topbar-search .bu-input {
+  padding-left: var(--bu-space-8);
+  background: var(--bu-bg);
+  border-color: transparent;
+}
+.bu-topbar-search .bu-input:focus {
+  background: var(--bu-surface);
+  border-color: var(--bu-border-focus);
+}
+.bu-topbar-search-icon {
+  position: absolute;
+  left: var(--bu-space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--bu-text-muted);
+  font-size: var(--bu-font-sm);
+  pointer-events: none;
+}
+
+.bu-topbar-nav {
+  display: flex;
+  gap: var(--bu-space-1);
+  margin-left: auto;
+  align-items: center;
+}
+
+.bu-topbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--bu-radius-full);
+  background: transparent;
+  color: var(--bu-text-secondary);
+  font-size: var(--bu-font-lg);
+  cursor: pointer;
+  transition: background var(--bu-transition), color var(--bu-transition);
+  position: relative;
+}
+.bu-topbar-btn:hover {
+  background: var(--bu-surface-hover);
+  color: var(--bu-text);
+}
+
+.bu-topbar-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--bu-radius-full);
+  background: var(--bu-danger);
+  color: var(--bu-danger-text);
+  font-size: 10px;
+  font-weight: var(--bu-font-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Workspace ───────────────────────────────────────────── */
+.bu-workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bu-bg);
+}
+
+.bu-workspace-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--bu-space-7);
+}
+
+/* ── Status Bar ──────────────────────────────────────────── */
+.bu-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  padding: 0 var(--bu-space-7);
+  background: var(--bu-surface);
+  border-top: var(--bu-border-thin) solid var(--bu-border);
+  font-size: var(--bu-font-xs);
+  color: var(--bu-text-muted);
+  flex-shrink: 0;
+}
+
+.bu-statusbar-start,
+.bu-statusbar-end {
+  display: flex;
+  align-items: center;
+  gap: var(--bu-space-5);
+}
+
+.bu-statusbar-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--bu-radius-full);
+  margin-right: var(--bu-space-1);
+}
+.bu-statusbar-dot.online { background: var(--bu-success); }
+.bu-statusbar-dot.offline { background: var(--bu-text-muted); }
+
+/* ── Scrollbar Personalizada ─────────────────────────────── */
+.bu-workspace-content::-webkit-scrollbar {
+  width: 6px;
+}
+.bu-workspace-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.bu-workspace-content::-webkit-scrollbar-thumb {
+  background: var(--bu-border);
+  border-radius: var(--bu-radius-full);
+}
+.bu-workspace-content::-webkit-scrollbar-thumb:hover {
+  background: var(--bu-text-muted);
+}

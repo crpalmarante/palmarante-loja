@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BusinessUI — Demo</title>
+<link rel="stylesheet" href="../assets/css/core/theme.css">
+<link rel="stylesheet" href="../assets/css/layout/layout.css">
+<link rel="stylesheet" href="../assets/css/components/navigation.css">
+<link rel="stylesheet" href="../assets/css/components/components.css">
+<link rel="stylesheet" href="../assets/css/components/window.css">
+<link rel="stylesheet" href="../assets/css/components/form.css">
+<link rel="stylesheet" href="../assets/css/components/datagrid.css">
+<link rel="stylesheet" href="../assets/css/components/dashboard.css">
+<link rel="stylesheet" href="../assets/css/components/notification.css">
+</head>
+<body>
+
+<div class="bu-app">
+  <!-- ══════ Topbar ══════ -->
+  <header class="bu-topbar">
+    <div class="bu-topbar-logo">Business<span>UI</span></div>
+    <div class="bu-topbar-search">
+      <span class="bu-topbar-search-icon">🔍</span>
+      <input class="bu-input" placeholder="Pesquisar em todo o sistema...">
+    </div>
+    <nav class="bu-topbar-nav">
+      <button class="bu-topbar-btn bu-topbar-btn-notif">🔔<span class="bu-topbar-badge" style="display:none;">0</span></button>
+      <button class="bu-topbar-btn">⚙️</button>
+      <button class="bu-topbar-btn">❓</button>
+      <div class="bu-avatar bu-avatar-sm" style="margin-left:4px;">JD</div>
+    </nav>
+  </header>
+
+  <!-- ══════ Body ══════ -->
+  <div class="bu-body">
+    <!-- ══════ Sidebar ══════ -->
+    <aside class="bu-sidebar">
+      <div class="bu-sidebar-header">
+        <div class="bu-avatar">JD</div>
+        <div class="bu-sidebar-header-info">
+          <div class="bu-sidebar-header-name">João Desenvolvedor</div>
+          <div class="bu-sidebar-header-role">Administrador</div>
+        </div>
+      </div>
+
+      <div class="bu-sidebar-scroll">
+        <!-- Grupo: Cadastros -->
+        <div class="bu-menu-group">
+          <div class="bu-menu-label">Cadastros</div>
+          <a class="bu-menu-item active" href="#">
+            <span class="bu-menu-icon">👤</span>
+            <span class="bu-menu-text">Pessoas</span>
+          </a>
+          <a class="bu-menu-item" href="#">
+            <span class="bu-menu-icon">🏢</span>
+            <span class="bu-menu-text">Empresas</span>
+          </a>
+          <a class="bu-menu-item" href="#">
+            <span class="bu-menu-icon">📦</span>
+            <span class="bu-menu-text">Produtos</span>
+          </a>
+        </div>
+
+        <!-- Grupo: Operações -->
+        <div class="bu-menu-group">
+          <div class="bu-menu-label">Operações</div>
+
+          <!-- Item com submenu -->
+          <div class="bu-menu-item open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+            <span class="bu-menu-icon">📋</span>
+            <span class="bu-menu-text">Pedidos</span>
+            <span class="bu-menu-chevron">▶</span>
+          </div>
+          <div class="bu-submenu open">
+            <a class="bu-submenu-item" href="#"><span class="bu-submenu-dot"></span>Nova Venda</a>
+            <a class="bu-submenu-item active" href="#"><span class="bu-submenu-dot"></span>Meus Pedidos</a>
+            <a class="bu-submenu-item" href="#"><span class="bu-submenu-dot"></span>Orçamentos</a>
+          </div>
+
+          <a class="bu-menu-item" href="#">
+            <span class="bu-menu-icon">💰</span>
+            <span class="bu-menu-text">Financeiro</span>
+          </a>
+          <a class="bu-menu-item" href="#">
+            <span class="bu-menu-icon">🚚</span>
+            <span class="bu-menu-text">Logística</span>
+          </a>
+        </div>
+
+        <!-- Grupo: Relatórios -->
+        <div class="bu-menu-group">
+          <div class="bu-menu-label">Relatórios</div>
+          <a class="bu-menu-item" href="#">
+            <span class="bu-menu-icon">📊</span>
+            <span class="bu-menu-text">Indicadores</span>
+          </a>
+          <a class="bu-menu-item" href="#">
+            <span class="bu-menu-icon">📄</span>
+            <span class="bu-menu-text">Relatórios Fiscais</span>
+          </a>
+        </div>
+
+        <!-- Grupo: Configurações -->
+        <div class="bu-menu-group">
+          <div class="bu-menu-label">Configurações</div>
+          <a class="bu-menu-item" href="#">
+            <span class="bu-menu-icon">⚙️</span>
+            <span class="bu-menu-text">Sistema</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="bu-sidebar-footer">BusinessUI v1.0.0</div>
+    </aside>
+
+    <!-- ══════ Workspace ══════ -->
+    <main class="bu-workspace">
+      <!-- Toolbar -->
+      <div class="bu-toolbar">
+        <div class="bu-toolbar-start">
+          <div class="bu-breadcrumb">
+            <a class="bu-breadcrumb-item" href="#">Home</a>
+            <span class="bu-breadcrumb-sep">/</span>
+            <a class="bu-breadcrumb-item" href="#">Cadastros</a>
+            <span class="bu-breadcrumb-sep">/</span>
+            <span class="bu-breadcrumb-item active">Pessoas</span>
+          </div>
+        </div>
+        <div class="bu-toolbar-end">
+          <div class="bu-toolbar-search">
+            <span class="bu-toolbar-search-icon">🔍</span>
+            <input class="bu-input" placeholder="Buscar...">
+          </div>
+          <div class="bu-toolbar-divider"></div>
+          <button class="bu-btn bu-btn-primary">+ Novo</button>
+          <button class="bu-btn">Exportar</button>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="bu-workspace-content">
+        <!-- Filtros -->
+        <div style="display:flex;gap:var(--bu-space-4);margin-bottom:var(--bu-space-7);flex-wrap:wrap;">
+          <div class="bu-field" style="flex:1;min-width:180px;">
+            <label class="bu-field-label">Status</label>
+            <select class="bu-select">
+              <option>Todos</option>
+              <option>Ativo</option>
+              <option>Suspenso</option>
+              <option>Arquivado</option>
+            </select>
+          </div>
+          <div class="bu-field" style="flex:1;min-width:180px;">
+            <label class="bu-field-label">Papel</label>
+            <select class="bu-select">
+              <option>Todos</option>
+              <option>Cliente</option>
+              <option>Fornecedor</option>
+              <option>Funcionário</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:var(--bu-space-3);">
+            <button class="bu-btn">Limpar</button>
+            <button class="bu-btn bu-btn-primary">Filtrar</button>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="bu-tabs">
+          <button class="bu-tab active" onclick="switchTab(event,'tab1')">Todas</button>
+          <button class="bu-tab" onclick="switchTab(event,'tab2')">Ativos</button>
+          <button class="bu-tab" onclick="switchTab(event,'tab3')">Suspensos</button>
+          <button class="bu-tab" onclick="switchTab(event,'tab4')">Arquivados</button>
+        </div>
+        <div class="bu-tab-content active" id="tab1">
+          <!-- Card com tabela -->
+          <div class="bu-card">
+            <div class="bu-card-header">
+              <h3>Pessoas Cadastradas</h3>
+              <span class="bu-badge bu-badge-primary">12 registros</span>
+            </div>
+            <div class="bu-card-body" style="padding:0;">
+              <table style="width:100%;border-collapse:collapse;">
+                <thead>
+                  <tr style="background:var(--bu-bg);">
+                    <th style="padding:var(--bu-space-3) var(--bu-space-5);text-align:left;font-size:var(--bu-font-xs);color:var(--bu-text-muted);text-transform:uppercase;letter-spacing:0.3px;">Nome</th>
+                    <th style="padding:var(--bu-space-3) var(--bu-space-5);text-align:left;font-size:var(--bu-font-xs);color:var(--bu-text-muted);text-transform:uppercase;letter-spacing:0.3px;">CPF</th>
+                    <th style="padding:var(--bu-space-3) var(--bu-space-5);text-align:left;font-size:var(--bu-font-xs);color:var(--bu-text-muted);text-transform:uppercase;letter-spacing:0.3px;">Email</th>
+                    <th style="padding:var(--bu-space-3) var(--bu-space-5);text-align:left;font-size:var(--bu-font-xs);color:var(--bu-text-muted);text-transform:uppercase;letter-spacing:0.3px;">Papéis</th>
+                    <th style="padding:var(--bu-space-3) var(--bu-space-5);text-align:left;font-size:var(--bu-font-xs);color:var(--bu-text-muted);text-transform:uppercase;letter-spacing:0.3px;">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-top:1px solid var(--bu-border-light);cursor:pointer;transition:background var(--bu-transition);" onmouseover="this.style.background='var(--bu-primary-bg)'" onmouseout="this.style.background=''">
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);font-size:var(--bu-font-sm);">
+                      <span style="font-weight:var(--bu-font-medium);">João da Silva</span>
+                    </td>
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);font-size:var(--bu-font-sm);color:var(--bu-text-secondary);">000.000.000-00</td>
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);font-size:var(--bu-font-sm);color:var(--bu-text-secondary);">joao@email.com</td>
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);">
+                      <span class="bu-badge bu-badge-info">Cliente</span>
+                      <span class="bu-badge bu-badge-success">Fornecedor</span>
+                    </td>
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);">
+                      <span class="bu-badge bu-badge-success">Ativo</span>
+                    </td>
+                  </tr>
+                  <tr style="border-top:1px solid var(--bu-border-light);cursor:pointer;transition:background var(--bu-transition);" onmouseover="this.style.background='var(--bu-primary-bg)'" onmouseout="this.style.background=''">
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);font-size:var(--bu-font-sm);">
+                      <span style="font-weight:var(--bu-font-medium);">Maria Oliveira</span>
+                    </td>
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);font-size:var(--bu-font-sm);color:var(--bu-text-secondary);">111.111.111-11</td>
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);font-size:var(--bu-font-sm);color:var(--bu-text-secondary);">maria@email.com</td>
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);">
+                      <span class="bu-badge bu-badge-warning">Funcionário</span>
+                    </td>
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);">
+                      <span class="bu-badge bu-badge-warning">Suspenso</span>
+                    </td>
+                  </tr>
+                  <tr style="border-top:1px solid var(--bu-border-light);cursor:pointer;transition:background var(--bu-transition);" onmouseover="this.style.background='var(--bu-primary-bg)'" onmouseout="this.style.background=''">
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);font-size:var(--bu-font-sm);">
+                      <span style="font-weight:var(--bu-font-medium);">Carlos Pereira</span>
+                    </td>
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);font-size:var(--bu-font-sm);color:var(--bu-text-secondary);">222.222.222-22</td>
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);font-size:var(--bu-font-sm);color:var(--bu-text-secondary);">carlos@email.com</td>
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);">
+                      <span class="bu-badge bu-badge-info">Cliente</span>
+                    </td>
+                    <td style="padding:var(--bu-space-3) var(--bu-space-5);">
+                      <span class="bu-badge bu-badge-danger">Arquivado</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="bu-tab-content" id="tab2"><p style="color:var(--bu-text-muted);padding:var(--bu-space-7) 0;">Nenhum resultado.</p></div>
+        <div class="bu-tab-content" id="tab3"><p style="color:var(--bu-text-muted);padding:var(--bu-space-7) 0;">Nenhum resultado.</p></div>
+        <div class="bu-tab-content" id="tab4"><p style="color:var(--bu-text-muted);padding:var(--bu-space-7) 0;">Nenhum resultado.</p></div>
+
+        <!-- Cards de demonstração -->
+        <h3 style="font-size:var(--bu-font-lg);font-weight:var(--bu-font-semibold);margin:var(--bu-space-7) 0 var(--bu-space-5);">Componentes</h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--bu-space-7);margin-bottom:var(--bu-space-7);">
+          <!-- Botões -->
+          <div class="bu-card">
+            <div class="bu-card-header"><h3>Buttons</h3></div>
+            <div class="bu-card-body" style="display:flex;flex-wrap:wrap;gap:var(--bu-space-3);">
+              <button class="bu-btn">Default</button>
+              <button class="bu-btn bu-btn-primary">Primary</button>
+              <button class="bu-btn bu-btn-success">Success</button>
+              <button class="bu-btn bu-btn-warning">Warning</button>
+              <button class="bu-btn bu-btn-danger">Danger</button>
+              <button class="bu-btn bu-btn-ghost">Ghost</button>
+              <button class="bu-btn bu-btn-link">Link</button>
+              <button class="bu-btn bu-btn-sm bu-btn-primary">Small</button>
+              <button class="bu-btn bu-btn-lg bu-btn-primary">Large</button>
+              <button class="bu-btn bu-btn-icon bu-btn-primary" title="Procurar">🔍</button>
+              <button class="bu-btn bu-btn-primary" disabled>Disabled</button>
+            </div>
+          </div>
+
+          <!-- Inputs -->
+          <div class="bu-card">
+            <div class="bu-card-header"><h3>Inputs & Select</h3></div>
+            <div class="bu-card-body" style="display:flex;flex-direction:column;gap:var(--bu-space-4);">
+              <div class="bu-field">
+                <label class="bu-field-label">Nome</label>
+                <input class="bu-input" placeholder="Digite seu nome">
+              </div>
+              <div class="bu-field">
+                <label class="bu-field-label">Email</label>
+                <input class="bu-input bu-input-error" placeholder="email@exemplo.com" value="invalido">
+                <span class="bu-field-error">Email inválido</span>
+              </div>
+              <div class="bu-field">
+                <label class="bu-field-label">País</label>
+                <select class="bu-select">
+                  <option>Brasil</option>
+                  <option>Argentina</option>
+                  <option>Chile</option>
+                </select>
+              </div>
+              <div style="display:flex;gap:var(--bu-space-3);align-items:center;">
+                <input class="bu-input bu-input-sm" placeholder="Small">
+                <input class="bu-input" placeholder="Default">
+                <input class="bu-input bu-input-lg" placeholder="Large">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--bu-space-7);">
+          <!-- Checkbox & Radio -->
+          <div class="bu-card">
+            <div class="bu-card-header"><h3>Checkbox & Radio</h3></div>
+            <div class="bu-card-body" style="display:flex;flex-direction:column;gap:var(--bu-space-3);">
+              <label class="bu-checkbox"><input type="checkbox" checked> Opção 1</label>
+              <label class="bu-checkbox"><input type="checkbox"> Opção 2</label>
+              <label class="bu-checkbox"><input type="checkbox" disabled> Desabilitado</label>
+              <hr style="border:none;border-top:1px solid var(--bu-border-light);margin:var(--bu-space-3) 0;">
+              <label class="bu-radio"><input type="radio" name="demo" checked> Feminino</label>
+              <label class="bu-radio"><input type="radio" name="demo"> Masculino</label>
+            </div>
+          </div>
+
+          <!-- Badges & Avatars -->
+          <div class="bu-card">
+            <div class="bu-card-header"><h3>Badges & Avatars</h3></div>
+            <div class="bu-card-body" style="display:flex;flex-direction:column;gap:var(--bu-space-4);">
+              <div style="display:flex;gap:var(--bu-space-2);flex-wrap:wrap;">
+                <span class="bu-badge bu-badge-primary">Primary</span>
+                <span class="bu-badge bu-badge-success">Success</span>
+                <span class="bu-badge bu-badge-warning">Warning</span>
+                <span class="bu-badge bu-badge-danger">Danger</span>
+                <span class="bu-badge bu-badge-info">Info</span>
+                <span class="bu-badge bu-badge-neutral">Neutral</span>
+              </div>
+              <div style="display:flex;gap:var(--bu-space-3);align-items:center;">
+                <div class="bu-avatar bu-avatar-sm">AB</div>
+                <div class="bu-avatar">JD</div>
+                <div class="bu-avatar bu-avatar-lg">MP</div>
+                <div class="bu-avatar bu-avatar-xl">CP</div>
+                <div class="bu-avatar bu-avatar-success">OK</div>
+                <div class="bu-avatar bu-avatar-warning">!</div>
+                <div class="bu-avatar bu-avatar-danger">X</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toast de demonstração -->
+        <div style="margin-top:var(--bu-space-7);">
+          <div class="bu-toast-container" style="position:relative;top:auto;right:auto;margin-bottom:var(--bu-space-4);">
+            <div class="bu-toast bu-toast-success">
+              <span class="bu-toast-icon">✓</span>
+              <span class="bu-toast-message">Registro salvo com sucesso.</span>
+              <button class="bu-toast-close">✕</button>
+            </div>
+            <div class="bu-toast bu-toast-error">
+              <span class="bu-toast-icon">✕</span>
+              <span class="bu-toast-message">Erro ao salvar o registro.</span>
+              <button class="bu-toast-close">✕</button>
+            </div>
+            <div class="bu-toast bu-toast-warning">
+              <span class="bu-toast-icon">⚠</span>
+              <span class="bu-toast-message">Atenção: campo obrigatório não preenchido.</span>
+              <button class="bu-toast-close">✕</button>
+            </div>
+            <div class="bu-toast bu-toast-info">
+              <span class="bu-toast-icon">ℹ</span>
+              <span class="bu-toast-message">Processamento concluído.</span>
+              <button class="bu-toast-close">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Janela Padrão ── -->
+        <h3 style="font-size:var(--bu-font-lg);font-weight:var(--bu-font-semibold);margin:var(--bu-space-7) 0 var(--bu-space-5);">Janela Padrão (Entrega 006)</h3>
+        <div class="bu-window">
+          <div class="bu-window-header">
+            <span class="bu-window-icon">👤</span>
+            <span class="bu-window-title">Cadastro de Pessoas</span>
+            <div class="bu-window-actions">
+              <button class="bu-btn bu-btn-sm">Cancelar</button>
+              <button class="bu-btn bu-btn-sm bu-btn-primary">Salvar</button>
+            </div>
+          </div>
+          <div class="bu-window-toolbar">
+            <div class="bu-window-toolbar-start">
+              <input class="bu-input bu-input-sm" placeholder="Pesquisar..." style="max-width:240px;">
+              <select class="bu-select bu-select-sm" style="max-width:160px;">
+                <option>Todos</option>
+                <option>Ativo</option>
+                <option>Inativo</option>
+              </select>
+            </div>
+            <div class="bu-window-toolbar-end">
+              <button class="bu-btn bu-btn-sm">Exportar</button>
+              <button class="bu-btn bu-btn-sm bu-btn-primary">+ Novo</button>
+            </div>
+          </div>
+          <div class="bu-window-content">
+            <p style="color:var(--bu-text-secondary);font-size:var(--bu-font-sm);">Conteúdo da janela — tabela, formulário ou dashboard.</p>
+          </div>
+          <div class="bu-window-status">
+            <span>3 registros encontrados</span>
+            <span>Última atualização: há 2 minutos</span>
+          </div>
+        </div>
+
+        <!-- ── Formulário Padrão ── -->
+        <h3 style="font-size:var(--bu-font-lg);font-weight:var(--bu-font-semibold);margin:var(--bu-space-7) 0 var(--bu-space-5);">Formulário Padrão (Entrega 007)</h3>
+        <div class="bu-window">
+          <div class="bu-window-header">
+            <span class="bu-window-icon">📝</span>
+            <span class="bu-window-title">Nova Pessoa</span>
+            <div class="bu-window-actions">
+              <button class="bu-btn bu-btn-sm">Cancelar</button>
+              <button class="bu-btn bu-btn-sm bu-btn-primary">Salvar</button>
+            </div>
+          </div>
+          <div class="bu-window-content">
+            <form class="bu-form" onsubmit="event.preventDefault();">
+              <h2 class="bu-form-title">Informações da Pessoa</h2>
+
+              <div class="bu-form-section">
+                <div class="bu-form-section-title">Informações Gerais</div>
+                <div class="bu-form-row">
+                  <div class="bu-form-field">
+                    <label class="bu-form-label">Nome <span class="bu-form-required">*</span></label>
+                    <input class="bu-input" placeholder="Nome" required>
+                  </div>
+                  <div class="bu-form-field">
+                    <label class="bu-form-label">Sobrenome <span class="bu-form-required">*</span></label>
+                    <input class="bu-input" placeholder="Sobrenome" required>
+                  </div>
+                </div>
+                <div class="bu-form-row">
+                  <div class="bu-form-field">
+                    <label class="bu-form-label">CPF <span class="bu-form-required">*</span></label>
+                    <input class="bu-input" placeholder="000.000.000-00" maxlength="14">
+                  </div>
+                  <div class="bu-form-field">
+                    <label class="bu-form-label">Data de Nascimento</label>
+                    <input class="bu-input" type="date">
+                  </div>
+                </div>
+                <div class="bu-form-row">
+                  <div class="bu-form-field">
+                    <label class="bu-form-label">Email</label>
+                    <input class="bu-input" type="email" placeholder="email@exemplo.com">
+                  </div>
+                  <div class="bu-form-field">
+                    <label class="bu-form-label">Telefone</label>
+                    <input class="bu-input" placeholder="(00) 00000-0000">
+                  </div>
+                </div>
+              </div>
+
+              <hr class="bu-form-divider">
+
+              <div class="bu-form-section">
+                <div class="bu-form-section-title">Endereço</div>
+                <div class="bu-form-row">
+                  <div class="bu-form-field">
+                    <label class="bu-form-label">CEP</label>
+                    <input class="bu-input" placeholder="00000-000" maxlength="9">
+                  </div>
+                  <div class="bu-form-field">
+                    <label class="bu-form-label">Cidade</label>
+                    <input class="bu-input" placeholder="Cidade">
+                  </div>
+                </div>
+                <div class="bu-form-row">
+                  <div class="bu-form-field">
+                    <label class="bu-form-label">Logradouro</label>
+                    <input class="bu-input" placeholder="Rua, Av...">
+                  </div>
+                  <div class="bu-form-field">
+                    <label class="bu-form-label">Número</label>
+                    <input class="bu-input" placeholder="Nº">
+                  </div>
+                </div>
+              </div>
+
+              <hr class="bu-form-divider">
+
+              <div class="bu-form-section">
+                <div class="bu-form-section-title">Observações</div>
+                <div class="bu-form-row bu-form-row-full">
+                  <div class="bu-form-field">
+                    <textarea class="bu-input" placeholder="Observações..." rows="3"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bu-form-buttons">
+                <button class="bu-btn" type="reset">Cancelar</button>
+                <button class="bu-btn bu-btn-primary" type="submit">Salvar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- ── DataGrid ── -->
+        <h3 style="font-size:var(--bu-font-lg);font-weight:var(--bu-font-semibold);margin:var(--bu-space-7) 0 var(--bu-space-5);">DataGrid (Entrega 008)</h3>
+        <div id="demo-datagrid"></div>
+
+        <!-- ── Dashboard ── -->
+        <h3 style="font-size:var(--bu-font-lg);font-weight:var(--bu-font-semibold);margin:var(--bu-space-7) 0 var(--bu-space-5);">Dashboard (Entrega 009)</h3>
+
+        <div class="bu-dash-grid-4">
+          <div class="bu-kpi">
+            <div class="bu-kpi-header">
+              <span class="bu-kpi-label">Receita Mensal</span>
+              <span class="bu-kpi-icon bu-kpi-icon-success">💰</span>
+            </div>
+            <div class="bu-kpi-value">R$ 847.250</div>
+            <div><span class="bu-kpi-trend bu-kpi-trend-up">▲ 12,5%</span></div>
+            <div class="bu-kpi-footer">vs. mês anterior</div>
+          </div>
+          <div class="bu-kpi">
+            <div class="bu-kpi-header">
+              <span class="bu-kpi-label">Pedidos Abertos</span>
+              <span class="bu-kpi-icon bu-kpi-icon-primary">📋</span>
+            </div>
+            <div class="bu-kpi-value">342</div>
+            <div><span class="bu-kpi-trend bu-kpi-trend-up">▲ 8</span></div>
+            <div class="bu-kpi-footer">7 aguardando aprovação</div>
+          </div>
+          <div class="bu-kpi">
+            <div class="bu-kpi-header">
+              <span class="bu-kpi-label">Clientes Ativos</span>
+              <span class="bu-kpi-icon bu-kpi-icon-primary">👤</span>
+            </div>
+            <div class="bu-kpi-value">1.284</div>
+            <div><span class="bu-kpi-trend bu-kpi-trend-up">▲ 3,2%</span></div>
+            <div class="bu-kpi-footer">42 novos este mês</div>
+          </div>
+          <div class="bu-kpi">
+            <div class="bu-kpi-header">
+              <span class="bu-kpi-label">Ticket Médio</span>
+              <span class="bu-kpi-icon bu-kpi-icon-warning">📊</span>
+            </div>
+            <div class="bu-kpi-value">R$ 2.847</div>
+            <div><span class="bu-kpi-trend bu-kpi-trend-down">▼ 5,1%</span></div>
+            <div class="bu-kpi-footer">meta: R$ 3.200</div>
+          </div>
+        </div>
+
+        <div class="bu-dash-sidebar">
+          <!-- Estatísticas -->
+          <div class="bu-stat">
+            <div class="bu-stat-header">
+              <h3>Vendas por Categoria</h3>
+              <span class="bu-badge bu-badge-primary">Este mês</span>
+            </div>
+            <div class="bu-stat-body">
+              <div class="bu-stat-row">
+                <span class="bu-stat-label">Eletrônicos</span>
+                <span class="bu-stat-value">R$ 142.500</span>
+              </div>
+              <div class="bu-stat-row">
+                <span class="bu-stat-label">Móveis</span>
+                <span class="bu-stat-value">R$ 98.200</span>
+              </div>
+              <div class="bu-stat-row">
+                <span class="bu-stat-label">Vestuário</span>
+                <span class="bu-stat-value">R$ 67.800</span>
+              </div>
+              <div class="bu-stat-row">
+                <span class="bu-stat-label">Alimentos</span>
+                <span class="bu-stat-value">R$ 45.300</span>
+              </div>
+              <div class="bu-stat-progress">
+                <div class="bu-stat-progress-bar">
+                  <div class="bu-stat-progress-fill bu-stat-progress-fill-primary" style="width:72%"></div>
+                </div>
+                <div class="bu-stat-progress-label">
+                  <span>Meta mensal</span>
+                  <span>72%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:var(--bu-space-5);">
+            <!-- Timeline -->
+            <div class="bu-timeline">
+              <div class="bu-timeline-header">
+                <h3>Atividades Recentes</h3>
+                <button class="bu-btn bu-btn-ghost bu-btn-sm">Ver todas</button>
+              </div>
+              <div class="bu-timeline-body">
+                <div class="bu-timeline-item">
+                  <div class="bu-timeline-dot">
+                    <div class="bu-timeline-dot-circle bu-timeline-dot-circle-success"></div>
+                  </div>
+                  <div class="bu-timeline-content">
+                    <div class="bu-timeline-text">Pedido #4521 aprovado</div>
+                    <div class="bu-timeline-meta">
+                      <span class="bu-timeline-user">👤 Joao</span>
+                      <span>há 5 min</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="bu-timeline-item">
+                  <div class="bu-timeline-dot">
+                    <div class="bu-timeline-dot-circle bu-timeline-dot-circle-primary"></div>
+                  </div>
+                  <div class="bu-timeline-content">
+                    <div class="bu-timeline-text">Cliente João Silva cadastrado</div>
+                    <div class="bu-timeline-meta">
+                      <span class="bu-timeline-user">👤 Maria</span>
+                      <span>há 18 min</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="bu-timeline-item">
+                  <div class="bu-timeline-dot">
+                    <div class="bu-timeline-dot-circle bu-timeline-dot-circle-warning"></div>
+                  </div>
+                  <div class="bu-timeline-content">
+                    <div class="bu-timeline-text">NF-e 000.487 emitida</div>
+                    <div class="bu-timeline-meta">
+                      <span class="bu-timeline-user">👤 Carlos</span>
+                      <span>há 42 min</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="bu-timeline-item">
+                  <div class="bu-timeline-dot">
+                    <div class="bu-timeline-dot-circle bu-timeline-dot-circle-danger"></div>
+                  </div>
+                  <div class="bu-timeline-content">
+                    <div class="bu-timeline-text">Nota #389 rejeitada — erro de destinatário</div>
+                    <div class="bu-timeline-meta">
+                      <span class="bu-timeline-user">👤 Sistema</span>
+                      <span>há 1h</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Alertas -->
+            <div class="bu-alerts">
+              <div class="bu-alerts-header">
+                <h3>Alertas</h3>
+                <span class="bu-badge bu-badge-danger">4</span>
+              </div>
+              <div class="bu-alerts-body">
+                <div class="bu-alert-item">
+                  <span class="bu-alert-icon bu-alert-icon-danger">⚠</span>
+                  <div class="bu-alert-content">
+                    <div class="bu-alert-title">Certificado A1 expira em 15 dias</div>
+                    <div class="bu-alert-desc">Renove o certificado digital da empresa matriz.</div>
+                  </div>
+                  <span class="bu-alert-time">urgente</span>
+                </div>
+                <div class="bu-alert-item">
+                  <span class="bu-alert-icon bu-alert-icon-warning">⚠</span>
+                  <div class="bu-alert-content">
+                    <div class="bu-alert-title">Estoque baixo: Produto #8832</div>
+                    <div class="bu-alert-desc">Restam apenas 3 unidades em estoque.</div>
+                  </div>
+                  <span class="bu-alert-time">hoje</span>
+                </div>
+                <div class="bu-alert-item">
+                  <span class="bu-alert-icon bu-alert-icon-info">ℹ</span>
+                  <div class="bu-alert-content">
+                    <div class="bu-alert-title">SAP 5.2 disponível</div>
+                    <div class="bu-alert-desc">Nova versão do sistema disponível para atualização.</div>
+                  </div>
+                  <span class="bu-alert-time">2 dias</span>
+                </div>
+                <div class="bu-alert-item">
+                  <span class="bu-alert-icon bu-alert-icon-success">✓</span>
+                  <div class="bu-alert-content">
+                    <div class="bu-alert-title">Notas sincronizadas</div>
+                    <div class="bu-alert-desc">42 notas fiscais sincronizadas com a SEFAZ.</div>
+                  </div>
+                  <span class="bu-alert-time">3 dias</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dialog de demonstração -->
+        <button class="bu-btn bu-btn-primary" onclick="document.getElementById('demoDialog').classList.add('open')">Abrir Dialog</button>
+
+        <div class="bu-dialog-backdrop" id="demoDialog">
+          <div class="bu-dialog">
+            <div class="bu-dialog-header">
+              <h3>Confirmar Exclusão</h3>
+              <button class="bu-dialog-close" onclick="this.closest('.bu-dialog-backdrop').classList.remove('open')">✕</button>
+            </div>
+            <div class="bu-dialog-body">
+              <p style="color:var(--bu-text-secondary);font-size:var(--bu-font-sm);">
+                Tem certeza que deseja excluir o registro <strong>João da Silva</strong>?
+                Esta ação não poderá ser desfeita.
+              </p>
+            </div>
+            <div class="bu-dialog-footer">
+              <button class="bu-btn" onclick="this.closest('.bu-dialog-backdrop').classList.remove('open')">Cancelar</button>
+              <button class="bu-btn bu-btn-danger">Confirmar Exclusão</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ══════ Status Bar ══════ -->
+  <footer class="bu-statusbar">
+    <div class="bu-statusbar-start">
+      <span><span class="bu-statusbar-dot online"></span>João Desenvolvedor</span>
+      <span>BusinessUI v1.0.0</span>
+    </div>
+    <div class="bu-statusbar-end">
+      <span>Ambiente: Desenvolvimento</span>
+      <span id="clock"></span>
+    </div>
+  </footer>
+</div>
+
+<script src="../assets/js/components/datagrid.js"></script>
+<script src="../assets/js/components/smart-search.js"></script>
+<script src="../assets/js/components/notification-center.js"></script>
+<script>
+function switchTab(e, id) {
+  document.querySelectorAll('.bu-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.bu-tab-content').forEach(t => t.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleString('pt-BR');
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// SmartSearch init
+BusinessUI.smartSearch.init({ apiUrl: '/api/search' });
+
+// Notification Center init
+BusinessUI.notifications.init({
+  apiUrl: 'http://localhost:8010/api/notifications',
+  tasksApiUrl: 'http://localhost:8010/api/tasks',
+  approvalsApiUrl: 'http://localhost:8010/api/approvals',
+  alertsApiUrl: 'http://localhost:8010/api/alerts',
+  userId: 'user-001',
+});
+
+// DataGrid demo
+const gridData = [
+  { name: 'João da Silva', cpf: '000.000.000-00', email: 'joao@email.com', phone: '(11) 99999-0001', city: 'São Paulo', role: 'Cliente', status: 'Ativo' },
+  { name: 'Maria Oliveira', cpf: '111.111.111-11', email: 'maria@email.com', phone: '(11) 99999-0002', city: 'Campinas', role: 'Funcionário', status: 'Suspenso' },
+  { name: 'Carlos Pereira', cpf: '222.222.222-22', email: 'carlos@email.com', phone: '(11) 99999-0003', city: 'São Bernardo', role: 'Cliente', status: 'Arquivado' },
+  { name: 'Ana Souza', cpf: '333.333.333-33', email: 'ana@email.com', phone: '(11) 99999-0004', city: 'São Paulo', role: 'Fornecedor', status: 'Ativo' },
+  { name: 'Pedro Santos', cpf: '444.444.444-44', email: 'pedro@email.com', phone: '(11) 99999-0005', city: 'Osasco', role: 'Cliente', status: 'Ativo' },
+  { name: 'Lucia Costa', cpf: '555.555.555-55', email: 'lucia@email.com', phone: '(11) 99999-0006', city: 'Guarulhos', role: 'Funcionário', status: 'Ativo' },
+  { name: 'Roberto Lima', cpf: '666.666.666-66', email: 'roberto@email.com', phone: '(11) 99999-0007', city: 'São Paulo', role: 'Cliente', status: 'Inativo' },
+  { name: 'Fernanda Rocha', cpf: '777.777.777-77', email: 'fernanda@email.com', phone: '(11) 99999-0008', city: 'Santo André', role: 'Fornecedor', status: 'Ativo' },
+  { name: 'Gustavo Almeida', cpf: '888.888.888-88', email: 'gustavo@email.com', phone: '(11) 99999-0009', city: 'São Paulo', role: 'Cliente', status: 'Ativo' },
+  { name: 'Beatriz Martins', cpf: '999.999.999-99', email: 'beatriz@email.com', phone: '(11) 99999-0010', city: 'Campinas', role: 'Funcionário', status: 'Ativo' },
+  { name: 'Diego Barbosa', cpf: '123.456.789-00', email: 'diego@email.com', phone: '(11) 99999-0011', city: 'São Paulo', role: 'Cliente', status: 'Suspenso' },
+  { name: 'Camila Ribeiro', cpf: '987.654.321-00', email: 'camila@email.com', phone: '(11) 99999-0012', city: 'Barueri', role: 'Fornecedor', status: 'Ativo' },
+  { name: 'Thiago Carvalho', cpf: '456.789.123-00', email: 'thiago@email.com', phone: '(11) 99999-0013', city: 'São Paulo', role: 'Cliente', status: 'Ativo' },
+  { name: 'Patrícia Nunes', cpf: '789.123.456-00', email: 'patricia@email.com', phone: '(11) 99999-0014', city: 'Osasco', role: 'Funcionário', status: 'Ativo' },
+  { name: 'André Faria', cpf: '321.654.987-00', email: 'andre@email.com', phone: '(11) 99999-0015', city: 'Mauá', role: 'Cliente', status: 'Arquivado' }
+];
+
+new DataGrid(document.getElementById('demo-datagrid'), {
+  columns: [
+    { field: 'name', label: 'Nome', sortable: true, width: '200px' },
+    { field: 'cpf', label: 'CPF', sortable: true },
+    { field: 'email', label: 'Email', sortable: true },
+    { field: 'phone', label: 'Telefone' },
+    { field: 'city', label: 'Cidade', sortable: true },
+    {
+      field: 'role', label: 'Papel', sortable: true,
+      formatter: function (v) {
+        const colors = { Cliente: 'info', 'Funcionário': 'success', Fornecedor: 'warning' };
+        return `<span class="bu-badge bu-badge-${colors[v] || 'neutral'}">${v}</span>`;
+      }
+    },
+    {
+      field: 'status', label: 'Status', sortable: true,
+      formatter: function (v) {
+        const colors = { Ativo: 'success', Suspenso: 'warning', Inativo: 'neutral', Arquivado: 'danger' };
+        return `<span class="bu-badge bu-badge-${colors[v] || 'neutral'}">${v}</span>`;
+      }
+    }
+  ],
+  data: gridData,
+  pageSize: 5,
+  selectable: true,
+  searchable: true,
+  actions: [
+    { label: 'Editar', icon: '✎', action: function (row) { alert('Editar: ' + row.name); } },
+    { label: 'Excluir', icon: '🗑', action: function (row) { alert('Excluir: ' + row.name); } }
+  ],
+  onRowClick: function (row) { console.log('Click:', row); },
+  onSelectionChange: function (sel) { console.log('Selecionados:', sel.length); }
+});
+</script>
+</body>
+</html>

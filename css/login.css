@@ -1,0 +1,474 @@
+/*=========================================================
+    FiscalBrasil UI
+    File    : login.css
+=========================================================*/
+
+/*=========================================================
+  LOGIN PAGE
+=========================================================*/
+
+.login-page{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    min-height:100vh;
+
+    background:var(--bg-gradient);
+
+    padding:var(--space-4);
+
+}
+
+/*=========================================================
+  LOGIN CARD
+=========================================================*/
+
+.login-card{
+
+    width:100%;
+
+    max-width:440px;
+
+    border-radius:var(--radius-panel);
+
+    background:var(--glass-bg);
+
+    backdrop-filter:var(--glass-blur);
+
+    border:1px solid var(--glass-border);
+
+    box-shadow:var(--glass-shadow);
+
+    overflow:hidden;
+
+    position:relative;
+
+}
+
+.login-card::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:600px;
+
+    height:600px;
+
+    border-radius:50%;
+
+    background:var(--color-primary);
+
+    opacity:.08;
+
+    top:-300px;
+
+    right:-200px;
+
+    transition:1.4s cubic-bezier(.4,.2,.2,1);
+
+    z-index:0;
+
+    pointer-events:none;
+
+}
+
+.login-card.sign-up-mode::before{
+
+    transform:translate(-250px,350px);
+
+}
+
+/*=========================================================
+  CARD INNER
+=========================================================*/
+
+.login-inner{
+
+    position:relative;
+
+    z-index:1;
+
+    padding:var(--space-10);
+
+}
+
+/*=========================================================
+  LOGIN HEADER
+=========================================================*/
+
+.login-header{
+
+    text-align:center;
+
+    margin-bottom:var(--space-6);
+
+}
+
+.login-header .brand-icon{
+
+    font-size:2.5rem;
+
+    color:var(--color-primary);
+
+    margin-bottom:var(--space-2);
+
+    display:block;
+
+}
+
+.login-header h1{
+
+    font-size:var(--font-2xl);
+
+    font-weight:var(--font-bold);
+
+    color:var(--text-primary);
+
+}
+
+.login-header p{
+
+    font-size:var(--font-sm);
+
+    color:var(--text-secondary);
+
+    margin-top:var(--space-1);
+
+}
+
+/*=========================================================
+  FORMS WRAPPER
+=========================================================*/
+
+.forms-wrapper{
+
+    position:relative;
+
+    min-height:360px;
+
+}
+
+.form-panel{
+
+    position:absolute;
+
+    top:0;
+
+    left:0;
+
+    width:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    transition:all .5s cubic-bezier(.4,.2,.2,1);
+
+}
+
+.form-panel.sign-in-form{
+
+    opacity:1;
+
+    transform:translateX(0);
+
+    pointer-events:auto;
+
+}
+
+.form-panel.sign-up-form{
+
+    opacity:0;
+
+    transform:translateX(40px);
+
+    pointer-events:none;
+
+}
+
+.sign-up-mode .form-panel.sign-in-form{
+
+    opacity:0;
+
+    transform:translateX(-40px);
+
+    pointer-events:none;
+
+}
+
+.sign-up-mode .form-panel.sign-up-form{
+
+    opacity:1;
+
+    transform:translateX(0);
+
+    pointer-events:auto;
+
+}
+
+.form{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:var(--space-4);
+
+}
+
+.form .field{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:var(--space-1);
+
+}
+
+.form label{
+
+    font-size:var(--font-sm);
+
+    font-weight:var(--font-medium);
+
+    color:var(--text-secondary);
+
+}
+
+.form input{
+
+    height:46px;
+
+    padding:0 var(--space-4);
+
+    border:1px solid var(--glass-border);
+
+    border-radius:var(--radius-sm);
+
+    font-size:var(--font-md);
+
+    color:var(--text-primary);
+
+    background:rgba(255,255,255,.06);
+
+    transition:border-color var(--transition-fast), background var(--transition-fast);
+
+}
+
+.form input::placeholder{
+
+    color:var(--text-light);
+
+}
+
+.form input:focus{
+
+    border-color:var(--color-primary);
+
+    background:rgba(255,255,255,.1);
+
+    outline:none;
+
+}
+
+/*=========================================================
+  FORM BUTTON
+=========================================================*/
+
+.form-btn{
+
+    height:46px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:var(--space-2);
+
+    background:var(--color-primary);
+
+    color:white;
+
+    font-size:var(--font-md);
+
+    font-weight:var(--font-semibold);
+
+    border:none;
+
+    border-radius:var(--radius-btn);
+
+    cursor:pointer;
+
+    transition:background var(--transition-fast);
+
+    margin-top:var(--space-2);
+
+}
+
+.form-btn:hover{
+
+    background:var(--color-primary-hover);
+
+}
+
+.form-btn:disabled{
+
+    opacity:.6;
+
+    cursor:not-allowed;
+
+}
+
+/*=========================================================
+  TOGGLE
+=========================================================*/
+
+.form-toggle{
+
+    text-align:center;
+
+    margin-top:auto;
+
+    padding-top:var(--space-5);
+
+    font-size:var(--font-sm);
+
+    color:var(--text-secondary);
+
+}
+
+.form-toggle a{
+
+    color:var(--color-primary);
+
+    text-decoration:none;
+
+    font-weight:var(--font-semibold);
+
+    cursor:pointer;
+
+    transition:color var(--transition-fast);
+
+}
+
+.form-toggle a:hover{
+
+    color:var(--color-primary-hover);
+
+}
+
+/*=========================================================
+  FEEDBACK
+=========================================================*/
+
+.form-error{
+
+    display:none;
+
+    padding:var(--space-3);
+
+    background:rgba(239,68,68,.15);
+
+    border:1px solid rgba(239,68,68,.3);
+
+    border-radius:var(--radius-sm);
+
+    color:#FCA5A5;
+
+    font-size:var(--font-sm);
+
+    text-align:center;
+
+}
+
+.form-error.visible{
+
+    display:block;
+
+}
+
+.form-error.success{
+
+    background:rgba(34,197,94,.15);
+
+    border-color:rgba(34,197,94,.3);
+
+    color:#86EFAC;
+
+}
+
+.form-loading{
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:var(--space-2);
+
+    color:var(--text-secondary);
+
+    font-size:var(--font-sm);
+
+}
+
+.form-loading.visible{
+
+    display:flex;
+
+}
+
+.form-loading .spinner{
+
+    width:18px;
+
+    height:18px;
+
+    border:2px solid rgba(255,255,255,.15);
+
+    border-top-color:var(--color-primary);
+
+    border-radius:50%;
+
+    animation:spin .6s linear infinite;
+
+}
+
+@keyframes spin{
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+/*=========================================================
+  FOOTER
+=========================================================*/
+
+.login-footer{
+
+    text-align:center;
+
+    margin-top:var(--space-6);
+
+    padding:var(--space-4);
+
+    font-size:var(--font-xs);
+
+    color:var(--text-light);
+
+    border-top:1px solid rgba(255,255,255,.06);
+
+}

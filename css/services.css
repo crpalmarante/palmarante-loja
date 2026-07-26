@@ -1,0 +1,373 @@
+/*=========================================================
+    FiscalBrasil UI
+    File    : services.css
+    Estilos dos serviços: Toast, Modal, Loading.
+=========================================================*/
+
+/*=========================================================
+  TOAST
+=========================================================*/
+
+.toast-container{
+
+    position:fixed;
+
+    top:1rem;
+
+    right:1rem;
+
+    z-index:10000;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:.5rem;
+
+    pointer-events:none;
+
+}
+
+.toast{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.75rem;
+
+    padding:.75rem 1rem;
+
+    border-radius:.5rem;
+
+    background:rgba(30,41,59,.95);
+
+    backdrop-filter:blur(12px);
+
+    color:#fff;
+
+    font-size:.875rem;
+
+    box-shadow:0 8px 24px rgba(0,0,0,.3);
+
+    pointer-events:auto;
+
+    transform:translateX(120%);
+
+    opacity:0;
+
+    transition:transform .35s ease,opacity .35s ease;
+
+    max-width:380px;
+
+}
+
+.toast.toast-visible{
+
+    transform:translateX(0);
+
+    opacity:1;
+
+}
+
+.toast-msg{
+
+    flex:1;
+
+}
+
+.toast-close{
+
+    background:none;
+
+    border:none;
+
+    color:rgba(255,255,255,.6);
+
+    font-size:1.25rem;
+
+    cursor:pointer;
+
+    padding:0 .25rem;
+
+    line-height:1;
+
+}
+
+.toast-close:hover{color:#fff}
+
+.toast-success{background:rgba(22,163,74,.92)}
+
+.toast-error{background:rgba(220,38,38,.92)}
+
+.toast-warning{background:rgba(217,119,6,.92)}
+
+.toast-info{background:rgba(8,145,178,.92)}
+
+/*=========================================================
+  MODAL
+=========================================================*/
+
+.modal-overlay{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:9000;
+
+    background:rgba(0,0,0,.5);
+
+    backdrop-filter:blur(4px);
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:opacity .3s ease;
+
+}
+
+.modal-overlay.modal-open{
+
+    opacity:1;
+
+    pointer-events:auto;
+
+}
+
+.modal-box{
+
+    background:var(--glass-bg,rgba(30,41,59,.95));
+
+    backdrop-filter:var(--glass-blur,blur(20px));
+
+    border:1px solid var(--glass-border,rgba(255,255,255,.12));
+
+    border-radius:1rem;
+
+    box-shadow:var(--glass-shadow,0 25px 60px rgba(0,0,0,.4));
+
+    width:90%;
+
+    max-width:520px;
+
+    max-height:80vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+    transform:scale(.95) translateY(1rem);
+
+    transition:transform .3s ease;
+
+}
+
+.modal-open .modal-box{
+
+    transform:scale(1) translateY(0);
+
+}
+
+.modal-header{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:1rem 1.25rem;
+
+    border-bottom:1px solid var(--border-color,rgba(255,255,255,.08));
+
+}
+
+.modal-title{
+
+    font-size:1.125rem;
+
+    font-weight:600;
+
+    color:var(--text-primary,#fff);
+
+    margin:0;
+
+}
+
+.modal-close{
+
+    background:none;
+
+    border:none;
+
+    color:var(--text-muted,rgba(255,255,255,.4));
+
+    font-size:1.5rem;
+
+    cursor:pointer;
+
+    padding:0;
+
+    line-height:1;
+
+}
+
+.modal-close:hover{color:var(--text-primary,#fff)}
+
+.modal-body{
+
+    padding:1.25rem;
+
+    overflow-y:auto;
+
+    flex:1;
+
+    color:var(--text-secondary,rgba(255,255,255,.7));
+
+    font-size:.875rem;
+
+    line-height:1.6;
+
+}
+
+.modal-footer{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:.5rem;
+
+    padding:1rem 1.25rem;
+
+    border-top:1px solid var(--border-color,rgba(255,255,255,.08));
+
+}
+
+.modal-btn{
+
+    padding:.5rem 1.25rem;
+
+    border-radius:.375rem;
+
+    font-size:.875rem;
+
+    font-weight:500;
+
+    cursor:pointer;
+
+    border:1px solid transparent;
+
+    transition:all .2s;
+
+}
+
+.modal-btn-primary{
+
+    background:var(--color-primary,#14b8a6);
+
+    color:#fff;
+
+    border-color:var(--color-primary,#14b8a6);
+
+}
+
+.modal-btn-primary:hover{opacity:.9}
+
+.modal-btn-secondary{
+
+    background:rgba(255,255,255,.08);
+
+    color:var(--text-primary,#fff);
+
+    border-color:var(--border-color,rgba(255,255,255,.12));
+
+}
+
+.modal-btn-secondary:hover{background:rgba(255,255,255,.14)}
+
+/*=========================================================
+  LOADING
+=========================================================*/
+
+.loading-overlay{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:11000;
+
+    background:rgba(0,0,0,.4);
+
+    backdrop-filter:blur(4px);
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:opacity .25s ease;
+
+}
+
+.loading-overlay.loading-active{
+
+    opacity:1;
+
+    pointer-events:auto;
+
+}
+
+.loading-spinner{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:1rem;
+
+}
+
+.spinner-ring{
+
+    width:3rem;
+
+    height:3rem;
+
+    border:3px solid rgba(255,255,255,.15);
+
+    border-top-color:var(--color-primary,#14b8a6);
+
+    border-radius:50%;
+
+    animation:spin .8s linear infinite;
+
+}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.loading-text{
+
+    color:var(--text-primary,#fff);
+
+    font-size:.875rem;
+
+    font-weight:500;
+
+}

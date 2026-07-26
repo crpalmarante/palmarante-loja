@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workflow Platform — BusinessCore</title>
+<link rel="stylesheet" href="../../../businessui/assets/css/core/theme.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/layout/layout.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/navigation.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/components.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/form.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/datagrid.css">
+</head>
+<body>
+
+<div class="bu-app">
+  <header class="bu-topbar">
+    <div class="bu-topbar-logo">Business<span>Core</span></div>
+    <div class="bu-topbar-search"><span class="bu-topbar-search-icon">🔍</span><input class="bu-input" placeholder="Pesquisar..."></div>
+    <nav class="bu-topbar-nav">
+      <button class="bu-topbar-btn">🔔</button>
+      <button class="bu-topbar-btn">⚙️</button>
+      <div class="bu-avatar bu-avatar-sm">AD</div>
+    </nav>
+  </header>
+
+  <div class="bu-body">
+    <aside class="bu-sidebar">
+      <div class="bu-sidebar-header">
+        <div class="bu-avatar">BC</div>
+        <div class="bu-sidebar-header-info">
+          <div class="bu-sidebar-header-name">BusinessCore</div>
+          <div class="bu-sidebar-header-role">Workflow</div>
+        </div>
+      </div>
+      <div class="bu-sidebar-scroll">
+        <div class="bu-menu-group">
+          <div class="bu-menu-label">Workflow</div>
+          <a class="bu-menu-item" href="#" onclick="switchTab('dashboard')"><span class="bu-menu-icon">📊</span><span class="bu-menu-text">Dashboard</span></a>
+          <a class="bu-menu-item active" href="#" onclick="switchTab('definitions')"><span class="bu-menu-icon">⚙️</span><span class="bu-menu-text">Definições</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('instances')"><span class="bu-menu-icon">📋</span><span class="bu-menu-text">Instâncias</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('approvals')"><span class="bu-menu-icon">✅</span><span class="bu-menu-text">Aprovações</span></a>
+        </div>
+      </div>
+      <div class="bu-sidebar-footer">BusinessCore v1.0.0</div>
+    </aside>
+
+    <main class="bu-workspace">
+      <div class="bu-toolbar">
+        <div class="bu-toolbar-start">
+          <div class="bu-breadcrumb">
+            <a class="bu-breadcrumb-item" href="#">Home</a>
+            <span class="bu-breadcrumb-sep">/</span>
+            <span class="bu-breadcrumb-item active" id="pageTitle">Definições</span>
+          </div>
+        </div>
+        <div class="bu-toolbar-end">
+          <div class="bu-toolbar-search">
+            <span class="bu-toolbar-search-icon">🔍</span>
+            <input class="bu-input bu-input-sm" id="searchInput" placeholder="Tipo doc..." oninput="loadContent()">
+          </div>
+          <div class="bu-toolbar-divider"></div>
+          <button class="bu-btn bu-btn-primary" id="btnNew" onclick="openCreate()">+ Novo Workflow</button>
+        </div>
+      </div>
+      <div class="bu-workspace-content"><div id="dataContainer"></div></div>
+    </main>
+  </div>
+
+  <footer class="bu-statusbar">
+    <div class="bu-statusbar-start"><span><span class="bu-statusbar-dot online"></span> Workflow Platform</span><span>v1.0.0</span></div>
+    <div class="bu-statusbar-end"><span id="recordCount"></span></div>
+  </footer>
+</div>
+
+<div class="bu-dialog-backdrop" id="itemForm">
+  <div class="bu-dialog bu-dialog-lg">
+    <div class="bu-dialog-header"><h3 id="formTitle">Novo</h3><button class="bu-dialog-close" onclick="closeForm()">✕</button></div>
+    <div class="bu-dialog-body" id="formBody"></div>
+    <div class="bu-dialog-footer">
+      <button class="bu-btn" onclick="closeForm()">Cancelar</button>
+      <button class="bu-btn bu-btn-primary" onclick="saveItem()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8006/api';
+let currentTab = 'definitions';
+let editingWfId = '';
+
+function switchTab(tab) {
+  currentTab = tab;
+  const tabs = ['dashboard','definitions','instances','approvals'];
+  document.querySelectorAll('.bu-menu-item').forEach((m,i) => m.classList.toggle('active', tabs[i]===tab));
+  const labels = {dashboard:'Dashboard',definitions:'Definições',instances:'Instâncias',approvals:'Aprovações'};
+  document.getElementById('pageTitle').textContent = labels[tab]||tab;
+  document.getElementById('btnNew').style.display = tab==='dashboard'||tab==='approvals'?'none':'';
+  document.getElementById('searchInput').parentElement.style.display = tab==='definitions'?'':'none';
+  loadContent();
+}
+
+async function loadContent() {
+  const c = document.getElementById('dataContainer');
+  try {
+    if (currentTab === 'dashboard') return await loadDashboard();
+    if (currentTab === 'definitions') return await loadDefinitions();
+    if (currentTab === 'instances') return await loadInstances();
+    if (currentTab === 'approvals') return await loadApprovals();
+  } catch(e) { c.innerHTML = '<div class="bu-empty-state">Erro: '+e.message+'</div>'; }
+}
+
+async function loadDefinitions() {
+  const q = document.getElementById('searchInput').value;
+  const r = await fetch(API+'/workflows'+(q?'?document_type='+encodeURIComponent(q):''));
+  const d = await r.json();
+  const data = d.data||[];
+  document.getElementById('recordCount').textContent = data.length+' workflow'+(data.length!==1?'s':'');
+  const c = document.getElementById('dataContainer');
+  if (!data.length) { c.innerHTML = '<div class="bu-empty-state">Nenhum workflow</div>'; return; }
+  let html = '<table class="bu-table"><thead><tr><th>Nome</th><th>Código</th><th>Tipo Doc</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
+  for (const w of data) {
+    const wr = await fetch(API+'/workflows/'+w.id);
+    const wd = await wr.json();
+    const wf = wd.data||{};
+    const states = wf.states||[];
+    html += `<tr><td><strong>${w.name}</strong></td><td>${w.code}</td>
+      <td><span class="bu-badge bu-badge-info">${w.document_type||'-'}</span></td>
+      <td><span class="bu-badge ${w.status==='active'?'bu-badge-success':'bu-badge-neutral'}">${w.status}</span></td>
+      <td>
+        <button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="viewWorkflow('${w.id}')">🔍 Ver</button>
+        <button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="startInstance('${w.id}')">▶️ Iniciar</button>
+      </td></tr>`;
+  }
+  html += '</tbody></table>';
+  c.innerHTML = html;
+}
+
+async function viewWorkflow(id) {
+  editingWfId = id;
+  const r = await fetch(API+'/workflows/'+id);
+  const d = await r.json();
+  const wf = d.data;
+  if (!wf) return;
+
+  const states = wf.states||[];
+  const transitions = wf.transitions||[];
+
+  let html = '<div style="display:flex;gap:var(--bu-space-7);">';
+
+  // Flow visualization
+  html += '<div style="flex:1;">';
+  html += '<h4 style="margin-bottom:var(--bu-space-4);">Fluxo: '+wf.name+'</h4>';
+  html += '<div style="display:flex;flex-direction:column;align-items:flex-start;gap:0;">';
+  states.forEach((s, i) => {
+    const isInitial = s.type==='initial';
+    const isFinal = s.type==='final';
+    const bg = isInitial ? 'var(--bu-success)' : isFinal ? 'var(--bu-primary)' : 'var(--bu-secondary)';
+    html += `<div style="display:flex;align-items:center;gap:var(--bu-space-3);padding:var(--bu-space-3) var(--bu-space-5);background:${bg}15;border:2px solid ${bg};border-radius:var(--bu-radius-md);margin-bottom:var(--bu-space-2);min-width:200px;">
+      <div style="width:12px;height:12px;border-radius:50%;background:${bg};"></div>
+      <div><strong>${s.name}</strong> <span style="color:var(--bu-text-muted);font-size:var(--bu-font-xs);">(${s.code})</span></div>
+    </div>`;
+    const nextTrans = transitions.filter(t => t.from === s.id);
+    nextTrans.forEach(t => {
+      const toState = states.find(st => st.id === t.to);
+      html += `<div style="display:flex;align-items:center;gap:var(--bu-space-2);margin-left:var(--bu-space-7);margin-bottom:var(--bu-space-2);color:var(--bu-text-secondary);font-size:var(--bu-font-sm);">
+        <span>↓</span>
+        <span>${t.name}</span>
+        ${t.requires_approval ? '<span class="bu-badge bu-badge-warning" style="font-size:10px;">aprovação</span>' : ''}
+      </div>`;
+    });
+  });
+  html += '</div></div>';
+
+  // Config panel
+  html += '<div style="width:350px;flex-shrink:0;">';
+  html += '<div style="background:var(--bu-surface);border:1px solid var(--bu-border);border-radius:var(--bu-radius-md);padding:var(--bu-space-5);margin-bottom:var(--bu-space-4);">';
+  html += '<h5 style="margin-bottom:var(--bu-space-3);">Informações</h5>';
+  html += '<div style="font-size:var(--bu-font-sm);"><strong>ID:</strong> '+wf.id+'</div>';
+  html += '<div style="font-size:var(--bu-font-sm);"><strong>Código:</strong> '+wf.code+'</div>';
+  html += '<div style="font-size:var(--bu-font-sm);"><strong>Documento:</strong> '+wf.document_type+'</div>';
+  html += '<div style="font-size:var(--bu-font-sm);"><strong>Descrição:</strong> '+(wf.description||'-')+'</div>';
+  html += '<div style="font-size:var(--bu-font-sm);"><strong>Status:</strong> '+wf.status+'</div>';
+  html += '</div>';
+
+  html += '<div style="background:var(--bu-surface);border:1px solid var(--bu-border);border-radius:var(--bu-radius-md);padding:var(--bu-space-5);">';
+  html += '<h5 style="margin-bottom:var(--bu-space-3);">Ações</h5>';
+  html += '<button class="bu-btn bu-btn-sm bu-btn-primary" style="width:100%;margin-bottom:var(--bu-space-2);" onclick="startInstance(\''+wf.id+'\')">▶️ Iniciar Instância</button>';
+  html += '<button class="bu-btn bu-btn-sm bu-btn-ghost" style="width:100%;" onclick="switchTab(\'instances\')">📋 Ver Instâncias</button>';
+  html += '</div></div></div>';
+
+  document.getElementById('dataContainer').innerHTML = html;
+  document.getElementById('recordCount').textContent = states.length+' estados, '+transitions.length+' transições';
+}
+
+async function loadDashboard() {
+  const r = await fetch(API+'/workflows/dashboard');
+  const d = await r.json();
+  const data = d.data||{};
+  document.getElementById('recordCount').textContent = '';
+  document.getElementById('dataContainer').innerHTML =
+    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--bu-space-5);">'+
+    kpi('⚙️','Workflows',data.total_instances,'primary')+
+    kpi('🟢','Ativos',data.active,'success')+
+    kpi('✅','Concluídos',data.completed,'info')+
+    kpi('⏳','Aprovações Pend.',data.pending_approvals,'warning')+
+    '</div>'+
+    '<div style="margin-top:var(--bu-space-7);background:var(--bu-surface);border-radius:var(--bu-radius-md);border:1px solid var(--bu-border);padding:var(--bu-space-7);">'+
+    '<h4 style="margin-bottom:var(--bu-space-4);">⚡ Ações Rápidas</h4>'+
+    '<div style="display:flex;gap:var(--bu-space-4);">'+
+    '<button class="bu-btn bu-btn-primary" onclick="switchTab(\'definitions\')">📋 Ver Workflows</button>'+
+    '<button class="bu-btn" onclick="switchTab(\'approvals\')">✅ Aprovações Pendentes</button>'+
+    '<button class="bu-btn" onclick="switchTab(\'instances\')">📋 Instâncias</button>'+
+    '</div></div>';
+}
+
+function kpi(icon,label,value,color) {
+  return '<div style="background:var(--bu-surface);border-radius:var(--bu-radius-md);padding:var(--bu-space-5);border:1px solid var(--bu-border);box-shadow:var(--bu-shadow-sm);">'+
+    '<div style="font-size:24px;margin-bottom:var(--bu-space-2);">'+icon+'</div>'+
+    '<div style="font-size:var(--bu-font-sm);color:var(--bu-text-muted);">'+label+'</div>'+
+    '<div style="font-size:var(--bu-font-2xl);font-weight:bold;color:var(--bu-'+color+');">'+value+'</div></div>';
+}
+
+async function loadInstances() {
+  const r = await fetch(API+'/workflow-instances');
+  const d = await r.json();
+  const data = d.data||[];
+  document.getElementById('recordCount').textContent = data.length+' instância'+(data.length!==1?'s':'');
+  const c = document.getElementById('dataContainer');
+  if (!data.length) { c.innerHTML = '<div class="bu-empty-state">Nenhuma instância</div>'; return; }
+  let html = '<table class="bu-table"><thead><tr><th>Doc</th><th>Doc ID</th><th>Estado Atual</th><th>Status</th><th>Início</th><th>Ações</th></tr></thead><tbody>';
+  for (const inst of data) {
+    const wr = await fetch(API+'/workflows/'+inst.workflow_id);
+    const wd = await wr.json();
+    const wf = wd.data||{};
+    html += `<tr><td>${wf.document_type||inst.document_type}</td><td>${inst.document_id}</td>
+      <td><span class="bu-badge bu-badge-info">${inst.current_state_id}</span></td>
+      <td><span class="bu-badge ${inst.status==='active'?'bu-badge-success':inst.status==='completed'?'bu-badge-info':'bu-badge-danger'}">${inst.status}</span></td>
+      <td>${inst.started_at?new Date(inst.started_at).toLocaleString('pt-BR'):'-'}</td>
+      <td>
+        <button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="viewInstance('${inst.id}')">🔍</button>
+        ${inst.status==='active'?'<button class="bu-btn bu-btn-sm bu-btn-danger" onclick="cancelInstance(\''+inst.id+'\')">✕</button>':''}
+      </td></tr>`;
+  }
+  html += '</tbody></table>';
+  c.innerHTML = html;
+}
+
+async function viewInstance(id) {
+  const r = await fetch(API+'/workflow-instances/'+id+'/history');
+  const d = await r.json();
+  const history = d.data||[];
+  let html = '<h4 style="margin-bottom:var(--bu-space-4);">Histórico da Instância #'+id+'</h4>';
+  if (!history.length) { html += '<p>Nenhum histórico</p>'; }
+  else {
+    html += '<div style="display:flex;flex-direction:column;gap:0;">';
+    history.forEach(h => {
+      const icon = h.action==='started'?'🟢':h.action==='completed'?'✅':h.action==='cancelled'?'❌':h.action==='approved'?'👍':h.action==='rejected'?'👎':'🔄';
+      html += `<div style="display:flex;align-items:flex-start;gap:var(--bu-space-4);padding:var(--bu-space-3);border-left:3px solid var(--bu-border);margin-left:var(--bu-space-5);position:relative;">
+        <div style="font-size:18px;">${icon}</div>
+        <div>
+          <div><strong>${h.action}</strong></div>
+          <div style="font-size:var(--bu-font-sm);color:var(--bu-text-secondary);">${h.comment||''}</div>
+          <div style="font-size:var(--bu-font-xs);color:var(--bu-text-muted);">${h.created_at?new Date(h.created_at).toLocaleString('pt-BR'):''} ${h.performed_by?'por '+h.performed_by:''}</div>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+  document.getElementById('dataContainer').innerHTML = html;
+  document.getElementById('recordCount').textContent = history.length+' eventos';
+}
+
+async function loadApprovals() {
+  const r = await fetch(API+'/approvals');
+  const d = await r.json();
+  const data = d.data||[];
+  document.getElementById('recordCount').textContent = data.length+' pendente'+(data.length!==1?'s':'');
+  const c = document.getElementById('dataContainer');
+  if (!data.length) { c.innerHTML = '<div class="bu-empty-state">Nenhuma aprovação pendente</div>'; return; }
+  let html = '<table class="bu-table"><thead><tr><th>Instância</th><th>Transição</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
+  data.forEach(a => {
+    html += `<tr><td>${a.instance_id}</td><td>${a.transition_id}</td>
+      <td><span class="bu-badge bu-badge-warning">${a.status}</span></td>
+      <td>
+        <button class="bu-btn bu-btn-sm bu-btn-success" onclick="approveAction('${a.id}')">👍 Aprovar</button>
+        <button class="bu-btn bu-btn-sm bu-btn-danger" onclick="rejectAction('${a.id}')">👎 Rejeitar</button>
+      </td></tr>`;
+  });
+  html += '</tbody></table>';
+  c.innerHTML = html;
+}
+
+async function approveAction(id) {
+  await fetch(API+'/approvals/'+id+'/approve', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'});
+  loadApprovals();
+}
+
+async function rejectAction(id) {
+  await fetch(API+'/approvals/'+id+'/reject', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'});
+  loadApprovals();
+}
+
+function openCreate() {
+  document.getElementById('formTitle').textContent = 'Novo Workflow';
+  document.getElementById('formBody').innerHTML =
+    '<div class="bu-form-row"><div class="bu-form-field"><label>Nome *</label><input class="bu-input" id="fName" placeholder="Ex: Pedido de Venda"></div>'+
+    '<div class="bu-form-field"><label>Código *</label><input class="bu-input" id="fCode" placeholder="Ex: SALE"></div></div>'+
+    '<div class="bu-form-row"><div class="bu-form-field"><label>Tipo Documento</label><input class="bu-input" id="fDocType" placeholder="Ex: sale_order"></div>'+
+    '<div class="bu-form-field"><label>Descrição</label><input class="bu-input" id="fDesc" placeholder="Descrição do workflow"></div></div>';
+  document.getElementById('itemForm').classList.add('open');
+}
+
+function closeForm() { document.getElementById('itemForm').classList.remove('open'); }
+
+async function saveItem() {
+  const g = id => (document.getElementById(id)||{}).value||'';
+  await fetch(API+'/workflows', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({name:g('fName'), code:g('fCode'), document_type:g('fDocType'), description:g('fDesc')})});
+  closeForm();
+  loadDefinitions();
+}
+
+async function startInstance(workflowId) {
+  const docType = prompt('Tipo do documento:') || 'sale_order';
+  const docId = prompt('ID do documento:') || 'doc-' + Date.now();
+  const r = await fetch(API+'/workflow-instances', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({workflow_id: workflowId, document_type: docType, document_id: docId})});
+  const d = await r.json();
+  alert('Instância #' + d.data.id + ' iniciada no estado ' + d.data.current_state_id);
+  loadContent();
+}
+
+async function cancelInstance(id) {
+  if (!confirm('Cancelar instância '+id+'?')) return;
+  await fetch(API+'/workflow-instances/'+id+'/cancel', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({reason:'Cancelado pelo usuário'})});
+  loadInstances();
+}
+
+switchTab('dashboard');
+</script>
+</body>
+</html>

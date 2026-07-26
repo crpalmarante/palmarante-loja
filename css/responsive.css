@@ -1,0 +1,847 @@
+/*=========================================================
+    FiscalBrasil UI
+    File    : responsive.css
+    Responsive Engine — adaptação da interface.
+    Mobile First: estilos base = mobile, media queries
+    sobrescrevem para tablet e desktop.
+=========================================================*/
+
+/*=========================================================
+  LAYOUT BASE (Mobile First — XS)
+=========================================================*/
+
+#app{
+
+    flex-direction:column;
+
+}
+
+.main-area{
+
+    margin-left:0;
+
+    width:100%;
+
+}
+
+#sidebar{
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    z-index:8000;
+
+    width:280px;
+
+    height:100vh;
+
+    transform:translateX(-100%);
+
+    transition:transform .3s ease;
+
+}
+
+#sidebar.mobile-open{
+
+    transform:translateX(0);
+
+}
+
+#sidebar .sidebar-collapse{
+
+    display:none;
+
+}
+
+.sidebar-overlay{
+
+    display:block;
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:7000;
+
+    background:rgba(0,0,0,.5);
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:opacity .3s ease;
+
+}
+
+.sidebar-overlay.open{
+
+    opacity:1;
+
+    pointer-events:auto;
+
+}
+
+.topbar{
+
+    padding:.5rem .75rem;
+
+    gap:.5rem;
+
+}
+
+.topbar .brand-desktop{display:none}
+
+.topbar .brand-mobile{display:flex;align-items:center;gap:.5rem}
+
+.topbar-search{
+
+    flex:1;
+
+    max-width:200px;
+
+}
+
+.topbar-search input{font-size:.8rem}
+
+.topbar-nav{display:none}
+
+.topbar-user .topbar-icon-btn{display:none}
+
+.topbar-user .topbar-icon-btn:first-child{display:inline-flex}
+
+.workspace{
+
+    padding:.75rem;
+
+}
+
+.workspace-header{
+
+    flex-direction:column;
+
+    gap:.5rem;
+
+}
+
+.workspace-header h2{
+
+    font-size:1.125rem;
+
+}
+
+.workspace-toolbar{
+
+    flex-wrap:wrap;
+
+    gap:.375rem;
+
+}
+
+.toolbar-btn{
+
+    font-size:.75rem;
+
+    padding:.375rem .625rem;
+
+}
+
+.kpi-grid{
+
+    grid-template-columns:1fr 1fr;
+
+    gap:.5rem;
+
+}
+
+.quick-grid{
+
+    grid-template-columns:1fr 1fr;
+
+    gap:.5rem;
+
+}
+
+.launchpad-cards{
+
+    gap:.5rem;
+
+}
+
+.launchpad-card{
+
+    padding:1rem;
+
+}
+
+.launchpad-card h3{font-size:.875rem}
+
+.launchpad-card p{font-size:.75rem}
+
+.dashboard-grid{
+
+    grid-template-columns:1fr;
+
+}
+
+table{
+
+    font-size:.75rem;
+
+}
+
+table th,table td{
+
+    padding:.375rem .5rem;
+
+}
+
+.modal-box{
+
+    width:100%;
+
+    max-width:100%;
+
+    max-height:100vh;
+
+    border-radius:0;
+
+    min-height:100vh;
+
+}
+
+.modal-header{
+
+    padding:.75rem 1rem;
+
+}
+
+.modal-body{
+
+    padding:1rem;
+
+}
+
+.modal-footer{
+
+    padding:.75rem 1rem;
+
+}
+
+.status-bar{
+
+    flex-direction:column;
+
+    gap:.25rem;
+
+    padding:.375rem .75rem;
+
+    font-size:.7rem;
+
+}
+
+/*=========================================================
+  SM (576px+)
+=========================================================*/
+
+@media(min-width:576px){
+
+    .topbar-search{max-width:260px}
+
+    .kpi-grid{grid-template-columns:repeat(2,1fr)}
+
+    .quick-grid{grid-template-columns:repeat(2,1fr)}
+
+    .dashboard-grid{grid-template-columns:repeat(2,1fr)}
+
+    .modal-box{
+
+        width:90%;
+
+        max-width:480px;
+
+        min-height:auto;
+
+        border-radius:1rem;
+
+    }
+
+}
+
+/*=========================================================
+  MD (768px+) — Tablet
+=========================================================*/
+
+@media(min-width:768px){
+
+    #app{
+
+        flex-direction:row;
+
+    }
+
+    .main-area{
+
+        margin-left:64px;
+
+        width:calc(100% - 64px);
+
+    }
+
+    #sidebar{
+
+        position:fixed;
+
+        top:0;
+
+        left:0;
+
+        width:64px;
+
+        height:100vh;
+
+        transform:none;
+
+        overflow:hidden;
+
+        transition:width .3s ease;
+
+    }
+
+    #sidebar:hover,
+
+    #sidebar:focus-within{
+
+        width:240px;
+
+    }
+
+    #sidebar .sidebar-brand{
+
+        justify-content:center;
+
+        padding:.75rem;
+
+    }
+
+    #sidebar .brand-text,
+
+    #sidebar .menu-label,
+
+    #sidebar .menu-arrow,
+
+    #sidebar .menu-section,
+
+    #sidebar .sidebar-recentes,
+
+    #sidebar .user-info,
+
+    #sidebar .user-logout{
+
+        opacity:0;
+
+        transition:opacity .2s;
+
+        pointer-events:none;
+
+    }
+
+    #sidebar:hover .brand-text,
+
+    #sidebar:hover .menu-label,
+
+    #sidebar:hover .menu-arrow,
+
+    #sidebar:hover .menu-section,
+
+    #sidebar:hover .sidebar-recentes,
+
+    #sidebar:hover .user-info,
+
+    #sidebar:hover .user-logout,
+
+    #sidebar:focus-within .brand-text,
+
+    #sidebar:focus-within .menu-label,
+
+    #sidebar:focus-within .menu-arrow,
+
+    #sidebar:focus-within .menu-section,
+
+    #sidebar:focus-within .sidebar-recentes,
+
+    #sidebar:focus-within .user-info,
+
+    #sidebar:focus-within .user-logout{
+
+        opacity:1;
+
+        pointer-events:auto;
+
+    }
+
+    #sidebar:hover .sidebar-brand,
+
+    #sidebar:focus-within .sidebar-brand{
+
+        justify-content:flex-start;
+
+        padding:.75rem 1rem;
+
+    }
+
+    #sidebar.mobile-open{transform:none}
+
+    .sidebar-overlay{
+
+        display:none;
+
+    }
+
+    .topbar .brand-desktop{display:flex}
+
+    .topbar .brand-mobile{display:none}
+
+    .topbar-nav{
+
+        display:flex;
+
+        gap:.25rem;
+
+    }
+
+    .topbar-nav a{
+
+        font-size:.8rem;
+
+        padding:.375rem .625rem;
+
+    }
+
+    .topbar-user .topbar-icon-btn{display:inline-flex}
+
+    .topbar{
+
+        padding:.5rem 1rem;
+
+        gap:.75rem;
+
+    }
+
+    .workspace{
+
+        padding:1rem;
+
+    }
+
+    .workspace-header{
+
+        flex-direction:row;
+
+        justify-content:space-between;
+
+        align-items:center;
+
+    }
+
+    .kpi-grid{
+
+        grid-template-columns:repeat(4,1fr);
+
+    }
+
+    .quick-grid{
+
+        grid-template-columns:repeat(3,1fr);
+
+    }
+
+    .dashboard-grid{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+    table{
+
+        font-size:.8125rem;
+
+    }
+
+    .status-bar{
+
+        flex-direction:row;
+
+        font-size:.75rem;
+
+    }
+
+}
+
+/*=========================================================
+  LG (1024px+) — Notebook
+=========================================================*/
+
+@media(min-width:1024px){
+
+    .main-area{
+
+        margin-left:240px;
+
+    }
+
+    #sidebar{
+
+        width:240px;
+
+    }
+
+    #sidebar .brand-text,
+
+    #sidebar .menu-label,
+
+    #sidebar .menu-arrow,
+
+    #sidebar .menu-section,
+
+    #sidebar .sidebar-recentes,
+
+    #sidebar .user-info,
+
+    #sidebar .user-logout{
+
+        opacity:1;
+
+        pointer-events:auto;
+
+    }
+
+    #sidebar .sidebar-brand{
+
+        justify-content:flex-start;
+
+        padding:.75rem 1rem;
+
+    }
+
+    #sidebar .sidebar-collapse{
+
+        display:flex;
+
+    }
+
+    /* collapsed state via class */
+
+    #sidebar.collapsed{
+
+        width:64px;
+
+    }
+
+    #sidebar.collapsed .brand-text,
+
+    #sidebar.collapsed .menu-label,
+
+    #sidebar.collapsed .menu-arrow,
+
+    #sidebar.collapsed .menu-section,
+
+    #sidebar.collapsed .sidebar-recentes,
+
+    #sidebar.collapsed .user-info,
+
+    #sidebar.collapsed .user-logout{
+
+        opacity:0;
+
+        pointer-events:none;
+
+    }
+
+    #sidebar.collapsed .sidebar-brand{
+
+        justify-content:center;
+
+        padding:.75rem;
+
+    }
+
+    .main-area.collapsed{
+
+        margin-left:64px;
+
+    }
+
+    .topbar{
+
+        padding:.5rem 1.25rem;
+
+    }
+
+    .topbar-search{max-width:320px}
+
+    .workspace{
+
+        padding:1.25rem;
+
+    }
+
+    .launchpad-cards{
+
+        grid-template-columns:repeat(3,1fr);
+
+    }
+
+    .dashboard-grid{
+
+        grid-template-columns:repeat(3,1fr);
+
+    }
+
+}
+
+/*=========================================================
+  XL (1440px+) — Desktop
+=========================================================*/
+
+@media(min-width:1440px){
+
+    .topbar-search{max-width:400px}
+
+    .workspace{
+
+        padding:1.5rem;
+
+    }
+
+    .launchpad-cards{
+
+        grid-template-columns:repeat(4,1fr);
+
+    }
+
+    .dashboard-grid{
+
+        grid-template-columns:repeat(4,1fr);
+
+    }
+
+    .kpi-grid{
+
+        grid-template-columns:repeat(4,1fr);
+
+        gap:1rem;
+
+    }
+
+}
+
+/*=========================================================
+  XXL (1920px+) — UltraWide
+=========================================================*/
+
+@media(min-width:1920px){
+
+    .workspace{
+
+        max-width:1600px;
+
+        margin:0 auto;
+
+    }
+
+    .launchpad-cards{
+
+        grid-template-columns:repeat(4,1fr);
+
+    }
+
+}
+
+/*=========================================================
+  TABELA → CARD VIEW (Mobile <768px)
+=========================================================*/
+
+@media(max-width:767px){
+
+    .table-responsive table,
+
+    .table-responsive thead,
+
+    .table-responsive tbody,
+
+    .table-responsive th,
+
+    .table-responsive td,
+
+    .table-responsive tr{
+
+        display:block;
+
+    }
+
+    .table-responsive thead{
+
+        position:absolute;
+
+        width:1px;
+
+        height:1px;
+
+        overflow:hidden;
+
+        clip:rect(0,0,0,0);
+
+        white-space:nowrap;
+
+        border:0;
+
+    }
+
+    .table-responsive tbody tr{
+
+        background:var(--glass-bg,rgba(255,255,255,.06));
+
+        border:1px solid var(--glass-border,rgba(255,255,255,.1));
+
+        border-radius:.5rem;
+
+        padding:.75rem;
+
+        margin-bottom:.5rem;
+
+    }
+
+    .table-responsive tbody td{
+
+        display:flex;
+
+        justify-content:space-between;
+
+        align-items:center;
+
+        padding:.375rem 0;
+
+        border:none;
+
+        font-size:.8125rem;
+
+    }
+
+    .table-responsive tbody td::before{
+
+        content:attr(data-label);
+
+        font-weight:600;
+
+        font-size:.75rem;
+
+        color:var(--text-muted,rgba(255,255,255,.45));
+
+        text-transform:uppercase;
+
+        letter-spacing:.02em;
+
+    }
+
+}
+
+/*=========================================================
+  MOBILE MENU BUTTON
+=========================================================*/
+
+.mobile-menu-btn{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:2rem;
+
+    height:2rem;
+
+    background:none;
+
+    border:none;
+
+    color:var(--text-primary);
+
+    cursor:pointer;
+
+    font-size:1.25rem;
+
+}
+
+@media(min-width:768px){
+
+    .mobile-menu-btn{display:none}
+
+}
+
+/*=========================================================
+  FORMS — Mobile
+=========================================================*/
+
+@media(max-width:767px){
+
+    .grid.form-grid{
+
+        grid-template-columns:1fr !important;
+
+    }
+
+    .form-group{
+
+        margin-bottom:.5rem;
+
+    }
+
+    .form-group label{
+
+        font-size:.8125rem;
+
+    }
+
+}
+
+/*=========================================================
+  TOPBAR — Mobile
+=========================================================*/
+
+@media(max-width:767px){
+
+    .topbar .topbar-nav{display:none}
+
+    .topbar-search input::placeholder{
+
+        font-size:0;
+
+    }
+
+    .topbar-search input:focus::placeholder{
+
+        font-size:.8rem;
+
+    }
+
+}
+
+/*=========================================================
+  PRINT
+=========================================================*/
+
+@media print{
+
+    #sidebar,.topbar,.status-bar,.toolbar-btn{display:none !important}
+
+    .main-area{margin-left:0 !important;width:100% !important}
+
+    .glass-panel{background:none !important;border:1px solid #ccc !important;box-shadow:none !important}
+
+    body{background:#fff !important;color:#000 !important}
+
+}

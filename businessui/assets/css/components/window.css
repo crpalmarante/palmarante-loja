@@ -1,0 +1,115 @@
+/* ══════════════════════════════════════════════════════════════
+   BusinessUI — Janela Padrão
+   v1.0.0
+   ─────────────────────────────────────────────────────────────
+   Toda tela do sistema segue exatamente esta estrutura.
+   ══════════════════════════════════════════════════════════════ */
+
+.bu-window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bu-surface);
+  border: var(--bu-border-thin) solid var(--bu-border);
+  border-radius: var(--bu-radius-md);
+  box-shadow: var(--bu-shadow);
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.bu-window-header {
+  display: flex;
+  align-items: center;
+  gap: var(--bu-space-3);
+  padding: var(--bu-space-4) var(--bu-space-7);
+  border-bottom: var(--bu-border-thin) solid var(--bu-border-light);
+  min-height: 48px;
+  flex-shrink: 0;
+}
+
+.bu-window-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: var(--bu-font-lg);
+  flex-shrink: 0;
+  color: var(--bu-primary);
+}
+
+.bu-window-title {
+  flex: 1;
+  font-size: var(--bu-font-lg);
+  font-weight: var(--bu-font-semibold);
+  color: var(--bu-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bu-window-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--bu-space-2);
+  flex-shrink: 0;
+}
+
+/* ── Toolbar ─────────────────────────────────────────────── */
+.bu-window-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--bu-space-3);
+  padding: var(--bu-space-3) var(--bu-space-7);
+  border-bottom: var(--bu-border-thin) solid var(--bu-border-light);
+  background: var(--bu-bg);
+  flex-shrink: 0;
+  min-height: 44px;
+  flex-wrap: wrap;
+}
+
+.bu-window-toolbar-start {
+  display: flex;
+  align-items: center;
+  gap: var(--bu-space-3);
+  flex: 1;
+}
+
+.bu-window-toolbar-end {
+  display: flex;
+  align-items: center;
+  gap: var(--bu-space-3);
+  flex-shrink: 0;
+}
+
+/* ── Content ─────────────────────────────────────────────── */
+.bu-window-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--bu-space-7);
+}
+
+.bu-window-content::-webkit-scrollbar { width: 6px; }
+.bu-window-content::-webkit-scrollbar-track { background: transparent; }
+.bu-window-content::-webkit-scrollbar-thumb { background: var(--bu-border); border-radius: var(--bu-radius-full); }
+
+/* ── Status Footer ───────────────────────────────────────── */
+.bu-window-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--bu-space-2) var(--bu-space-7);
+  border-top: var(--bu-border-thin) solid var(--bu-border-light);
+  background: var(--bu-bg);
+  font-size: var(--bu-font-xs);
+  color: var(--bu-text-muted);
+  flex-shrink: 0;
+  min-height: 32px;
+}
+
+.bu-window-status-start,
+.bu-window-status-end {
+  display: flex;
+  align-items: center;
+  gap: var(--bu-space-4);
+}

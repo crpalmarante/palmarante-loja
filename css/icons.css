@@ -1,0 +1,268 @@
+/*=========================================================
+    FiscalBrasil UI
+    Version : 2.0
+    File    : icons.css
+    Icon System — SVG sprite, tamanhos, cores, estados.
+=========================================================
+
+    Uso:
+        <svg class="icon"><use href="#icon-name"/></svg>
+        <svg class="icon icon-lg"><use href="#icon-user"/></svg>
+
+    Tamanhos:
+        .icon-xs   (16px)
+        .icon-sm   (20px)  padrão
+        .icon-md   (24px)
+        .icon-lg   (32px)
+        .icon-xl   (48px)
+        .icon-xxl  (64px)
+
+    Cores semânticas:
+        .icon-success
+        .icon-warning
+        .icon-error
+        .icon-info
+
+    Estados:
+        .icon-disabled
+        .icon-spin
+
+=========================================================*/
+
+/*=========================================================
+  TOKENS (Design Tokens para ícones)
+=========================================================*/
+
+:root{
+
+    --icon-color:currentColor;
+
+    --icon-hover:var(--color-primary,#14b8a6);
+
+    --icon-disabled:var(--text-disabled,rgba(255,255,255,.2));
+
+    --icon-active:var(--color-primary-hover,#0d9488);
+
+    --icon-xs:16px;
+
+    --icon-sm:20px;
+
+    --icon-md:24px;
+
+    --icon-lg:32px;
+
+    --icon-xl:48px;
+
+    --icon-xxl:64px;
+
+}
+
+/*=========================================================
+  BASE
+=========================================================*/
+
+.icon{
+
+    width:var(--icon-sm);
+
+    height:var(--icon-sm);
+
+    flex-shrink:0;
+
+    fill:none;
+
+    stroke:currentColor;
+
+    stroke-width:2;
+
+    stroke-linecap:round;
+
+    stroke-linejoin:round;
+
+    color:var(--icon-color);
+
+    transition:color var(--motion-fast,150ms) var(--ease-out,.16,1,.3,1);
+
+    vertical-align:middle;
+
+}
+
+.icon use{
+
+    pointer-events:none;
+
+}
+
+/*=========================================================
+  SIZES
+=========================================================*/
+
+.icon-xs{width:var(--icon-xs);height:var(--icon-xs);stroke-width:1.5}
+
+.icon-sm{width:var(--icon-sm);height:var(--icon-sm)}
+
+.icon-md{width:var(--icon-md);height:var(--icon-md);stroke-width:2}
+
+.icon-lg{width:var(--icon-lg);height:var(--icon-lg);stroke-width:1.5}
+
+.icon-xl{width:var(--icon-xl);height:var(--icon-xl);stroke-width:1.5}
+
+.icon-xxl{width:var(--icon-xxl);height:var(--icon-xxl);stroke-width:1.25}
+
+/*=========================================================
+  SEMANTIC COLORS
+=========================================================*/
+
+.icon-success{color:var(--color-success,#16a34a)}
+
+.icon-warning{color:var(--color-warning,#d97706)}
+
+.icon-error{color:var(--color-error,#dc2626)}
+
+.icon-info{color:var(--color-info,#0891b2)}
+
+/*=========================================================
+  STATES
+=========================================================*/
+
+.icon-disabled{
+
+    color:var(--icon-disabled)!important;
+
+    pointer-events:none;
+
+    opacity:.5;
+
+}
+
+.icon-spin{
+
+    animation:icon-spin 1s linear infinite;
+
+}
+
+@keyframes icon-spin{
+
+    to{transform:rotate(360deg)}
+
+}
+
+/*=========================================================
+  CLICKABLE ICON (minimum touch area)
+=========================================================*/
+
+.icon-btn{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:44px;
+
+    height:44px;
+
+    background:none;
+
+    border:none;
+
+    cursor:pointer;
+
+    color:var(--icon-color);
+
+    border-radius:.375rem;
+
+    transition:background var(--motion-fast,150ms) var(--ease-out,.16,1,.3,1),
+
+        color var(--motion-fast,150ms) var(--ease-out,.16,1,.3,1);
+
+}
+
+.icon-btn:hover{
+
+    background:rgba(255,255,255,.08);
+
+    color:var(--icon-hover);
+
+}
+
+.icon-btn:focus-visible{
+
+    outline:2px solid var(--color-primary,#14b8a6);
+
+    outline-offset:2px;
+
+}
+
+.icon-btn .icon{
+
+    width:20px;
+
+    height:20px;
+
+}
+
+/*=========================================================
+  ICON + TEXT
+=========================================================*/
+
+.icon-text{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:.5rem;
+
+}
+
+/*=========================================================
+  SIDEBAR ICON OVERRIDE
+=========================================================*/
+
+.menu-item .icon{
+
+    width:20px;
+
+    height:20px;
+
+}
+
+/*=========================================================
+  TOOLBAR ICONS
+=========================================================*/
+
+.toolbar-btn .icon{
+
+    width:16px;
+
+    height:16px;
+
+}
+
+/*=========================================================
+  KPI ICONS
+=========================================================*/
+
+.kpi-icon{
+
+    width:var(--icon-lg);
+
+    height:var(--icon-lg);
+
+    stroke-width:1.5;
+
+}
+
+/*=========================================================
+  MODAL HEADER ICON
+=========================================================*/
+
+.modal-header .icon{
+
+    width:20px;
+
+    height:20px;
+
+}

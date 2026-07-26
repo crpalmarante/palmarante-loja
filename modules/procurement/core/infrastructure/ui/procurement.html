@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Procurement Platform — BusinessCore</title>
+<link rel="stylesheet" href="../../../businessui/assets/css/core/theme.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/layout/layout.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/navigation.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/components.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/form.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/datagrid.css">
+<style>
+.bu-compare-grid { display:grid; grid-template-columns:200px repeat(auto-fit,minmax(220px,1fr)); gap:1px; background:var(--bu-border); border-radius:12px; overflow:hidden; margin-bottom:20px }
+.bu-compare-label { background:var(--bu-surface); padding:12px 16px; display:flex; align-items:center; font-weight:600; color:var(--bu-text-secondary); font-size:13px }
+.bu-compare-cell { background:var(--bu-bg); padding:12px 16px; display:flex; align-items:center; justify-content:center; font-size:14px }
+.bu-compare-header { background:var(--bu-surface); padding:16px; text-align:center; font-weight:600; border-bottom:3px solid transparent }
+.bu-compare-header.best { border-bottom-color:var(--bu-success) }
+.bu-compare-cell.best { background:#e8f5e9 }
+.bu-score-gauge { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; margin:0 auto; color:#fff }
+.bu-score-high { background:var(--bu-success) }
+.bu-score-mid { background:var(--bu-warning) }
+.bu-score-low { background:var(--bu-danger) }
+.bu-supplier-card { background:var(--bu-bg); border-radius:12px; padding:20px; border:1px solid var(--bu-border); text-align:center; transition:box-shadow .2s }
+.bu-supplier-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.08) }
+.bu-supplier-card.best-card { border-color:var(--bu-success); box-shadow:0 0 0 2px var(--bu-success); position:relative }
+.bu-supplier-card.best-card::after { content:'Melhor Oferta'; position:absolute; top:-10px; right:12px; background:var(--bu-success); color:#fff; font-size:11px; font-weight:600; padding:2px 10px; border-radius:20px }
+.bu-spec-match { color:var(--bu-success); font-weight:600 }
+.bu-spec-mismatch { color:var(--bu-danger) }
+.bu-compare-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; margin-bottom:24px }
+.bu-benefit { font-size:12px; padding:2px 8px; border-radius:4px; font-weight:600 }
+.bu-benefit-better { background:#e8f5e9; color:#2e7d32 }
+.bu-benefit-worse { background:#fbe9e7; color:#c62828 }
+</style>
+</head>
+<body>
+
+<div class="bu-app">
+  <header class="bu-topbar">
+    <div class="bu-topbar-logo">Business<span>Core</span></div>
+    <div class="bu-topbar-search"><span class="bu-topbar-search-icon">🔍</span><input class="bu-input" placeholder="Pesquisar fornecedores, cotações..."></div>
+    <nav class="bu-topbar-nav">
+      <button class="bu-topbar-btn">🔔</button>
+      <button class="bu-topbar-btn">⚙️</button>
+      <div class="bu-avatar bu-avatar-sm">PC</div>
+    </nav>
+  </header>
+
+  <div class="bu-body">
+    <aside class="bu-sidebar">
+      <div class="bu-sidebar-header">
+        <div class="bu-avatar">PC</div>
+        <div class="bu-sidebar-header-info">
+          <div class="bu-sidebar-header-name">BusinessCore</div>
+          <div class="bu-sidebar-header-role">Procurement</div>
+        </div>
+      </div>
+      <div class="bu-sidebar-scroll">
+        <div class="bu-menu-group">
+          <div class="bu-menu-label">Procurement</div>
+          <a class="bu-menu-item active" href="#" onclick="switchTab('dashboard')"><span class="bu-menu-icon">📊</span><span class="bu-menu-text">Dashboard</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('rfqs')"><span class="bu-menu-icon">📋</span><span class="bu-menu-text">RFQs</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('comparison')"><span class="bu-menu-icon">⚖️</span><span class="bu-menu-text">Comparação</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('awards')"><span class="bu-menu-icon">🏆</span><span class="bu-menu-text">Adjudicação</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('orders')"><span class="bu-menu-icon">📄</span><span class="bu-menu-text">Pedidos</span></a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('portal')"><span class="bu-menu-icon">🚪</span><span class="bu-menu-text">Portal</span></a>
+        </div>
+      </div>
+      <div class="bu-sidebar-footer">BusinessCore v1.0.0</div>
+    </aside>
+
+    <main class="bu-workspace">
+      <div class="bu-toolbar">
+        <div class="bu-toolbar-start">
+          <div class="bu-breadcrumb">
+            <a class="bu-breadcrumb-item" href="#">Home</a>
+            <span class="bu-breadcrumb-sep">/</span>
+            <span class="bu-breadcrumb-item active" id="pageTitle">Dashboard</span>
+          </div>
+        </div>
+        <div class="bu-toolbar-end">
+          <div class="bu-toolbar-search" id="searchContainer">
+            <span class="bu-toolbar-search-icon">🔍</span>
+            <input class="bu-input bu-input-sm" id="searchInput" placeholder="Buscar..." oninput="loadContent()">
+          </div>
+          <div class="bu-toolbar-divider"></div>
+          <button class="bu-btn bu-btn-primary" id="btnNew" onclick="openCreate()">+ Nova RFQ</button>
+        </div>
+      </div>
+      <div class="bu-workspace-content"><div id="dataContainer"></div></div>
+    </main>
+  </div>
+
+  <footer class="bu-statusbar">
+    <div class="bu-statusbar-start"><span><span class="bu-statusbar-dot online"></span> Procurement Platform</span><span>v1.0.0</span></div>
+    <div class="bu-statusbar-end"><span id="recordCount"></span></div>
+  </footer>
+</div>
+
+<div class="bu-dialog-backdrop" id="itemForm">
+  <div class="bu-dialog bu-dialog-lg">
+    <div class="bu-dialog-header"><h3 id="formTitle">Novo</h3><button class="bu-dialog-close" onclick="closeForm()">✕</button></div>
+    <div class="bu-dialog-body" id="formBody"></div>
+    <div class="bu-dialog-footer">
+      <button class="bu-btn" onclick="closeForm()">Cancelar</button>
+      <button class="bu-btn bu-btn-primary" onclick="saveItem()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8009/api/procurement';
+let currentTab = 'dashboard';
+
+function switchTab(tab) {
+  currentTab = tab;
+  const tabs = ['dashboard','rfqs','comparison','awards','orders','portal'];
+  document.querySelectorAll('.bu-menu-item').forEach((m,i) => m.classList.toggle('active', tabs[i]===tab));
+  const labels = {dashboard:'Dashboard',rfqs:'RFQs',comparison:'Comparação',awards:'Adjudicação',orders:'Pedidos',portal:'Portal do Fornecedor'};
+  document.getElementById('pageTitle').textContent = labels[tab]||tab;
+  document.getElementById('btnNew').style.display = tab==='rfqs'?'':'none';
+  document.getElementById('searchContainer').style.display = tab==='dashboard'?'none':'';
+  loadContent();
+}
+
+async function apiFetch(url, options = {}) {
+  options.headers = options.headers || {};
+  options.headers['Content-Type'] = 'application/json';
+  if (options.body && typeof options.body === 'object') options.body = JSON.stringify(options.body);
+  const res = await fetch(url, options);
+  if (!res.ok) { let err; try { err = await res.json(); } catch(e) { err = {detail: res.statusText}; } throw new Error(err.detail || 'API error'); }
+  return res.json();
+}
+
+function closeForm() { document.getElementById('itemForm').classList.remove('open'); }
+function openCreate() { renderRfqForm(); }
+function saveItem() { if (currentTab==='rfqs') saveRfq(); }
+
+function scoreClass(score) { if (score>=80) return 'bu-score-high'; if (score>=50) return 'bu-score-mid'; return 'bu-score-low'; }
+function badgeClass(status) {
+  const m = {draft:'neutral',open:'info',awarded:'success',cancelled:'danger',closed:'neutral',pending:'warning',accepted:'success',rejected:'danger'};
+  return 'bu-badge-'+(m[status]||'neutral');
+}
+
+// ── Dashboard ──────────────────────────────────────────────
+
+async function renderDashboard() {
+  try {
+    const r = await apiFetch(`${API}/rfqs`);
+    const rfqs = r.data || [];
+    const openRfqs = rfqs.filter(r=>r.status==='open').length;
+    const totalItems = rfqs.reduce((a,r)=>a+(r.items||0),0);
+    const qs = await apiFetch(`${API}/quotations`);
+    const qts = qs.data || [];
+    const totalQuotes = qts.length;
+    document.getElementById('dataContainer').innerHTML = `
+      <div class="bu-grid bu-grid-4" style="margin-bottom:20px">
+        <div class="bu-card"><div class="bu-card-content"><h3>📋 RFQs</h3><div class="bu-stat-value">${rfqs.length}</div><div style="font-size:13px;color:var(--bu-text-muted)">${openRfqs} abertas</div></div></div>
+        <div class="bu-card"><div class="bu-card-content"><h3>📄 Cotações</h3><div class="bu-stat-value">${totalQuotes}</div><div style="font-size:13px;color:var(--bu-text-muted)">de ${rfqs.length} RFQs</div></div></div>
+        <div class="bu-card"><div class="bu-card-content"><h3>📦 Itens Cotados</h3><div class="bu-stat-value">${totalItems}</div></div></div>
+        <div class="bu-card"><div class="bu-card-content"><h3>🏆 Adjudicações</h3><div class="bu-stat-value">${rfqs.filter(r=>r.status==='awarded').length}</div></div></div>
+      </div>
+      <div class="bu-grid bu-grid-2">
+        <div class="bu-card"><div class="bu-card-header"><h3>RFQs Recentes</h3></div><div class="bu-card-content"><table class="bu-table"><thead><tr><th>Título</th><th>Status</th><th>Itens</th><th>Criação</th></tr></thead><tbody>${rfqs.slice(0,5).map(r=>`<tr><td>${r.title}</td><td><span class="bu-badge ${badgeClass(r.status)}">${r.status}</span></td><td>${r.items}</td><td>${new Date(r.created_at).toLocaleDateString('pt-BR')}</td></tr>`).join('')||'<tr><td colspan="4">Nenhuma RFQ</td></tr>'}</tbody></table></div></div>
+        <div class="bu-card"><div class="bu-card-header"><h3>Ações Rápidas</h3></div><div class="bu-card-content">
+          <button class="bu-btn bu-btn-primary" onclick="switchTab('rfqs')" style="margin:4px">📋 Nova RFQ</button>
+          <button class="bu-btn" onclick="switchTab('comparison')" style="margin:4px">⚖️ Comparar Cotações</button>
+          <button class="bu-btn" onclick="switchTab('awards')" style="margin:4px">🏆 Adjudicar</button>
+        </div></div>
+      </div>`;
+    document.getElementById('recordCount').textContent = `${rfqs.length} RFQs, ${totalQuotes} cotações`;
+  } catch(e) { document.getElementById('dataContainer').innerHTML = `<div class="bu-card"><div class="bu-card-content"><p>Erro ao carregar dashboard</p></div></div>`; }
+}
+
+// ── RFQs ──────────────────────────────────────────────────
+
+async function renderRfqs() {
+  try {
+    const r = await apiFetch(`${API}/rfqs`);
+    const rfqs = r.data || [];
+    document.getElementById('dataContainer').innerHTML = `
+      <table class="bu-table"><thead><tr><th>Título</th><th>Status</th><th>Itens</th><th>Cotações</th><th>Técnica</th><th>Criado</th><th>Ações</th></tr></thead>
+      <tbody>${rfqs.map(rfq=>`<tr><td><strong>${rfq.title}</strong></td><td><span class="bu-badge ${badgeClass(rfq.status)}">${rfq.status}</span></td><td>${rfq.items}</td><td>${rfq.quotations||0}</td><td>${rfq.requires_technical?'🔬':'—'}</td><td>${new Date(rfq.created_at).toLocaleDateString('pt-BR')}</td><td>
+        <button class="bu-btn bu-btn-sm bu-btn-outline" onclick="openRfq('${rfq.id}')" ${rfq.status!=='draft'?'disabled':''}>📨 Abrir</button>
+        ${rfq.status==='open'?`<button class="bu-btn bu-btn-sm bu-btn-outline" onclick="viewComparison('${rfq.id}')">⚖️ Comparar</button>`:''}
+        <button class="bu-btn bu-btn-sm bu-btn-outline" onclick="viewRfq('${rfq.id}')">👁️</button>
+      </td></tr>`).join('')}</tbody></table>`;
+    document.getElementById('recordCount').textContent = `${rfqs.length} RFQs`;
+  } catch(e) { document.getElementById('dataContainer').innerHTML = `<p>Erro ao carregar RFQs</p>`; }
+}
+
+async function openRfq(id) {
+  await apiFetch(`${API}/rfqs/${id}/open`, {method:'POST'});
+  loadContent();
+}
+
+function renderRfqForm() {
+  document.getElementById('formTitle').textContent = 'Nova RFQ';
+  document.getElementById('formBody').innerHTML = `
+    <div class="bu-form-group">
+      <div class="bu-field"><label>Título *</label><input class="bu-input" id="rfq_title"></div>
+      <div class="bu-field"><label>Descrição</label><textarea class="bu-input" id="rfq_desc" rows="2"></textarea></div>
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Fornecedores (IDs, separados por vírgula)</label><input class="bu-input" id="rfq_suppliers" placeholder="s-1, s-2, s-3"></div>
+        <div class="bu-field"><label>Validade</label><input class="bu-input" type="date" id="rfq_valid"></div>
+      </div>
+      <div class="bu-field"><label>Endereço Entrega</label><input class="bu-input" id="rfq_address"></div>
+      <div class="bu-field"><label><input type="checkbox" id="rfq_technical"> Exige avaliação técnica</label></div>
+    </div>
+    <h4 style="margin:12px 0 8px">Itens</h4>
+    <table class="bu-table"><thead><tr><th>Item ID</th><th>Nome</th><th>Qtd</th><th>Preço Esperado</th></tr></thead>
+    <tbody id="rfqItemsBody"><tr id="rfq_row_0"><td><input class="bu-input bu-input-sm" id="rfq_i_0_id" style="width:120px"></td><td><input class="bu-input bu-input-sm" id="rfq_i_0_name" style="width:150px"></td><td><input class="bu-input bu-input-sm" type="number" id="rfq_i_0_qty" value="1" style="width:70px"></td><td><input class="bu-input bu-input-sm" type="number" step="0.01" id="rfq_i_0_price" style="width:90px"></td></tr></tbody></table>
+    <button class="bu-btn bu-btn-sm bu-btn-outline" onclick="addRfqLine()">+ Item</button>`;
+  document.getElementById('itemForm').classList.add('open');
+}
+
+let rfqLineCount = 1;
+function addRfqLine() {
+  const i = rfqLineCount++;
+  const tbody = document.getElementById('rfqItemsBody');
+  const tr = document.createElement('tr'); tr.id = `rfq_row_${i}`;
+  tr.innerHTML = `<td><input class="bu-input bu-input-sm" id="rfq_i_${i}_id" style="width:120px"></td><td><input class="bu-input bu-input-sm" id="rfq_i_${i}_name" style="width:150px"></td><td><input class="bu-input bu-input-sm" type="number" id="rfq_i_${i}_qty" value="1" style="width:70px"></td><td><input class="bu-input bu-input-sm" type="number" step="0.01" id="rfq_i_${i}_price" style="width:90px"></td></tr>`;
+  tbody.appendChild(tr);
+}
+
+async function saveRfq() {
+  const items = [];
+  for (let i = 0; i < rfqLineCount; i++) {
+    const row = document.getElementById(`rfq_row_${i}`);
+    if (!row) continue;
+    const itemId = document.getElementById(`rfq_i_${i}_id`)?.value;
+    if (!itemId) continue;
+    items.push({
+      item_id: itemId, item_name: document.getElementById(`rfq_i_${i}_name`)?.value||itemId,
+      quantity: parseFloat(document.getElementById(`rfq_i_${i}_qty`)?.value)||1,
+      expected_price: parseFloat(document.getElementById(`rfq_i_${i}_price`)?.value)||0,
+    });
+  }
+  const suppliers = document.getElementById('rfq_suppliers').value.split(',').map(s=>s.trim()).filter(Boolean);
+  await apiFetch(`${API}/rfqs`, {method:'POST', body:{
+    title: document.getElementById('rfq_title').value,
+    description: document.getElementById('rfq_desc').value,
+    items, invited_suppliers: suppliers,
+    valid_until: document.getElementById('rfq_valid').value,
+    delivery_address: document.getElementById('rfq_address').value,
+    requires_technical_evaluation: document.getElementById('rfq_technical').checked,
+  }});
+  closeForm(); switchTab('rfqs');
+}
+
+async function viewRfq(id) {
+  try {
+    const r = await apiFetch(`${API}/rfqs/${id}`);
+    const rfq = r.data;
+    document.getElementById('formTitle').textContent = `RFQ: ${rfq.title}`;
+    const specs = i => (i.technical_specs||[]).map(s=>`<span class="bu-badge bu-badge-info">${s.field}: ${s.value}</span>`).join(' ');
+    document.getElementById('formBody').innerHTML = `
+      <div class="bu-form-group">
+        <p><strong>Status:</strong> <span class="bu-badge ${badgeClass(rfq.status)}">${rfq.status}</span></p>
+        <p><strong>Fornecedores:</strong> ${(rfq.invited_suppliers||[]).join(', ')||'Nenhum'}</p>
+        <p><strong>Entrega:</strong> ${rfq.delivery_address||'—'}</p>
+        ${rfq.valid_until?`<p><strong>Validade:</strong> ${rfq.valid_until}</p>`:''}
+      </div>
+      <h4 style="margin:12px 0 8px">Itens</h4>
+      <table class="bu-table"><thead><tr><th>Item</th><th>Código</th><th>Qtd</th><th>Preço Esp.</th><th>Especificações</th></tr></thead>
+      <tbody>${(rfq.items||[]).map(i=>`<tr><td>${i.item_name}</td><td>${i.item_code||'—'}</td><td>${i.quantity}</td><td>R$${(i.expected_price||0).toFixed(2)}</td><td>${specs(i)}</td></tr>`).join('')}</tbody></table>`;
+    document.getElementById('itemForm').classList.add('open');
+  } catch(e) { alert('Erro ao carregar RFQ'); }
+}
+
+// ── COMPARAÇÃO (PROC-003/004) ⭐⭐⭐⭐⭐ ─────────────────
+
+async function renderComparison() {
+  try {
+    const r = await apiFetch(`${API}/rfqs`);
+    const rfqs = (r.data||[]).filter(rfq=>rfq.status==='open'||rfq.status==='awarded');
+    if (rfqs.length===0) {
+      document.getElementById('dataContainer').innerHTML = `<div class="bu-card"><div class="bu-card-content"><p>Nenhuma RFQ disponível para comparação. Crie e abra uma RFQ primeiro.</p></div></div>`;
+      document.getElementById('recordCount').textContent = '0 RFQs';
+      return;
+    }
+    let html = `<div class="bu-form-group" style="margin-bottom:16px"><label>Selecione a RFQ:</label><select class="bu-input" id="compareSelect" onchange="loadComparison()">`;
+    rfqs.forEach(rfq => { html += `<option value="${rfq.id}">${rfq.title}</option>`; });
+    html += `</select></div><div id="compareResults"><p class="bu-text-muted">Selecione uma RFQ para ver a comparação</p></div>`;
+    document.getElementById('dataContainer').innerHTML = html;
+    document.getElementById('recordCount').textContent = `${rfqs.length} RFQs`;
+    if (rfqs.length) loadComparison();
+  } catch(e) { document.getElementById('dataContainer').innerHTML = `<p>Erro ao carregar</p>`; }
+}
+
+async function loadComparison() {
+  const rfqId = document.getElementById('compareSelect')?.value;
+  if (!rfqId) return;
+  try {
+    const r = await apiFetch(`${API}/rfqs/${rfqId}/comparison`);
+    const data = r.data;
+    if (!data || !data.summary || !data.summary.length) {
+      document.getElementById('compareResults').innerHTML = `<p class="bu-text-muted">Nenhuma cotação recebida para esta RFQ</p>`;
+      return;
+    }
+    const bestScore = Math.max(...data.summary.map(s=>s.score));
+    let html = `<div class="bu-compare-cards">`;
+    data.summary.forEach(s => {
+      const isBest = s.score === bestScore;
+      html += `<div class="bu-supplier-card ${isBest?'best-card':''}">
+        <div class="bu-score-gauge ${scoreClass(s.score)}" style="margin-bottom:12px">${s.score}</div>
+        <h3 style="margin:0 0 4px">${s.supplier_name}</h3>
+        <div style="font-size:13px;color:var(--bu-text-muted);margin-bottom:12px">${s.supplier_id}</div>
+        <table style="width:100%;font-size:13px;text-align:left">
+          <tr><td style="padding:4px 0;color:var(--bu-text-secondary)">Total</td><td style="padding:4px 0;font-weight:600">R$ ${s.grand_total.toFixed(2)}</td></tr>
+          <tr><td style="padding:4px 0;color:var(--bu-text-secondary)">Frete</td><td style="padding:4px 0">R$ ${s.freight.toFixed(2)}</td></tr>
+          <tr><td style="padding:4px 0;color:var(--bu-text-secondary)">Entrega</td><td style="padding:4px 0">${s.delivery_days} dias</td></tr>
+          <tr><td style="padding:4px 0;color:var(--bu-text-secondary)">Pagamento</td><td style="padding:4px 0">${s.installments}x ${s.payment_method}</td></tr>
+          <tr><td style="padding:4px 0;color:var(--bu-text-secondary)">Garantia</td><td style="padding:4px 0">${s.warranty||'—'}</td></tr>
+        </table>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bu-border);font-size:12px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Preço</span><span style="font-weight:600">${s.score_detail?.price||0}</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Entrega</span><span style="font-weight:600">${s.score_detail?.delivery||0}</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Frete</span><span style="font-weight:600">${s.score_detail?.freight||0}</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Garantia</span><span style="font-weight:600">${s.score_detail?.warranty||0}</span></div>
+          <div style="display:flex;justify-content:space-between"><span>Histórico</span><span style="font-weight:600">${s.score_detail?.history_score||0}</span></div>
+        </div>
+        <button class="bu-btn bu-btn-sm bu-btn-primary" style="margin-top:12px;width:100%" onclick="prepareAward('${data.rfq_id}','${s.supplier_id}','${s.quotation_id}','${s.supplier_name}')">Adjudicar</button>
+      </div>`;
+    });
+    html += `</div>`;
+
+    // Decision Matrix
+    if (data.decision_matrix && data.decision_matrix.length) {
+      html += `<div class="bu-card"><div class="bu-card-header"><h3>📊 Matriz de Decisão</h3></div><div class="bu-card-content">
+        <table class="bu-table"><thead><tr><th>Fornecedor</th><th>Preço</th><th>Entrega</th><th>Frete</th><th>Garantia</th><th>Histórico</th><th>Score</th></tr></thead>
+        <tbody>${data.decision_matrix.map(m=>`<tr><td><strong>${m.supplier_name}</strong></td><td>${m.price}</td><td>${m.delivery}</td><td>${m.freight}</td><td>${m.warranty}</td><td>${m.history?.rating||'—'}</td><td><span class="bu-score-gauge ${scoreClass(m.score)}" style="width:40px;height:40px;font-size:14px;display:inline-flex">${m.score}</span></td></tr>`).join('')}</tbody></table>
+      </div></div>`;
+    }
+
+    // Technical specs matrix
+    if (data.requires_technical && data.matrix && data.matrix.length) {
+      html += `<div class="bu-card" style="margin-top:16px"><div class="bu-card-header"><h3>🔬 Equalização Técnica</h3></div><div class="bu-card-content">
+        <table class="bu-table"><thead><tr><th>Especificação</th>${data.summary.map(s=>`<th>${s.supplier_name}</th>`).join('')}</tr></thead>
+        <tbody>${data.matrix.flatMap(m=>{
+          const specs = m.technical_specs||[];
+          return specs.length ? specs.map(spec => {
+            const quotes = m.quotations.map(q => {
+              const val = (q.technical_response||{})[spec.field]||'—';
+              return `<td class="${val===spec.value?'bu-spec-match':'bu-spec-mismatch'}">${val}</td>`;
+            }).join('');
+            return `<tr><td style="font-weight:600">${spec.field} (${spec.value})</td>${quotes}</tr>`;
+          }) : [];
+        }).join('')}</tbody></table>
+      </div></div>`;
+    }
+
+    // Weights
+    html += `<div class="bu-card" style="margin-top:16px"><div class="bu-card-header"><h3>⚙️ Pesos dos Critérios</h3></div><div class="bu-card-content">
+      <div style="display:flex;gap:16px;flex-wrap:wrap">${Object.entries(data.weights||{}).map(([k,v])=>`<span class="bu-badge bu-badge-neutral">${k}: ${v}%</span>`).join('')}</div>
+    </div></div>`;
+
+    document.getElementById('compareResults').innerHTML = html;
+  } catch(e) { document.getElementById('compareResults').innerHTML = `<p>Erro ao carregar comparação: ${e.message}</p>`; }
+}
+
+function viewComparison(rfqId) {
+  switchTab('comparison');
+  setTimeout(() => {
+    const sel = document.getElementById('compareSelect');
+    if (sel) { sel.value = rfqId; loadComparison(); }
+  }, 100);
+}
+
+// ── Adjudicação ──────────────────────────────────────────
+
+async function renderAwards() {
+  try {
+    const r = await apiFetch(`${API}/rfqs`);
+    const rfqs = (r.data||[]).filter(rfq=>rfq.status==='open');
+    if (rfqs.length===0) {
+      document.getElementById('dataContainer').innerHTML = `<div class="bu-card"><div class="bu-card-content"><p>Nenhuma RFQ disponível para adjudicação.</p></div></div>`;
+      return;
+    }
+    let html = `<div class="bu-form-group" style="margin-bottom:16px"><label>RFQ para Adjudicar:</label>
+      <select class="bu-input" id="awardSelect" onchange="loadAwardQuotes()">
+        <option value="">Selecione...</option>${rfqs.map(r=>`<option value="${r.id}">${r.title}</option>`).join('')}
+      </select></div>
+      <div id="awardContent"><p class="bu-text-muted">Selecione uma RFQ para ver as cotações</p></div>`;
+    document.getElementById('dataContainer').innerHTML = html;
+  } catch(e) { document.getElementById('dataContainer').innerHTML = `<p>Erro</p>`; }
+}
+
+async function loadAwardQuotes() {
+  const rfqId = document.getElementById('awardSelect')?.value;
+  if (!rfqId) return;
+  try {
+    const c = await apiFetch(`${API}/rfqs/${rfqId}/comparison`);
+    if (!c.data || !c.data.summary || !c.data.summary.length) {
+      document.getElementById('awardContent').innerHTML = `<p class="bu-text-muted">Nenhuma cotação</p>`;
+      return;
+    }
+    const s = c.data.summary;
+    document.getElementById('awardContent').innerHTML = `
+      <div class="bu-compare-cards">${s.map(q=>`
+        <div class="bu-supplier-card">
+          <h3>${q.supplier_name}</h3>
+          <div class="bu-score-gauge ${scoreClass(q.score)}" style="width:48px;height:48px;font-size:18px;margin:8px auto">${q.score}</div>
+          <p>Total: R$ ${q.grand_total.toFixed(2)}</p>
+          <p>Entrega: ${q.delivery_days} dias</p>
+          <button class="bu-btn bu-btn-sm bu-btn-primary" onclick="awardSingle('${rfqId}','${q.supplier_id}','${q.quotation_id}')">🏆 Adjudicar</button>
+        </div>`).join('')}</div>
+      <div class="bu-card" style="margin-top:16px"><div class="bu-card-header"><h3>Adjudicação por Item</h3></div><div class="bu-card-content">
+        <p>Ou adjudique item a item (múltiplos vencedores → múltiplos POs)</p>
+        <div id="perItemSelections">${(c.data.matrix||[]).map(m=>`
+          <div style="display:flex;align-items:center;gap:8px;margin:8px 0;padding:8px;background:var(--bu-surface);border-radius:6px">
+            <span style="flex:1"><strong>${m.item_name}</strong> (${m.quantity}u)</span>
+            <select class="bu-input bu-input-sm" id="award_item_${m.item_id}" style="width:200px">
+              <option value="">Selecione fornecedor...</option>
+              ${m.quotations.map(qo=>`<option value="${qo.supplier_id}|${qo.quotation_id}">${qo.supplier_name} — R$ ${(qo.total||0).toFixed(2)}</option>`).join('')}
+            </select>
+          </div>`).join('')}</div>
+        <button class="bu-btn bu-btn-primary" onclick="awardPerItem('${rfqId}')">🏆 Adjudicar por Item</button>
+      </div></div>`;
+  } catch(e) { document.getElementById('awardContent').innerHTML = `<p>Erro: ${e.message}</p>`; }
+}
+
+async function awardSingle(rfqId, supplierId, quotationId) {
+  if (!confirm('Confirmar adjudicação para este fornecedor?')) return;
+  const r = await apiFetch(`${API}/rfqs/${rfqId}/award/single`, {method:'POST', body:{ supplier_id:supplierId, quotation_id:quotationId }});
+  const awardId = r.data.id;
+  const pos = await apiFetch(`${API}/award/${awardId}/generate-pos`, {method:'POST', body:{ document_base:'PO' }});
+  alert(`✅ Adjudicado! ${pos.data.length} pedido(s) gerado(s).`);
+  switchTab('orders');
+}
+
+async function awardPerItem(rfqId) {
+  const selections = [];
+  document.querySelectorAll('[id^="award_item_"]').forEach(sel => {
+    if (!sel.value) return;
+    const [supplierId, quotationId] = sel.value.split('|');
+    selections.push({ item_id: sel.id.replace('award_item_',''), quotation_id: quotationId });
+  });
+  if (!selections.length) { alert('Selecione ao menos um item'); return; }
+  if (!confirm(`Adjudicar ${selections.length} item(ns)?`)) return;
+  const r = await apiFetch(`${API}/rfqs/${rfqId}/award/per-item`, {method:'POST', body:{ selections }});
+  const pos = await apiFetch(`${API}/award/${r.data.id}/generate-pos`, {method:'POST'});
+  alert(`✅ ${pos.data.length} pedido(s) gerado(s)!`);
+  switchTab('orders');
+}
+
+function prepareAward(rfqId, supplierId, quotationId, name) {
+  if (confirm(`Adjudicar para ${name}?`)) awardSingle(rfqId, supplierId, quotationId);
+}
+
+// ── Pedidos ──────────────────────────────────────────────
+
+async function renderOrders() {
+  try {
+    const r = await apiFetch(`${API}/orders`);
+    const orders = r.data || [];
+    document.getElementById('dataContainer').innerHTML = `
+      <table class="bu-table"><thead><tr><th>PO #</th><th>Fornecedor</th><th>Itens</th><th>Total</th><th>Status</th><th>Data</th></tr></thead>
+      <tbody>${orders.map(o=>`<tr><td><strong>${o.document_number||o.id}</strong></td><td>${o.supplier_name}</td><td>${o.items}</td><td>R$ ${(o.total||0).toFixed(2)}</td><td><span class="bu-badge ${badgeClass(o.status)}">${o.status}</span></td><td>${o.created_at?new Date(o.created_at).toLocaleDateString('pt-BR'):'—'}</td></tr>`).join('')||'<tr><td colspan="6">Nenhum pedido gerado</td></tr>'}</tbody></table>`;
+    document.getElementById('recordCount').textContent = `${orders.length} pedidos`;
+  } catch(e) { document.getElementById('dataContainer').innerHTML = `<p>Erro</p>`; }
+}
+
+// ── Portal ──────────────────────────────────────────────
+
+async function renderPortal() {
+  try {
+    const html = `
+      <div class="bu-card" style="margin-bottom:16px"><div class="bu-card-header"><h3>🚪 Portal do Fornecedor</h3></div><div class="bu-card-content">
+        <p>Simule o envio de uma cotação como fornecedor</p>
+        <div class="bu-form-row">
+          <div class="bu-field"><label>Fornecedor ID</label><input class="bu-input" id="portal_supplier_id" value="s-1"></div>
+          <div class="bu-field"><label>Nome</label><input class="bu-input" id="portal_supplier_name" value="Fornecedor Exemplo"></div>
+        </div>
+        <button class="bu-btn bu-btn-primary" onclick="loadPortalInvitations()">📨 Ver Convites</button>
+      </div></div>
+      <div id="portalContent"></div>`;
+    document.getElementById('dataContainer').innerHTML = html;
+  } catch(e) { document.getElementById('dataContainer').innerHTML = `<p>Erro</p>`; }
+}
+
+async function loadPortalInvitations() {
+  const sid = document.getElementById('portal_supplier_id').value;
+  try {
+    const r = await apiFetch(`${API}/portal/invitations/${sid}`);
+    const inv = r.data || [];
+    let html = `<div class="bu-card"><div class="bu-card-header"><h3>Convites Abertos</h3></div><div class="bu-card-content">`;
+    if (!inv.length) { html += `<p class="bu-text-muted">Nenhum convite pendente</p>`; }
+    else {
+      inv.forEach((i,idx) => {
+        html += `<div style="padding:12px;margin:8px 0;background:var(--bu-surface);border-radius:8px;border:1px solid var(--bu-border)">
+          <h4 style="margin:0 0 4px">${i.title}</h4>
+          <p style="font-size:13px;color:var(--bu-text-muted)">${i.description||''}</p>
+          <p style="font-size:13px">Itens: ${i.items.length} | Entrega: ${i.delivery_address||'—'}</p>
+          ${i.has_quoted?`<span class="bu-badge bu-badge-success">✅ Cotação enviada</span>`
+          :`<button class="bu-btn bu-btn-sm bu-btn-primary" onclick="showQuoteForm('${i.rfq_id}','${sid}')">📄 Enviar Cotação</button>`}
+        </div>`;
+      });
+    }
+    html += `</div></div>`;
+    document.getElementById('portalContent').innerHTML = html;
+  } catch(e) { document.getElementById('portalContent').innerHTML = `<p>Erro: ${e.message}</p>`; }
+}
+
+function showQuoteForm(rfqId, supplierId) {
+  document.getElementById('formTitle').textContent = 'Enviar Cotação';
+  document.getElementById('formBody').innerHTML = `
+    <div class="bu-form-group">
+      <p><strong>RFQ:</strong> ${rfqId}</p>
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Preço Total</label><input class="bu-input" type="number" id="qt_total"></div>
+        <div class="bu-field"><label>Frete</label><input class="bu-input" type="number" id="qt_freight" value="0"></div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Prazo (dias)</label><input class="bu-input" type="number" id="qt_delivery" value="15"></div>
+        <div class="bu-field"><label>Pagamento</label><select class="bu-input" id="qt_payment"><option>boleto</option><option>pix</option><option>transfer</option></select></div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-field"><label>Parcelas</label><input class="bu-input" type="number" id="qt_installments" value="1"></div>
+        <div class="bu-field"><label>Garantia</label><input class="bu-input" id="qt_warranty" placeholder="12 meses"></div>
+      </div>
+      <div class="bu-field"><label>Observações</label><textarea class="bu-input" id="qt_notes" rows="2"></textarea></div>
+      <input type="hidden" id="qt_rfq_id" value="${rfqId}">
+      <input type="hidden" id="qt_supplier_id" value="${supplierId}">
+      <input type="hidden" id="qt_supplier_name" value="${document.getElementById('portal_supplier_name').value}">
+    </div>`;
+  document.getElementById('itemForm').classList.add('open');
+  window._quoteSave = async function() {
+    await apiFetch(`${API}/portal/quotations`, {method:'POST', body:{
+      rfq_id: document.getElementById('qt_rfq_id').value,
+      supplier_id: document.getElementById('qt_supplier_id').value,
+      supplier_name: document.getElementById('qt_supplier_name').value,
+      items: [{item_id:'i-1', quantity:1, unit_price: parseFloat(document.getElementById('qt_total').value)||0}],
+      freight: parseFloat(document.getElementById('qt_freight').value)||0,
+      delivery_estimate_days: parseInt(document.getElementById('qt_delivery').value)||15,
+      payment_method: document.getElementById('qt_payment').value,
+      installments: parseInt(document.getElementById('qt_installments').value)||1,
+      warranty_description: document.getElementById('qt_warranty').value,
+      notes: document.getElementById('qt_notes').value,
+    }});
+    closeForm();
+    loadPortalInvitations();
+  };
+}
+
+function saveItem() {
+  if (typeof window._quoteSave === 'function') { window._quoteSave(); return; }
+  if (currentTab==='rfqs') saveRfq();
+}
+
+// ── Loader ──────────────────────────────────────────────
+
+function loadContent() {
+  const q = document.getElementById('searchInput')?.value;
+  if (currentTab === 'dashboard') renderDashboard();
+  else if (currentTab === 'rfqs') renderRfqs();
+  else if (currentTab === 'comparison') renderComparison();
+  else if (currentTab === 'awards') renderAwards();
+  else if (currentTab === 'orders') renderOrders();
+  else if (currentTab === 'portal') renderPortal();
+}
+
+switchTab('dashboard');
+</script>
+</body>
+</html>

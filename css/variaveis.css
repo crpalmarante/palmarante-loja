@@ -1,0 +1,396 @@
+/*=========================================================
+    FiscalBrasil UI
+    Version : 1.0
+    File    : variaveis.css
+    Todos os Design Tokens do FiscalUI Framework.
+    Nenhum componente deve usar valores fixos.
+=========================================================*/
+
+:root{
+
+/*=========================================================
+  COLORS — PRIMARY
+=========================================================*/
+
+--color-primary:#14b8a6;
+
+--color-primary-hover:#0d9488;
+
+--color-primary-active:#0f766e;
+
+/*=========================================================
+  COLORS — SECONDARY
+=========================================================*/
+
+--color-secondary:#3B82F6;
+
+--color-secondary-hover:#2563EB;
+
+--color-secondary-active:#1D4ED8;
+
+/*=========================================================
+  COLORS — SURFACES
+=========================================================*/
+
+--surface-bg:transparent;
+
+--surface-glass:rgba(255,255,255,.12);
+
+--surface-glass-hover:rgba(255,255,255,.18);
+
+--surface-overlay:rgba(0,0,0,.5);
+
+--surface-container:rgba(255,255,255,.08);
+
+--surface-panel:rgba(255,255,255,.06);
+
+/*=========================================================
+  COLORS — TEXT
+=========================================================*/
+
+--text-primary:#FFFFFF;
+
+--text-secondary:#DDDDDD;
+
+--text-muted:rgba(255,255,255,.5);
+
+--text-disabled:rgba(255,255,255,.25);
+
+--text-inverse:#1a202c;
+
+/*=========================================================
+  COLORS — BORDER
+=========================================================*/
+
+--border-color:rgba(255,255,255,.18);
+
+--border-hover:rgba(255,255,255,.3);
+
+--border-focus:var(--color-primary);
+
+--border-active:var(--color-primary);
+
+/*=========================================================
+  COLORS — SEMANTIC
+=========================================================*/
+
+--color-success:#22C55E;
+
+--color-success-hover:#16A34A;
+
+--color-warning:#F59E0B;
+
+--color-warning-hover:#D97706;
+
+--color-danger:#EF4444;
+
+--color-danger-hover:#DC2626;
+
+--color-info:#06B6D4;
+
+--color-info-hover:#0891B2;
+
+/*=========================================================
+  GLASS
+=========================================================*/
+
+--glass-bg:var(--surface-glass);
+
+--glass-blur:blur(25px);
+
+--glass-border:var(--border-color);
+
+--glass-shadow:0 25px 60px rgba(0,0,0,.4);
+
+--glass-highlight:inset 0 1px 0 rgba(255,255,255,.08);
+
+/*=========================================================
+  BACKGROUND GRADIENT
+=========================================================*/
+
+--bg-gradient:
+
+    linear-gradient(
+        135deg,
+        #06101f,
+        #101b35,
+        #151044
+    );
+
+--body-background:var(--bg-gradient);
+
+/*=========================================================
+  TYPOGRAPHY — FAMILY
+=========================================================*/
+
+--font-family:"Inter","Segoe UI",Arial,sans-serif;
+
+--font-mono:"Cascadia Code","Fira Code","Consolas",monospace;
+
+/*=========================================================
+  TYPOGRAPHY — SCALE
+=========================================================*/
+
+--font-display:2.5rem;
+
+--font-h1:2rem;
+
+--font-h2:1.5rem;
+
+--font-h3:1.25rem;
+
+--font-h4:1.125rem;
+
+--font-body:1rem;
+
+--font-small:.875rem;
+
+--font-caption:.75rem;
+
+/*=========================================================
+  TYPOGRAPHY — WEIGHT
+=========================================================*/
+
+--font-light:300;
+
+--font-regular:400;
+
+--font-medium:500;
+
+--font-semibold:600;
+
+--font-bold:700;
+
+/*=========================================================
+  SPACING SCALE — PADRÃO
+=========================================================*/
+
+--spacing-0:0;
+
+--spacing-1:2px;
+
+--spacing-2:4px;
+
+--spacing-3:8px;
+
+--spacing-4:12px;
+
+--spacing-5:16px;
+
+--spacing-6:24px;
+
+--spacing-7:32px;
+
+--spacing-8:40px;
+
+--spacing-9:48px;
+
+--spacing-10:64px;
+
+--spacing-11:80px;
+
+--spacing-12:96px;
+
+/*=========================================================
+  SPACING — ALIASES LEGADO (compatibilidade)
+=========================================================*/
+
+--space-0:var(--spacing-0);
+
+--space-1:var(--spacing-2);
+
+--space-2:var(--spacing-3);
+
+--space-3:var(--spacing-4);
+
+--space-4:var(--spacing-5);
+
+--space-5:20px;
+
+--space-6:var(--spacing-6);
+
+--space-8:var(--spacing-7);
+
+--space-10:var(--spacing-8);
+
+--space-12:var(--spacing-9);
+
+/*=========================================================
+  BORDER RADIUS
+=========================================================*/
+
+--radius-none:0;
+
+--radius-sm:6px;
+
+--radius-md:8px;
+
+--radius-lg:12px;
+
+--radius-xl:20px;
+
+--radius-2xl:25px;
+
+--radius-rounded:35px;
+
+--radius-pill:9999px;
+
+/*=========================================================
+  BORDER RADIUS — ALIASES LEGADO
+=========================================================*/
+
+--radius-sm:var(--radius-md);
+
+--radius-btn:var(--radius-lg);
+
+--radius-card:var(--radius-xl);
+
+--radius-panel:var(--radius-2xl);
+
+--radius-topbar:var(--radius-rounded);
+
+/*=========================================================
+  BORDER WIDTH
+=========================================================*/
+
+--border-none:0;
+
+--border-thin:1px;
+
+--border-medium:2px;
+
+--border-thick:3px;
+
+/*=========================================================
+  SHADOWS
+=========================================================*/
+
+--shadow-xs:0 1px 2px rgba(0,0,0,.05);
+
+--shadow-sm:0 2px 4px rgba(0,0,0,.08);
+
+--shadow-md:0 4px 12px rgba(0,0,0,.10);
+
+--shadow-lg:0 8px 24px rgba(0,0,0,.12);
+
+--shadow-xl:0 16px 48px rgba(0,0,0,.2);
+
+--shadow-glass:0 25px 60px rgba(0,0,0,.4);
+
+/*=========================================================
+  OPACITY
+=========================================================*/
+
+--opacity-100:1;
+
+--opacity-90:.9;
+
+--opacity-80:.8;
+
+--opacity-60:.6;
+
+--opacity-40:.4;
+
+--opacity-20:.2;
+
+--opacity-10:.1;
+
+--opacity-0:0;
+
+/*=========================================================
+  MOTION — DURATION
+=========================================================*/
+
+--motion-fast:100ms;
+
+--motion-normal:200ms;
+
+--motion-slow:300ms;
+
+--motion-slower:500ms;
+
+/*=========================================================
+  MOTION — EASING
+=========================================================*/
+
+--ease: cubic-bezier(.25,.1,.25,1);
+
+--ease-in: cubic-bezier(.4,0,1,1);
+
+--ease-out: cubic-bezier(0,0,.2,1);
+
+--ease-in-out: cubic-bezier(.4,0,.2,1);
+
+/*=========================================================
+  TRANSITIONS (legado)
+=========================================================*/
+
+--transition-fast:var(--motion-normal) var(--ease-out);
+
+--transition-normal:var(--motion-slow) var(--ease-in-out);
+
+--transition-slow:var(--motion-slower) var(--ease-in-out);
+
+/*=========================================================
+  Z-INDEX LAYERS
+=========================================================*/
+
+--z-base:1;
+
+--z-dropdown:1000;
+
+--z-sidebar:1100;
+
+--z-header:1200;
+
+--z-modal:5000;
+
+--z-dialog:5100;
+
+--z-notification:6000;
+
+--z-tooltip:7000;
+
+--z-loader:8000;
+
+--z-fullscreen:9000;
+
+/*=========================================================
+  GRID
+=========================================================*/
+
+--grid-columns:12;
+
+--grid-gutter:var(--spacing-5);
+
+--bp-xl:1600px;
+
+--bp-desktop:1280px;
+
+--bp-notebook:1024px;
+
+--bp-tablet:768px;
+
+--container-max:1200px;
+
+--container-compact:480px;
+
+/*=========================================================
+  LAYOUT (legado)
+=========================================================*/
+
+--app-padding:16px;
+
+--topbar-height:65px;
+
+--topbar-gap:30px;
+
+--topbar-padding:0 25px;
+
+--workspace-gap:25px;
+
+--workspace-margin:25px;
+
+--table-cell-padding:15px;
+
+}

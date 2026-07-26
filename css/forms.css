@@ -1,0 +1,534 @@
+/*=========================================================
+    FiscalBrasil UI
+    File    : forms.css
+    Form System — Input, Select, Textarea, Checkbox,
+    Switch, estados, validação, layout.
+=========================================================*/
+
+/*=========================================================
+  FORM CONTAINER
+=========================================================*/
+
+.form-container{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:1.5rem;
+
+}
+
+/*=========================================================
+  SECTION
+=========================================================*/
+
+.form-section{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:1rem;
+
+}
+
+.form-section-title{
+
+    font-size:.875rem;
+
+    font-weight:600;
+
+    color:var(--text-muted,rgba(255,255,255,.45));
+
+    text-transform:uppercase;
+
+    letter-spacing:.05em;
+
+    padding-bottom:.5rem;
+
+    border-bottom:1px solid var(--border-color,rgba(255,255,255,.08));
+
+}
+
+/*=========================================================
+  FIELD GROUP (grid row)
+=========================================================*/
+
+.form-row{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+
+    gap:.75rem 1rem;
+
+}
+
+/*=========================================================
+  FIELD
+=========================================================*/
+
+.form-field{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:.25rem;
+
+}
+
+.form-label{
+
+    font-size:.8125rem;
+
+    font-weight:500;
+
+    color:var(--text-primary,#fff);
+
+}
+
+.form-label .required{
+
+    color:var(--color-danger,#dc2626);
+
+    margin-left:.125rem;
+
+}
+
+.form-help{
+
+    font-size:.75rem;
+
+    color:var(--text-muted,rgba(255,255,255,.45));
+
+    margin-top:.125rem;
+
+}
+
+.form-error{
+
+    font-size:.75rem;
+
+    color:var(--color-danger,#dc2626);
+
+    margin-top:.125rem;
+
+    display:none;
+
+}
+
+.form-field.has-error .form-error{display:block}
+
+.form-field.has-error .form-input{border-color:var(--color-danger,#dc2626)}
+
+.form-field.has-success .form-input{border-color:var(--color-success,#16a34a)}
+
+.form-field.has-warning .form-input{border-color:var(--color-warning,#d97706)}
+
+/*=========================================================
+  INPUT BASE
+=========================================================*/
+
+.form-input{
+
+    width:100%;
+
+    padding:.5rem .75rem;
+
+    font-size:.875rem;
+
+    font-family:inherit;
+
+    color:var(--text-primary,#fff);
+
+    background:rgba(255,255,255,.06);
+
+    border:1px solid var(--border-color,rgba(255,255,255,.12));
+
+    border-radius:.375rem;
+
+    outline:none;
+
+    transition:
+
+        border-color var(--motion-fast,150ms) ease,
+
+        box-shadow var(--motion-fast,150ms) ease,
+
+        background var(--motion-fast,150ms) ease;
+
+}
+
+.form-input:hover{
+
+    border-color:var(--border-hover,rgba(255,255,255,.2));
+
+}
+
+.form-input:focus{
+
+    border-color:var(--color-primary,#14b8a6);
+
+    box-shadow:0 0 0 3px rgba(20,184,166,.15);
+
+    background:rgba(255,255,255,.08);
+
+}
+
+.form-input::placeholder{
+
+    color:var(--text-muted,rgba(255,255,255,.3));
+
+}
+
+.form-input:disabled{
+
+    opacity:.5;
+
+    cursor:not-allowed;
+
+    background:rgba(255,255,255,.03);
+
+}
+
+.form-input[readonly]{
+
+    background:rgba(255,255,255,.03);
+
+    color:var(--text-secondary,rgba(255,255,255,.6));
+
+    cursor:default;
+
+}
+
+/*=========================================================
+  TEXTAREA
+=========================================================*/
+
+textarea.form-input{
+
+    min-height:80px;
+
+    resize:vertical;
+
+    line-height:1.5;
+
+}
+
+/*=========================================================
+  SELECT
+=========================================================*/
+
+select.form-input{
+
+    appearance:none;
+
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+
+    background-repeat:no-repeat;
+
+    background-position:right .5rem center;
+
+    padding-right:2rem;
+
+    cursor:pointer;
+
+}
+
+select.form-input option{
+
+    background:#1a1f2e;
+
+    color:#fff;
+
+}
+
+/*=========================================================
+  CHECKBOX
+=========================================================*/
+
+.form-checkbox{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.5rem;
+
+    cursor:pointer;
+
+    font-size:.875rem;
+
+    color:var(--text-primary,#fff);
+
+}
+
+.form-checkbox input[type="checkbox"]{
+
+    width:1rem;
+
+    height:1rem;
+
+    accent-color:var(--color-primary,#14b8a6);
+
+    cursor:pointer;
+
+    flex-shrink:0;
+
+}
+
+/*=========================================================
+  RADIO
+=========================================================*/
+
+.form-radio{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.5rem;
+
+    cursor:pointer;
+
+    font-size:.875rem;
+
+    color:var(--text-primary,#fff);
+
+}
+
+.form-radio input[type="radio"]{
+
+    width:1rem;
+
+    height:1rem;
+
+    accent-color:var(--color-primary,#14b8a6);
+
+    cursor:pointer;
+
+    flex-shrink:0;
+
+}
+
+/*=========================================================
+  SWITCH
+=========================================================*/
+
+.form-switch{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.5rem;
+
+    cursor:pointer;
+
+    font-size:.875rem;
+
+    color:var(--text-primary,#fff);
+
+}
+
+.form-switch input[type="checkbox"]{
+
+    position:relative;
+
+    width:2.25rem;
+
+    height:1.25rem;
+
+    appearance:none;
+
+    background:rgba(255,255,255,.15);
+
+    border-radius:1rem;
+
+    cursor:pointer;
+
+    flex-shrink:0;
+
+    transition:background var(--motion-fast,150ms) ease;
+
+}
+
+.form-switch input[type="checkbox"]::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:.125rem;
+
+    left:.125rem;
+
+    width:1rem;
+
+    height:1rem;
+
+    background:#fff;
+
+    border-radius:50%;
+
+    transition:transform var(--motion-fast,150ms) ease;
+
+}
+
+.form-switch input[type="checkbox"]:checked{
+
+    background:var(--color-primary,#14b8a6);
+
+}
+
+.form-switch input[type="checkbox"]:checked::before{
+
+    transform:translateX(1rem);
+
+}
+
+/*=========================================================
+  INPUT GROUP (icon + input)
+=========================================================*/
+
+.form-input-group{
+
+    position:relative;
+
+    display:flex;
+
+    align-items:center;
+
+}
+
+.form-input-group .form-input{
+
+    padding-left:2.25rem;
+
+}
+
+.form-input-group .input-icon{
+
+    position:absolute;
+
+    left:.625rem;
+
+    width:1rem;
+
+    height:1rem;
+
+    color:var(--text-muted,rgba(255,255,255,.3));
+
+    pointer-events:none;
+
+}
+
+/*=========================================================
+  INLINE FIELDS (same row, small gap)
+=========================================================*/
+
+.form-inline{
+
+    display:flex;
+
+    gap:.5rem;
+
+    align-items:flex-start;
+
+}
+
+.form-inline .form-field{
+
+    flex:1;
+
+}
+
+.form-inline .form-field.shrink{
+
+    flex:0 0 auto;
+
+}
+
+/*=========================================================
+  FORM ACTIONS (toolbar)
+=========================================================*/
+
+.form-actions{
+
+    display:flex;
+
+    gap:.5rem;
+
+    padding-top:1rem;
+
+    border-top:1px solid var(--border-color,rgba(255,255,255,.08));
+
+}
+
+.form-actions .btn{
+
+    min-width:100px;
+
+}
+
+/*=========================================================
+  DISABLED FIELD SET
+=========================================================*/
+
+fieldset:disabled .form-input,
+
+fieldset:disabled .form-label,
+
+fieldset:disabled .form-checkbox,
+
+fieldset:disabled .form-switch{
+
+    opacity:.5;
+
+    cursor:not-allowed;
+
+}
+
+/*=========================================================
+  RESPONSIVE
+=========================================================*/
+
+@media(max-width:767px){
+
+    .form-row{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .form-inline{
+
+        flex-direction:column;
+
+    }
+
+    .form-actions{
+
+        flex-direction:column;
+
+    }
+
+    .form-actions .btn{
+
+        width:100%;
+
+    }
+
+}
+
+@media(min-width:768px)and(max-width:1023px){
+
+    .form-row{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}

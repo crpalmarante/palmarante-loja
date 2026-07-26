@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>FiscalBrasil ERP — Login</title>
+
+<link rel="stylesheet" href="css/variaveis.css">
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/login.css">
+
+</head>
+
+<body>
+
+<div class="login-page">
+
+    <div class="login-card" id="login-card">
+
+        <div class="login-inner">
+
+            <div class="login-header">
+
+                <span class="brand-icon">◈</span>
+
+                <h1>FiscalBrasil</h1>
+
+                <p id="login-subtitle">Faça login para continuar</p>
+
+            </div>
+
+            <div class="forms-wrapper">
+
+                    <div class="form-panel sign-in-form">
+
+                        <form class="form" id="signin-form" autocomplete="off">
+
+                            <div class="field">
+
+                                <label for="login-user">Usuário</label>
+
+                                <input
+                                    type="text"
+                                    id="login-user"
+                                    placeholder="Seu usuário"
+                                    required
+                                    autocomplete="username">
+
+                            </div>
+
+                            <div class="field">
+
+                                <label for="login-pass">Senha</label>
+
+                                <input
+                                    type="password"
+                                    id="login-pass"
+                                    placeholder="Sua senha"
+                                    required
+                                    autocomplete="current-password">
+
+                            </div>
+
+                            <div class="form-error" id="login-error"></div>
+
+                            <button type="submit" class="form-btn" id="login-btn">
+
+                                Entrar
+
+                            </button>
+
+                            <div class="form-loading" id="login-loading">
+
+                                <div class="spinner"></div>
+
+                                <span>Autenticando...</span>
+
+                            </div>
+
+                        </form>
+
+                        <div class="form-toggle">
+
+                            <span>Não tem conta?</span>
+
+                            <a class="toggle-btn">Cadastre-se</a>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-panel sign-up-form">
+
+                        <form class="form" id="signup-form" autocomplete="off">
+
+                            <div class="field">
+
+                                <label for="reg-name">Nome completo</label>
+
+                                <input
+                                    type="text"
+                                    id="reg-name"
+                                    placeholder="Seu nome"
+                                    required
+                                    autocomplete="name">
+
+                            </div>
+
+                            <div class="field">
+
+                                <label for="reg-user">Usuário</label>
+
+                                <input
+                                    type="text"
+                                    id="reg-user"
+                                    placeholder="Crie um usuário"
+                                    required
+                                    autocomplete="username">
+
+                            </div>
+
+                            <div class="field">
+
+                                <label for="reg-pass">Senha</label>
+
+                                <input
+                                    type="password"
+                                    id="reg-pass"
+                                    placeholder="Crie uma senha"
+                                    required
+                                    autocomplete="new-password">
+
+                            </div>
+
+                            <div class="field">
+
+                                <label for="reg-email">E-mail</label>
+
+                                <input
+                                    type="email"
+                                    id="reg-email"
+                                    placeholder="seu@email.com"
+                                    required
+                                    autocomplete="email">
+
+                            </div>
+
+                            <div class="form-error" id="reg-error"></div>
+
+                            <button type="submit" class="form-btn" id="reg-btn">
+
+                                Criar Conta
+
+                            </button>
+
+                            <div class="form-loading" id="reg-loading">
+
+                                <div class="spinner"></div>
+
+                                <span>Criando conta...</span>
+
+                            </div>
+
+                        </form>
+
+                        <div class="form-toggle">
+
+                            <span>Já tem conta?</span>
+
+                            <a class="toggle-btn">Fazer login</a>
+
+                        </div>
+
+                    </div>
+
+            </div>
+
+        </div>
+
+        <div class="login-footer">
+
+            FiscalBrasil ERP v1.0.0
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="js/login.js"></script>
+
+</body>
+
+</html>

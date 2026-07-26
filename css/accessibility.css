@@ -1,0 +1,262 @@
+/*=========================================================
+    FiscalBrasil UI
+    File    : accessibility.css
+    Accessibility Framework — foco, skip-link, sr-only,
+    reduced motion, contraste.
+=========================================================*/
+
+/*=========================================================
+  SKIP LINK
+=========================================================*/
+
+.skip-link{
+
+    position:absolute;
+
+    top:-100%;
+
+    left:1rem;
+
+    z-index:99999;
+
+    padding:.5rem 1rem;
+
+    background:var(--color-primary,#14b8a6);
+
+    color:#fff;
+
+    font-size:.875rem;
+
+    font-weight:600;
+
+    border-radius:0 0 .375rem .375rem;
+
+    text-decoration:none;
+
+    transition:top .2s ease;
+
+}
+
+.skip-link:focus{
+
+    top:0;
+
+    outline:2px solid var(--color-primary,#14b8a6);
+
+    outline-offset:2px;
+
+}
+
+/*=========================================================
+  FOCUS INDICATOR
+=========================================================*/
+
+:focus-visible{
+
+    outline:2px solid var(--color-primary,#14b8a6);
+
+    outline-offset:2px;
+
+    border-radius:2px;
+
+}
+
+button:focus-visible:not(:focus-visible){
+
+    outline:none;
+
+}
+
+/* Never remove focus without replacement */
+
+:focus:not(:focus-visible){
+
+    outline:none;
+
+}
+
+/*=========================================================
+  SCREEN READER ONLY
+=========================================================*/
+
+.sr-only{
+
+    position:absolute;
+
+    width:1px;
+
+    height:1px;
+
+    padding:0;
+
+    margin:-1px;
+
+    overflow:hidden;
+
+    clip:rect(0,0,0,0);
+
+    white-space:nowrap;
+
+    border:0;
+
+}
+
+.sr-only-focusable:focus,
+
+.sr-only-focusable:focus-within{
+
+    position:static;
+
+    width:auto;
+
+    height:auto;
+
+    overflow:visible;
+
+    clip:auto;
+
+    white-space:normal;
+
+}
+
+/*=========================================================
+  LIVE REGION (aria-live)
+=========================================================*/
+
+.live-region{
+
+    position:fixed;
+
+    top:-100vh;
+
+    left:-100vw;
+
+}
+
+/*=========================================================
+  REDUCED MOTION
+=========================================================*/
+
+.reduced-motion *,
+
+.reduced-motion *::before,
+
+.reduced-motion *::after{
+
+    animation-duration:0.01ms !important;
+
+    animation-iteration-count:1 !important;
+
+    transition-duration:0.01ms !important;
+
+}
+
+@media(prefers-reduced-motion:reduce){
+
+    *,
+
+    *::before,
+
+    *::after{
+
+        animation-duration:0.01ms !important;
+
+        animation-iteration-count:1 !important;
+
+        transition-duration:0.01ms !important;
+
+    }
+
+}
+
+/*=========================================================
+  HIGH CONTRAST MODE (OS-level)
+=========================================================*/
+
+@media(forced-colors:active){
+
+    .glass-panel,
+
+    .topbar,
+
+    #sidebar{
+
+        border:2px solid CanvasText !important;
+
+        background:Canvas !important;
+
+        backdrop-filter:none !important;
+
+    }
+
+    button,
+
+    .toolbar-btn,
+
+    .menu-item{
+
+        border:1px solid ButtonText !important;
+
+    }
+
+    .menu-item.active{
+
+        border:2px solid Highlight !important;
+
+    }
+
+}
+
+/*=========================================================
+  FOCUS TRAP INDICATOR (modals)
+=========================================================*/
+
+.modal-overlay[aria-modal="true"]{
+
+    outline:none;
+
+}
+
+/*=========================================================
+  TABLES — scope attributes
+=========================================================*/
+
+th[scope="col"],
+
+th[scope="row"]{
+
+    /* structural only, no visual change needed */
+
+}
+
+/*=========================================================
+  FORM FIELDS — required indicator
+=========================================================*/
+
+[required] + .field-required::after{
+
+    content:"*";
+
+    color:var(--color-danger,#dc2626);
+
+    margin-left:.25rem;
+
+}
+
+/*=========================================================
+  PRINT — hide non-essential
+=========================================================*/
+
+@media print{
+
+    .skip-link,
+
+    .live-region,
+
+    .sr-only{
+
+        display:none !important;
+
+    }
+
+}

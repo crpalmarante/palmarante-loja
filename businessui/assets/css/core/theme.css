@@ -1,0 +1,300 @@
+/* ══════════════════════════════════════════════════════════════
+   BusinessUI — Design Tokens
+   v1.0.0
+   ─────────────────────────────────────────────────────────────
+   Único arquivo de tokens do Framework.
+   Nenhum componente usa valores literais — sempre consomem
+   variáveis CSS definidas aqui.
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Cores Primárias ──────────────────────────────────── */
+  --bu-primary:         #1a73e8;
+  --bu-primary-hover:   #1557b0;
+  --bu-primary-active:  #0d47a1;
+  --bu-primary-bg:      #e8f0fe;
+  --bu-primary-text:    #ffffff;
+
+  /* ── Cores Secundárias ────────────────────────────────── */
+  --bu-secondary:       #5f6368;
+  --bu-secondary-hover: #3c4043;
+  --bu-secondary-bg:    #f1f3f4;
+  --bu-secondary-text:  #ffffff;
+
+  /* ── Cores Semânticas ─────────────────────────────────── */
+  /* Success */
+  --bu-success:         #1e8e3e;
+  --bu-success-hover:   #137333;
+  --bu-success-bg:      #e6f4ea;
+  --bu-success-text:    #ffffff;
+
+  /* Warning */
+  --bu-warning:         #f9ab00;
+  --bu-warning-hover:   #e37400;
+  --bu-warning-bg:      #fef7e0;
+  --bu-warning-text:    #ffffff;
+
+  /* Danger */
+  --bu-danger:          #d93025;
+  --bu-danger-hover:    #b3261e;
+  --bu-danger-bg:       #fce8e6;
+  --bu-danger-text:     #ffffff;
+
+  /* Info */
+  --bu-info:            #1a73e8;
+  --bu-info-bg:         #e8f0fe;
+  --bu-info-text:       #ffffff;
+
+  /* Neutral */
+  --bu-neutral:         #5f6368;
+  --bu-neutral-bg:      #f1f3f4;
+  --bu-neutral-text:    #ffffff;
+
+  /* ── Cores de Superfície ──────────────────────────────── */
+  --bu-bg:              #f8f9fa;
+  --bu-surface:         #ffffff;
+  --bu-surface-hover:   #f1f3f4;
+  --bu-surface-active:  #e8eaed;
+  --bu-surface-inverse: #202124;
+
+  /* ── Cores de Texto ───────────────────────────────────── */
+  --bu-text:            #202124;
+  --bu-text-secondary:  #5f6368;
+  --bu-text-muted:      #9aa0a6;
+  --bu-text-disabled:   #c4c7c5;
+  --bu-text-inverse:    #ffffff;
+  --bu-text-link:       #1a73e8;
+
+  /* ── Cores de Borda ───────────────────────────────────── */
+  --bu-border:          #dadce0;
+  --bu-border-light:    #e8eaed;
+  --bu-border-input:    #dadce0;
+  --bu-border-focus:    #1a73e8;
+
+  /* ── Efeito Glass (Vidro) ─────────────────────────────── */
+  --bu-glass-bg:        rgba(255, 255, 255, 0.85);
+  --bu-glass-border:    rgba(255, 255, 255, 0.30);
+  --bu-glass-blur:      12px;
+  --bu-glass-shadow:    0 2px 8px rgba(0, 0, 0, 0.08);
+
+  /* ── Sombras ──────────────────────────────────────────── */
+  --bu-shadow-xs:       0 1px 2px rgba(0, 0, 0, 0.04);
+  --bu-shadow-sm:       0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.10);
+  --bu-shadow:          0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --bu-shadow-md:       0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --bu-shadow-lg:       0 10px 15px rgba(0, 0, 0, 0.10), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --bu-shadow-xl:       0 20px 25px rgba(0, 0, 0, 0.10), 0 10px 10px rgba(0, 0, 0, 0.04);
+  --bu-shadow-2xl:      0 25px 50px rgba(0, 0, 0, 0.15);
+  --bu-shadow-inner:    inset 0 1px 2px rgba(0, 0, 0, 0.06);
+  --bu-shadow-outline:  0 0 0 3px rgba(26, 115, 232, 0.15);
+
+  /* ── Tipografia ───────────────────────────────────────── */
+  /* Famílias */
+  --bu-font-sans:       -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --bu-font-mono:       'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, 'Courier New', monospace;
+
+  /* Escala */
+  --bu-font-xs:         11px;
+  --bu-font-sm:         13px;
+  --bu-font-base:       14px;
+  --bu-font-md:         14px;
+  --bu-font-lg:         16px;
+  --bu-font-xl:         20px;
+  --bu-font-2xl:        24px;
+  --bu-font-3xl:        30px;
+  --bu-font-4xl:        38px;
+
+  /* Pesos */
+  --bu-font-light:      300;
+  --bu-font-normal:     400;
+  --bu-font-medium:     500;
+  --bu-font-semibold:   600;
+  --bu-font-bold:       700;
+  --bu-font-extrabold:  800;
+
+  /* Altura de linha */
+  --bu-leading-none:    1;
+  --bu-leading-tight:   1.25;
+  --bu-leading:         1.5;
+  --bu-leading-relaxed: 1.75;
+
+  /* Tracking (espaçamento entre letras) */
+  --bu-tracking-tight:  -0.02em;
+  --bu-tracking-normal: 0;
+  --bu-tracking-wide:   0.03em;
+  --bu-tracking-upper:  0.05em;
+
+  /* ── Espaçamentos ─────────────────────────────────────── */
+  --bu-space-0:          0;
+  --bu-space-1:          2px;
+  --bu-space-2:          4px;
+  --bu-space-3:          8px;
+  --bu-space-4:          12px;
+  --bu-space-5:          16px;
+  --bu-space-6:          20px;
+  --bu-space-7:          24px;
+  --bu-space-8:          32px;
+  --bu-space-9:          40px;
+  --bu-space-10:         48px;
+  --bu-space-11:         56px;
+  --bu-space-12:         64px;
+  --bu-space-13:         80px;
+  --bu-space-14:         96px;
+
+  /* Atalhos semânticos */
+  --bu-space-xs:         var(--bu-space-2);
+  --bu-space-sm:         var(--bu-space-3);
+  --bu-space-md:         var(--bu-space-4);
+  --bu-space-lg:         var(--bu-space-5);
+  --bu-space-xl:         var(--bu-space-7);
+  --bu-space-2xl:        var(--bu-space-8);
+  --bu-space-3xl:        var(--bu-space-10);
+
+  /* ── Bordas (Radius) ──────────────────────────────────── */
+  --bu-radius-sm:        4px;
+  --bu-radius:           6px;
+  --bu-radius-md:        8px;
+  --bu-radius-lg:        12px;
+  --bu-radius-xl:        16px;
+  --bu-radius-2xl:       20px;
+  --bu-radius-full:      9999px;
+
+  /* ── Bordas (Width) ───────────────────────────────────── */
+  --bu-border-none:      0;
+  --bu-border-thin:      1px;
+  --bu-border-medium:    2px;
+  --bu-border-thick:     3px;
+
+  /* ── Animações ────────────────────────────────────────── */
+  /* Durações */
+  --bu-duration-instant: 50ms;
+  --bu-duration-fast:    100ms;
+  --bu-duration-normal:  150ms;
+  --bu-duration-smooth:  250ms;
+  --bu-duration-slow:    350ms;
+  --bu-duration-slower:  500ms;
+
+  /* Curvas de easing */
+  --bu-ease-linear:      linear;
+  --bu-ease-out:         cubic-bezier(0.16, 1, 0.30, 1);
+  --bu-ease-in:          cubic-bezier(0.40, 0, 0.68, 0.06);
+  --bu-ease-in-out:      cubic-bezier(0.40, 0, 0.20, 1);
+  --bu-ease-spring:      cubic-bezier(0.34, 1.56, 0.64, 1);
+  --bu-ease-bounce:      cubic-bezier(0.68, -0.55, 0.27, 1.55);
+
+  /* Atalhos de transição */
+  --bu-transition:       var(--bu-duration-normal) var(--bu-ease-out);
+  --bu-transition-fast:  var(--bu-duration-fast) var(--bu-ease-out);
+  --bu-transition-slow:  var(--bu-duration-smooth) var(--bu-ease-out);
+  --bu-transition-spring: var(--bu-duration-slow) var(--bu-ease-spring);
+
+  /* Keyframes pré-definidos */
+  /* fadeIn: usado em modais, overlays, transições */
+  /* fadeOut: usado ao remover elementos */
+  /* slideUp: usado em toasts, notificações */
+  /* slideDown: usado em dropdowns, submenus */
+  /* scaleIn: usado em modais, diálogos */
+  /* spin: usado em loaders */
+  /* pulse: usado em indicadores de atividade */
+  /* shimmer: usado em skeleton loading */
+  /* skeletonWave: usado em placeholder de carregamento */
+
+  /* ── Transparências / Opacidade ───────────────────────── */
+  --bu-opacity-0:        0;
+  --bu-opacity-5:        0.05;
+  --bu-opacity-10:       0.10;
+  --bu-opacity-15:       0.15;
+  --bu-opacity-20:       0.20;
+  --bu-opacity-30:       0.30;
+  --bu-opacity-40:       0.40;
+  --bu-opacity-50:       0.50;
+  --bu-opacity-60:       0.60;
+  --bu-opacity-70:       0.70;
+  --bu-opacity-80:       0.80;
+  --bu-opacity-85:       0.85;
+  --bu-opacity-90:       0.90;
+  --bu-opacity-95:       0.95;
+  --bu-opacity-100:      1;
+
+  /* ── Dimensões de Componentes ─────────────────────────── */
+  --bu-input-height:     36px;
+  --bu-input-height-sm:  28px;
+  --bu-input-height-lg:  44px;
+  --bu-btn-height:       36px;
+  --bu-btn-height-sm:    28px;
+  --bu-btn-height-lg:    44px;
+  --bu-icon-size:        16px;
+  --bu-icon-size-sm:     14px;
+  --bu-icon-size-lg:     20px;
+  --bu-icon-size-xl:     24px;
+  --bu-topbar-height:    56px;
+  --bu-sidebar-width:    240px;
+  --bu-sidebar-collapsed: 64px;
+
+  /* ── Z-Index ──────────────────────────────────────────── */
+  --bu-z-dropdown:       100;
+  --bu-z-sticky:         200;
+  --bu-z-toast:          300;
+  --bu-z-overlay:        400;
+  --bu-z-modal:          500;
+  --bu-z-popover:        600;
+  --bu-z-tooltip:        700;
+  --bu-z-loading:        800;
+  --bu-z-fullscreen:     900;
+
+  /* ── Breakpoints (referência — usados em media queries) ─ */
+  /* --bu-bp-mobile:  576px;  */
+  /* --bu-bp-tablet:  768px;  */
+  /* --bu-bp-desktop: 1024px; */
+  /* --bu-bp-wide:    1440px; */
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Keyframes Globais
+   ══════════════════════════════════════════════════════════════ */
+
+@keyframes bu-fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes bu-fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes bu-slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bu-slideDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bu-scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes bu-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes bu-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
+@keyframes bu-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes bu-skeletonWave {
+  0%   { background-color: var(--bu-surface-hover); }
+  50%  { background-color: var(--bu-surface-active); }
+  100% { background-color: var(--bu-surface-hover); }
+}

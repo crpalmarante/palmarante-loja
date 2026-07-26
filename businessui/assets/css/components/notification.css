@@ -1,0 +1,145 @@
+/* ══════════════════════════════════════════════════════════════
+   BusinessUI — Notification Center Styles
+   v1.0.0
+   ══════════════════════════════════════════════════════════════ */
+
+.bu-notif-dropdown {
+  display: none;
+  position: fixed;
+  top: var(--bu-topbar-height);
+  right: var(--bu-space-9);
+  width: 380px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: var(--bu-surface);
+  border: var(--bu-border-thin) solid var(--bu-border);
+  border-radius: var(--bu-radius-md);
+  box-shadow: var(--bu-shadow-xl);
+  z-index: var(--bu-z-dropdown);
+  animation: bu-scaleIn var(--bu-duration-fast) var(--bu-ease-out);
+}
+.bu-notif-dropdown.open { display: block; }
+
+.bu-notif-dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--bu-space-4) var(--bu-space-6);
+  border-bottom: var(--bu-border-thin) solid var(--bu-border-light);
+  font-weight: var(--bu-font-semibold);
+  font-size: var(--bu-font-sm);
+  position: sticky;
+  top: 0;
+  background: var(--bu-surface);
+  z-index: 1;
+}
+
+.bu-notif-dropdown-footer {
+  padding: var(--bu-space-3) var(--bu-space-6);
+  border-top: var(--bu-border-thin) solid var(--bu-border-light);
+  text-align: center;
+  position: sticky;
+  bottom: 0;
+  background: var(--bu-surface);
+}
+
+.bu-notif-empty {
+  padding: var(--bu-space-7) var(--bu-space-6);
+  text-align: center;
+  color: var(--bu-text-muted);
+  font-size: var(--bu-font-sm);
+}
+
+.bu-notif-group-label {
+  padding: var(--bu-space-2) var(--bu-space-6) var(--bu-space-1);
+  font-size: var(--bu-font-xs);
+  font-weight: var(--bu-font-semibold);
+  color: var(--bu-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.bu-notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--bu-space-3);
+  padding: var(--bu-space-3) var(--bu-space-6);
+  cursor: pointer;
+  transition: background var(--bu-transition);
+}
+.bu-notif-item:hover { background: var(--bu-primary-bg); }
+.bu-notif-item-read { opacity: 0.6; }
+.bu-notif-item-alert { background: var(--bu-danger-bg); }
+.bu-notif-item-alert:hover { background: var(--bu-danger-bg); filter: brightness(0.97); }
+
+.bu-notif-item-icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--bu-font-base);
+}
+
+.bu-notif-item-content { flex: 1; min-width: 0; }
+.bu-notif-item-title {
+  font-size: var(--bu-font-sm);
+  font-weight: var(--bu-font-medium);
+  color: var(--bu-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bu-notif-item-meta {
+  font-size: var(--bu-font-xs);
+  color: var(--bu-text-muted);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bu-notif-item-time {
+  font-size: var(--bu-font-xs);
+  color: var(--bu-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.bu-notif-loading {
+  padding: var(--bu-space-7);
+  text-align: center;
+  color: var(--bu-text-muted);
+  font-size: var(--bu-font-sm);
+}
+
+.bu-notif-center-tabs .bu-notif-tab {
+  padding: var(--bu-space-3) var(--bu-space-5);
+  font-family: var(--bu-font-sans);
+  font-size: var(--bu-font-sm);
+  font-weight: var(--bu-font-medium);
+  color: var(--bu-text-secondary);
+  cursor: pointer;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  transition: color var(--bu-transition), border-color var(--bu-transition);
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+.bu-notif-center-tabs .bu-notif-tab:hover { color: var(--bu-text); }
+.bu-notif-center-tabs .bu-notif-tab.active {
+  color: var(--bu-primary);
+  border-bottom-color: var(--bu-primary);
+}
+
+.bu-notif-panel { display: none; }
+.bu-notif-panel.active { display: block; }
+.bu-notif-panel .bu-notif-item { padding: var(--bu-space-4) var(--bu-space-7); }
+
+.bu-notif-dialog .bu-dialog-body { padding: 0 !important; }
+
+.bu-notif-dropdown::-webkit-scrollbar,
+.bu-notif-panel::-webkit-scrollbar { width: 4px; }
+.bu-notif-dropdown::-webkit-scrollbar-thumb,
+.bu-notif-panel::-webkit-scrollbar-thumb { background: var(--bu-border); border-radius: var(--bu-radius-full); }

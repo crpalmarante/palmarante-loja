@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo — BusinessCore</title>
+<link rel="stylesheet" href="../../../businessui/assets/css/core/theme.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/layout/layout.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/navigation.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/components.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/form.css">
+<link rel="stylesheet" href="../../../businessui/assets/css/components/datagrid.css">
+</head>
+<body>
+
+<div class="bu-app">
+  <header class="bu-topbar">
+    <div class="bu-topbar-logo">Business<span>Core</span></div>
+    <div class="bu-topbar-search">
+      <span class="bu-topbar-search-icon">🔍</span>
+      <input class="bu-input" placeholder="Pesquisar...">
+    </div>
+    <nav class="bu-topbar-nav">
+      <button class="bu-topbar-btn">🔔</button>
+      <button class="bu-topbar-btn">⚙️</button>
+      <div class="bu-avatar bu-avatar-sm">AD</div>
+    </nav>
+  </header>
+
+  <div class="bu-body">
+    <aside class="bu-sidebar">
+      <div class="bu-sidebar-header">
+        <div class="bu-avatar">BC</div>
+        <div class="bu-sidebar-header-info">
+          <div class="bu-sidebar-header-name">BusinessCore</div>
+          <div class="bu-sidebar-header-role">Catálogo</div>
+        </div>
+      </div>
+      <div class="bu-sidebar-scroll">
+        <div class="bu-menu-group">
+          <div class="bu-menu-label">Catálogo</div>
+          <a class="bu-menu-item active" href="#" onclick="switchTab('categories')">
+            <span class="bu-menu-icon">📂</span>
+            <span class="bu-menu-text">Categorias</span>
+          </a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('brands')">
+            <span class="bu-menu-icon">🏷️</span>
+            <span class="bu-menu-text">Marcas</span>
+          </a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('manufacturers')">
+            <span class="bu-menu-icon">🏭</span>
+            <span class="bu-menu-text">Fabricantes</span>
+          </a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('units')">
+            <span class="bu-menu-icon">📐</span>
+            <span class="bu-menu-text">Unidades</span>
+          </a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('attributes')">
+            <span class="bu-menu-icon">⚙️</span>
+            <span class="bu-menu-text">Atributos</span>
+          </a>
+          <a class="bu-menu-item" href="#" onclick="switchTab('variants')">
+            <span class="bu-menu-icon">🧬</span>
+            <span class="bu-menu-text">Variantes</span>
+          </a>
+        </div>
+      </div>
+      <div class="bu-sidebar-footer">BusinessCore v1.0.0</div>
+    </aside>
+
+    <main class="bu-workspace">
+      <div class="bu-toolbar">
+        <div class="bu-toolbar-start">
+          <div class="bu-breadcrumb">
+            <a class="bu-breadcrumb-item" href="#">Home</a>
+            <span class="bu-breadcrumb-sep">/</span>
+            <span class="bu-breadcrumb-item active" id="pageTitle">Categorias</span>
+          </div>
+        </div>
+        <div class="bu-toolbar-end">
+          <div class="bu-toolbar-search">
+            <span class="bu-toolbar-search-icon">🔍</span>
+            <input class="bu-input bu-input-sm" id="searchInput" placeholder="Buscar..." oninput="searchTable()">
+          </div>
+          <div class="bu-toolbar-divider"></div>
+          <button class="bu-btn bu-btn-primary" id="btnNew" onclick="openCreate()">+ Novo</button>
+        </div>
+      </div>
+
+      <div class="bu-workspace-content">
+        <div id="dataContainer"></div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="bu-statusbar">
+    <div class="bu-statusbar-start">
+      <span><span class="bu-statusbar-dot online"></span> BusinessCore</span>
+      <span>v1.0.0</span>
+    </div>
+    <div class="bu-statusbar-end">
+      <span id="recordCount">0 registros</span>
+    </div>
+  </footer>
+</div>
+
+<div class="bu-dialog-backdrop" id="itemForm">
+  <div class="bu-dialog bu-dialog-md">
+    <div class="bu-dialog-header">
+      <h3 id="formTitle">Novo</h3>
+      <button class="bu-dialog-close" onclick="closeForm()">✕</button>
+    </div>
+    <div class="bu-dialog-body" id="formBody">
+    </div>
+    <div class="bu-dialog-footer">
+      <button class="bu-btn" onclick="closeForm()">Cancelar</button>
+      <button class="bu-btn bu-btn-primary" onclick="saveItem()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="bu-dialog-backdrop" id="valueForm">
+  <div class="bu-dialog bu-dialog-sm">
+    <div class="bu-dialog-header">
+      <h3 id="valueFormTitle">Novo Valor</h3>
+      <button class="bu-dialog-close" onclick="closeValueForm()">✕</button>
+    </div>
+    <div class="bu-dialog-body">
+      <div class="bu-form-field">
+        <label class="bu-form-label">Valor <span class="bu-form-required">*</span></label>
+        <input class="bu-input" id="vValue" placeholder="Ex: Azul">
+      </div>
+      <div class="bu-form-field">
+        <label class="bu-form-label">Código</label>
+        <input class="bu-input" id="vCode" placeholder="Ex: AZ">
+      </div>
+    </div>
+    <div class="bu-dialog-footer">
+      <button class="bu-btn" onclick="closeValueForm()">Cancelar</button>
+      <button class="bu-btn bu-btn-primary" onclick="saveAttributeValue()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script src="../../../businessui/assets/js/components/datagrid.js"></script>
+<script>
+const API = 'http://localhost:8003/api/catalog';
+let currentTab = 'categories';
+let editingId = '';
+let currentAttrId = '';
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.bu-menu-item').forEach(m => m.classList.remove('active'));
+  const map = { categories: 0, brands: 1, manufacturers: 2, units: 3, attributes: 4, variants: 5 };
+  document.querySelectorAll('.bu-menu-item')[map[tab]].classList.add('active');
+  document.getElementById('pageTitle').textContent = tab.charAt(0).toUpperCase() + tab.slice(1);
+  document.getElementById('btnNew').style.display = tab === 'variants' ? 'none' : '';
+  loadTable();
+}
+
+function searchTable() {
+  loadTable();
+}
+
+function openCreate() {
+  editingId = '';
+  const titles = {
+    categories: 'Nova Categoria', brands: 'Nova Marca', manufacturers: 'Novo Fabricante',
+    units: 'Nova Unidade', attributes: 'Novo Atributo', variants: 'Nova Variante'
+  };
+  document.getElementById('formTitle').textContent = titles[currentTab] || 'Novo';
+  document.getElementById('formBody').innerHTML = getFormHTML(currentTab);
+  document.getElementById('itemForm').classList.add('open');
+}
+
+function getFormHTML(tab) {
+  switch (tab) {
+    case 'categories':
+      return `<div class="bu-form-row">
+        <div class="bu-form-field">
+          <label class="bu-form-label">Nome <span class="bu-form-required">*</span></label>
+          <input class="bu-input" id="fName" placeholder="Nome da categoria">
+        </div>
+        <div class="bu-form-field">
+          <label class="bu-form-label">Código</label>
+          <input class="bu-input" id="fCode" placeholder="Ex: ELETRO">
+        </div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-form-field">
+          <label class="bu-form-label">Categoria Pai</label>
+          <input class="bu-input" id="fParentId" placeholder="ID da categoria pai">
+        </div>
+        <div class="bu-form-field">
+          <label class="bu-form-label">Descrição</label>
+          <textarea class="bu-input" id="fDescription" rows="2" placeholder="Descrição..."></textarea>
+        </div>
+      </div>`;
+    case 'brands':
+      return `<div class="bu-form-row">
+        <div class="bu-form-field">
+          <label class="bu-form-label">Nome <span class="bu-form-required">*</span></label>
+          <input class="bu-input" id="fName" placeholder="Nome da marca">
+        </div>
+        <div class="bu-form-field">
+          <label class="bu-form-label">Código</label>
+          <input class="bu-input" id="fCode" placeholder="Ex: DELL">
+        </div>
+      </div>
+      <div class="bu-form-field">
+        <label class="bu-form-label">Descrição</label>
+        <textarea class="bu-input" id="fDescription" rows="2" placeholder="Descrição..."></textarea>
+      </div>`;
+    case 'manufacturers':
+      return `<div class="bu-form-row">
+        <div class="bu-form-field">
+          <label class="bu-form-label">Nome <span class="bu-form-required">*</span></label>
+          <input class="bu-input" id="fName" placeholder="Nome do fabricante">
+        </div>
+        <div class="bu-form-field">
+          <label class="bu-form-label">CNPJ</label>
+          <input class="bu-input" id="fCnpj" placeholder="Apenas números">
+        </div>
+      </div>`;
+    case 'units':
+      return `<div class="bu-form-row">
+        <div class="bu-form-field">
+          <label class="bu-form-label">Código <span class="bu-form-required">*</span></label>
+          <input class="bu-input" id="fCode" placeholder="Ex: KG" maxlength="10">
+        </div>
+        <div class="bu-form-field">
+          <label class="bu-form-label">Nome <span class="bu-form-required">*</span></label>
+          <input class="bu-input" id="fName" placeholder="Ex: Quilograma">
+        </div>
+      </div>
+      <div class="bu-form-field">
+        <label class="bu-form-label">Tipo</label>
+        <select class="bu-select" id="fType">
+          <option value="units">Unidades</option>
+          <option value="weight">Peso</option>
+          <option value="volume">Volume</option>
+          <option value="length">Comprimento</option>
+          <option value="area">Área</option>
+          <option value="time">Tempo</option>
+          <option value="other">Outro</option>
+        </select>
+      </div>`;
+    case 'attributes':
+      return `<div class="bu-form-row">
+        <div class="bu-form-field">
+          <label class="bu-form-label">Nome <span class="bu-form-required">*</span></label>
+          <input class="bu-input" id="fName" placeholder="Ex: Cor">
+        </div>
+        <div class="bu-form-field">
+          <label class="bu-form-label">Código</label>
+          <input class="bu-input" id="fCode" placeholder="Ex: COR">
+        </div>
+      </div>
+      <div class="bu-form-row">
+        <div class="bu-form-field">
+          <label class="bu-form-label">Tipo</label>
+          <select class="bu-select" id="fType">
+            <option value="text">Texto</option>
+            <option value="color">Cor</option>
+            <option value="number">Número</option>
+            <option value="boolean">Sim/Não</option>
+            <option value="date">Data</option>
+          </select>
+        </div>
+        <div class="bu-form-field">
+          <label class="bu-form-checkbox" style="margin-top:24px;">
+            <input type="checkbox" id="fRequired"> Obrigatório
+          </label>
+        </div>
+      </div>`;
+    default:
+      return '<p>Formulário em construção</p>';
+  }
+}
+
+function closeForm() {
+  document.getElementById('itemForm').classList.remove('open');
+}
+
+async function saveItem() {
+  const get = id => (document.getElementById(id) || {}).value || '';
+  const checked = id => (document.getElementById(id) || {}).checked || false;
+  let url, body;
+
+  switch (currentTab) {
+    case 'categories':
+      body = { name: get('fName'), code: get('fCode'), parent_id: get('fParentId') || null, description: get('fDescription') };
+      if (!body.name) { alert('Nome é obrigatório'); return; }
+      url = API + '/categories';
+      break;
+    case 'brands':
+      body = { name: get('fName'), code: get('fCode'), description: get('fDescription') };
+      if (!body.name) { alert('Nome é obrigatório'); return; }
+      url = API + '/brands';
+      break;
+    case 'manufacturers':
+      body = { name: get('fName'), cnpj: get('fCnpj') };
+      if (!body.name) { alert('Nome é obrigatório'); return; }
+      url = API + '/manufacturers';
+      break;
+    case 'units':
+      body = { code: get('fCode').toUpperCase(), name: get('fName'), type: get('fType') };
+      if (!body.code || !body.name) { alert('Código e Nome são obrigatórios'); return; }
+      url = API + '/units';
+      break;
+    case 'attributes':
+      body = { name: get('fName'), code: get('fCode'), type: get('fType'), required: checked('fRequired') };
+      if (!body.name) { alert('Nome é obrigatório'); return; }
+      url = API + '/attributes';
+      break;
+    default:
+      return;
+  }
+
+  try {
+    await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    closeForm();
+    loadTable();
+  } catch (e) {
+    alert('Erro ao salvar: ' + e.message);
+  }
+}
+
+async function loadTable() {
+  const q = document.getElementById('searchInput').value;
+  const endpoints = {
+    categories: '/categories?query=' + encodeURIComponent(q),
+    brands: '/brands?query=' + encodeURIComponent(q),
+    manufacturers: '/manufacturers?query=' + encodeURIComponent(q),
+    units: '/units',
+    attributes: '/attributes',
+    variants: '/variants?item_id=' + encodeURIComponent(q),
+  };
+  const ep = endpoints[currentTab] || '/categories';
+  const r = await fetch(API + ep);
+  const d = await r.json();
+  const data = d.data || [];
+
+  document.getElementById('recordCount').textContent = data.length + ' registro' + (data.length !== 1 ? 's' : '');
+
+  const container = document.getElementById('dataContainer');
+  container.innerHTML = '';
+
+  if (!data.length) {
+    container.innerHTML = '<div class="bu-empty-state"><div class="bu-empty-state-icon">📋</div><div class="bu-empty-state-text">Nenhum registro encontrado</div><div class="bu-empty-state-hint">Clique em "+ Novo" para cadastrar.</div></div>';
+    return;
+  }
+
+  if (currentTab === 'categories') renderCategoryTree(data, container);
+  else if (currentTab === 'units') renderUnitGrid(data, container);
+  else renderGenericGrid(data, container);
+}
+
+function renderCategoryTree(data, container) {
+  const root = data.filter(c => !c.parent_id);
+  const childMap = {};
+  data.forEach(c => {
+    if (c.parent_id) {
+      if (!childMap[c.parent_id]) childMap[c.parent_id] = [];
+      childMap[c.parent_id].push(c);
+    }
+  });
+  let html = '<div class="bu-tree">';
+  function renderNode(node, depth) {
+    const children = childMap[node.id] || [];
+    html += `<div class="bu-tree-item" style="padding-left:${depth * 24 + 12}px;">
+      <div class="bu-tree-item-content">
+        <span class="bu-tree-item-icon">${children.length ? '📁' : '📄'}</span>
+        <span class="bu-tree-item-name"><strong>${node.name}</strong></span>
+        <span class="bu-tree-item-code">${node.code || ''}</span>
+        <span class="bu-badge ${node.active ? 'bu-badge-success' : 'bu-badge-neutral'}">${node.active ? 'ativo' : 'inativo'}</span>
+        <div class="bu-tree-item-actions">
+          <button class="bu-btn bu-btn-ghost bu-btn-sm bu-btn-icon" onclick="alert('Editar #${node.id}')">✎</button>
+          <button class="bu-btn bu-btn-ghost bu-btn-sm bu-btn-icon" onclick="toggleActive('categories','${node.id}','${node.active}')">🔄</button>
+        </div>
+      </div>
+    </div>`;
+    children.forEach(ch => renderNode(ch, depth + 1));
+  }
+  root.forEach(r => renderNode(r, 0));
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function renderUnitGrid(data, container) {
+  let html = `<table class="bu-table"><thead><tr>
+    <th>Código</th><th>Nome</th><th>Tipo</th><th>Status</th><th>Ações</th>
+  </tr></thead><tbody>`;
+  data.forEach(u => {
+    html += `<tr>
+      <td><strong>${u.code}</strong></td>
+      <td>${u.name}</td>
+      <td><span class="bu-badge bu-badge-info">${u.type}</span></td>
+      <td><span class="bu-badge ${u.active ? 'bu-badge-success' : 'bu-badge-neutral'}">${u.active ? 'ativo' : 'inativo'}</span></td>
+      <td><button class="bu-btn bu-btn-ghost bu-btn-sm bu-btn-icon" onclick="alert('Editar ${u.code}')">✎</button></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function renderGenericGrid(data, container) {
+  const cols = getColumns();
+  let html = `<table class="bu-table"><thead><tr>`;
+  cols.forEach(c => { html += `<th>${c}</th>`; });
+  html += `<th>Ações</th>`;
+  html += `</tr></thead><tbody>`;
+
+  data.forEach(item => {
+    const id = item.id;
+    const active = item.active !== undefined ? item.active : true;
+    html += `<tr>`;
+    cols.forEach(c => {
+      if (c === 'Status') {
+        html += `<td><span class="bu-badge ${active ? 'bu-badge-success' : 'bu-badge-neutral'}">${active ? 'ativo' : 'inativo'}</span></td>`;
+      } else if (c === 'Tipo') {
+        const typeMap = { product: 'Produto', service: 'Serviço', color: 'Cor', text: 'Texto', number: 'Número', boolean: 'Sim/Não', date: 'Data' };
+        html += `<td><span class="bu-badge bu-badge-info">${typeMap[item.type] || item.type || '-'}</span></td>`;
+      } else {
+        const field = c.toLowerCase();
+        html += `<td>${item[field] || '-'}</td>`;
+      }
+    });
+    html += `<td>
+      <button class="bu-btn bu-btn-ghost bu-btn-sm bu-btn-icon" onclick="alert('Editar #${id}')">✎</button>
+      ${currentTab === 'attributes'
+        ? `<button class="bu-btn bu-btn-ghost bu-btn-sm bu-btn-icon" onclick="openValues('${id}')" title="Valores">📋</button>`
+        : ''}
+      <button class="bu-btn bu-btn-ghost bu-btn-sm bu-btn-icon" onclick="toggleActive('${currentTab}','${id}','${active}')">🔄</button>
+    </td></tr>`;
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function getColumns() {
+  const map = {
+    brands: ['Nome', 'Código', 'Status'],
+    manufacturers: ['Nome', 'CNPJ', 'Status'],
+    attributes: ['Nome', 'Código', 'Tipo', 'Status'],
+  };
+  return map[currentTab] || ['Nome', 'Status'];
+}
+
+async function toggleActive(type, id, current) {
+  // Placeholder — toggle via API not implemented yet on catalog API
+  await fetch(API + '/' + type + '/' + id + (current ? '/deactivate' : '/activate'), { method: 'POST' }).catch(() => {});
+  loadTable();
+}
+
+async function openValues(attrId) {
+  currentAttrId = attrId;
+  const r = await fetch(API + '/attributes/' + attrId + '/values');
+  const d = await r.json();
+  const vals = d.data || [];
+  let html = '<div style="margin-bottom:var(--bu-space-4);"><strong>Valores do Atributo</strong></div>';
+  if (!vals.length) {
+    html += '<p style="color:var(--bu-text-muted);margin-bottom:var(--bu-space-4);">Nenhum valor cadastrado.</p>';
+  } else {
+    html += '<table class="bu-table"><thead><tr><th>Valor</th><th>Código</th><th>Ordem</th><th></th></tr></thead><tbody>';
+    vals.forEach(v => {
+      html += `<tr><td>${v.value}</td><td>${v.code || '-'}</td><td>${v.sort_order}</td>
+        <td><button class="bu-btn bu-btn-ghost bu-btn-sm bu-btn-icon" onclick="this.closest('tr').remove()">✕</button></td></tr>`;
+    });
+    html += '</tbody></table>';
+  }
+  html += '<button class="bu-btn bu-btn-sm bu-btn-ghost" onclick="openValueForm()" style="margin-top:var(--bu-space-3);">+ Adicionar valor</button>';
+  document.getElementById('formTitle').textContent = 'Valores do Atributo';
+  document.getElementById('formBody').innerHTML = html;
+  document.getElementById('itemForm').classList.add('open');
+}
+
+function closeValueForm() {
+  document.getElementById('valueForm').classList.remove('open');
+}
+
+function openValueForm() {
+  document.getElementById('vValue').value = '';
+  document.getElementById('vCode').value = '';
+  document.getElementById('valueForm').classList.add('open');
+}
+
+async function saveAttributeValue() {
+  const value = document.getElementById('vValue').value.trim();
+  const code = document.getElementById('vCode').value.trim();
+  if (!value) { alert('Valor é obrigatório'); return; }
+  await fetch(API + '/attributes/' + currentAttrId + '/values', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ value, code }),
+  });
+  closeValueForm();
+  openValues(currentAttrId);
+}
+
+switchTab('categories');
+</script>
+</body>
+</html>

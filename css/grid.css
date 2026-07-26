@@ -1,0 +1,274 @@
+/*=========================================================
+    FiscalBrasil UI
+    File    : grid.css
+    Sistema de Grid de 12 colunas.
+    Nenhum componente define sua própria posição.
+=========================================================*/
+
+/*=========================================================
+  CONTAINERS
+=========================================================*/
+
+.container{
+
+    max-width:var(--container-max);
+
+    margin-left:auto;
+
+    margin-right:auto;
+
+    padding-left:var(--grid-gutter);
+
+    padding-right:var(--grid-gutter);
+
+    width:100%;
+
+}
+
+.container-fluid{
+
+    width:100%;
+
+    padding-left:var(--grid-gutter);
+
+    padding-right:var(--grid-gutter);
+
+}
+
+.container-compact{
+
+    max-width:var(--container-compact);
+
+    margin-left:auto;
+
+    margin-right:auto;
+
+    padding-left:var(--grid-gutter);
+
+    padding-right:var(--grid-gutter);
+
+    width:100%;
+
+}
+
+/*=========================================================
+  GRID BASE
+=========================================================*/
+
+.grid{
+
+    display:grid;
+
+    gap:var(--grid-gutter);
+
+}
+
+/*=========================================================
+  COLUMN COUNTS
+=========================================================*/
+
+.grid-cols-1{grid-template-columns:repeat(1,1fr)}
+
+.grid-cols-2{grid-template-columns:repeat(2,1fr)}
+
+.grid-cols-3{grid-template-columns:repeat(3,1fr)}
+
+.grid-cols-4{grid-template-columns:repeat(4,1fr)}
+
+.grid-cols-5{grid-template-columns:repeat(5,1fr)}
+
+.grid-cols-6{grid-template-columns:repeat(6,1fr)}
+
+.grid-cols-7{grid-template-columns:repeat(7,1fr)}
+
+.grid-cols-8{grid-template-columns:repeat(8,1fr)}
+
+.grid-cols-9{grid-template-columns:repeat(9,1fr)}
+
+.grid-cols-10{grid-template-columns:repeat(10,1fr)}
+
+.grid-cols-11{grid-template-columns:repeat(11,1fr)}
+
+.grid-cols-12{grid-template-columns:repeat(12,1fr)}
+
+/*=========================================================
+  COLUMN SPANS
+=========================================================*/
+
+.col-span-1{grid-column:span 1}
+
+.col-span-2{grid-column:span 2}
+
+.col-span-3{grid-column:span 3}
+
+.col-span-4{grid-column:span 4}
+
+.col-span-5{grid-column:span 5}
+
+.col-span-6{grid-column:span 6}
+
+.col-span-7{grid-column:span 7}
+
+.col-span-8{grid-column:span 8}
+
+.col-span-9{grid-column:span 9}
+
+.col-span-10{grid-column:span 10}
+
+.col-span-11{grid-column:span 11}
+
+.col-span-12{grid-column:span 12}
+
+/*=========================================================
+  GAP VARIANTS
+=========================================================*/
+
+.gap-0{gap:var(--spacing-0)}
+
+.gap-1{gap:var(--spacing-1)}
+
+.gap-2{gap:var(--spacing-2)}
+
+.gap-3{gap:var(--spacing-3)}
+
+.gap-4{gap:var(--spacing-4)}
+
+.gap-5{gap:var(--spacing-5)}
+
+.gap-6{gap:var(--spacing-6)}
+
+.gap-7{gap:var(--spacing-7)}
+
+.gap-8{gap:var(--spacing-8)}
+
+.gap-9{gap:var(--spacing-9)}
+
+.gap-10{gap:var(--spacing-10)}
+
+/*=========================================================
+  ALIGNMENT — HORIZONTAL
+=========================================================*/
+
+.justify-start{justify-content:flex-start}
+
+.justify-center{justify-content:center}
+
+.justify-end{justify-content:flex-end}
+
+.justify-stretch{justify-content:stretch}
+
+.justify-between{justify-content:space-between}
+
+.justify-around{justify-content:space-around}
+
+/*=========================================================
+  ALIGNMENT — VERTICAL
+=========================================================*/
+
+.items-start{align-items:flex-start}
+
+.items-center{align-items:center}
+
+.items-end{align-items:flex-end}
+
+.items-stretch{align-items:stretch}
+
+/*=========================================================
+  ORDER
+=========================================================*/
+
+.order-first{order:-1}
+
+.order-last{order:1}
+
+.order-0{order:0}
+
+.order-1{order:1}
+
+.order-2{order:2}
+
+.order-3{order:3}
+
+/*=========================================================
+  GRID AREAS
+=========================================================*/
+
+.grid-areas{
+
+    display:grid;
+
+    gap:var(--grid-gutter);
+
+}
+
+.area-header{grid-area:header}
+
+.area-sidebar{grid-area:sidebar}
+
+.area-content{grid-area:content}
+
+.area-footer{grid-area:footer}
+
+/*=========================================================
+  RESPONSIVE — NOTEBOOK (<1024px)
+=========================================================*/
+
+@media(max-width:1024px){
+
+    .grid-cols-7,
+    .grid-cols-8,
+    .grid-cols-9,
+    .grid-cols-10,
+    .grid-cols-11,
+    .grid-cols-12{grid-template-columns:repeat(6,1fr)}
+
+}
+
+/*=========================================================
+  RESPONSIVE — TABLET (<768px)
+=========================================================*/
+
+@media(max-width:768px){
+
+    .grid-cols-5,
+    .grid-cols-6,
+    .grid-cols-7,
+    .grid-cols-8,
+    .grid-cols-9,
+    .grid-cols-10,
+    .grid-cols-11,
+    .grid-cols-12{grid-template-columns:repeat(2,1fr)}
+
+}
+
+/*=========================================================
+  RESPONSIVE — MOBILE (<576px)
+=========================================================*/
+
+@media(max-width:576px){
+
+    .grid-cols-2,
+    .grid-cols-3,
+    .grid-cols-4,
+    .grid-cols-5,
+    .grid-cols-6,
+    .grid-cols-7,
+    .grid-cols-8,
+    .grid-cols-9,
+    .grid-cols-10,
+    .grid-cols-11,
+    .grid-cols-12{grid-template-columns:1fr}
+
+    .col-span-2,
+    .col-span-3,
+    .col-span-4,
+    .col-span-5,
+    .col-span-6,
+    .col-span-7,
+    .col-span-8,
+    .col-span-9,
+    .col-span-10,
+    .col-span-11,
+    .col-span-12{grid-column:span 1}
+
+}

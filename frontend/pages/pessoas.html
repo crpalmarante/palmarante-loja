@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pessoas — BusinessUI</title>
+<link rel="stylesheet" href="../fiscalui/dist/css/fiscalui.css">
+</head>
+<body>
+
+<div class="fl-topbar">
+  <div class="fl-topbar-brand">Business<span>UI</span></div>
+  <nav class="fl-topbar-nav">
+    <a href="#" class="active">Pessoas</a>
+    <a href="#">Empresas</a>
+    <a href="#">Produtos</a>
+    <a href="#">Pedidos</a>
+  </nav>
+</div>
+
+<div class="fl-app">
+  <aside class="fl-sidebar">
+    <div class="fl-sidebar-group">Cadastros</div>
+    <a href="#" class="active"><span>👤</span> Pessoas</a>
+    <a href="#"><span>🏢</span> Empresas</a>
+    <div class="fl-sidebar-group">Operações</div>
+    <a href="#"><span>📦</span> Produtos</a>
+    <a href="#"><span>📋</span> Pedidos</a>
+    <a href="#"><span>💰</span> Financeiro</a>
+    <div class="fl-sidebar-group">Relatórios</div>
+    <a href="#"><span>📊</span> Indicadores</a>
+  </aside>
+
+  <main class="fl-workspace">
+    <div class="fl-workspace-header">
+      <div>
+        <h1>Pessoas</h1>
+        <p>Gerencie pessoas físicas cadastradas na plataforma.</p>
+      </div>
+      <button class="fl-btn fl-btn-primary" onclick="openCreate()">+ Nova Pessoa</button>
+    </div>
+
+    <div class="fl-filters">
+      <input class="fl-input" type="text" id="searchInput" placeholder="Buscar por nome, CPF, email..." oninput="loadList()">
+      <select class="fl-select" id="statusFilter" onchange="loadList()">
+        <option value="">Todos os status</option>
+        <option value="active">Ativo</option>
+        <option value="suspended">Suspenso</option>
+        <option value="archived">Arquivado</option>
+      </select>
+      <select class="fl-select" id="roleFilter" onchange="loadList()">
+        <option value="">Todos os papéis</option>
+        <option value="customer">Cliente</option>
+        <option value="supplier">Fornecedor</option>
+        <option value="employee">Funcionário</option>
+        <option value="carrier">Transportadora</option>
+      </select>
+    </div>
+
+    <table class="fl-table" id="dataTable">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>CPF</th>
+          <th>Email / Telefone</th>
+          <th>Papéis</th>
+          <th>Cidade</th>
+          <th>Status</th>
+          <th style="width:50px"></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div class="fl-empty" id="emptyState">
+      <div class="fl-empty-icon">👤</div>
+      <h3>Nenhuma pessoa encontrada</h3>
+      <p>Cadastre a primeira pessoa para começar.</p>
+      <button class="fl-btn fl-btn-primary" onclick="openCreate()">+ Nova Pessoa</button>
+    </div>
+  </main>
+</div>
+
+<!-- Modal: Criar/Editar -->
+<div class="fl-modal-backdrop" id="formModal">
+  <div class="fl-modal">
+    <div class="fl-modal-header">
+      <h2 id="formTitle">Nova Pessoa</h2>
+      <button class="fl-btn fl-btn-ghost fl-btn-icon" onclick="closeForm()">✕</button>
+    </div>
+    <div class="fl-modal-body">
+      <div class="fl-form-row">
+        <div class="fl-field">
+          <label>Nome *</label>
+          <input class="fl-input" id="fGivenName" placeholder="Nome">
+        </div>
+        <div class="fl-field">
+          <label>Sobrenome *</label>
+          <input class="fl-input" id="fFamilyName" placeholder="Sobrenome">
+        </div>
+      </div>
+      <div class="fl-form-row">
+        <div class="fl-field">
+          <label>CPF *</label>
+          <input class="fl-input" id="fDocument" placeholder="000.000.000-00" maxlength="14">
+        </div>
+        <div class="fl-field">
+          <label>Data de Nascimento</label>
+          <input class="fl-input" id="fBirthDate" type="date">
+        </div>
+      </div>
+      <div class="fl-form-row">
+        <div class="fl-field">
+          <label>Email</label>
+          <input class="fl-input" id="fEmail" type="email" placeholder="email@exemplo.com">
+        </div>
+        <div class="fl-field">
+          <label>Telefone</label>
+          <input class="fl-input" id="fPhone" placeholder="(00) 00000-0000">
+        </div>
+      </div>
+      <fieldset class="fl-fieldset">
+        <legend>Endereço</legend>
+        <div class="fl-form-row">
+          <div class="fl-field">
+            <label>CEP</label>
+            <input class="fl-input" id="fPostalCode" placeholder="00000-000" maxlength="9">
+          </div>
+          <div class="fl-field">
+            <label>Cidade</label>
+            <input class="fl-input" id="fCity" placeholder="Cidade">
+          </div>
+        </div>
+        <div class="fl-form-row">
+          <div class="fl-field">
+            <label>Logradouro</label>
+            <input class="fl-input" id="fStreet" placeholder="Rua, Av...">
+          </div>
+          <div class="fl-field">
+            <label>Número</label>
+            <input class="fl-input" id="fNumber" placeholder="Nº">
+          </div>
+        </div>
+        <div class="fl-form-row">
+          <div class="fl-field">
+            <label>Complemento</label>
+            <input class="fl-input" id="fComplement" placeholder="Apto, Bloco...">
+          </div>
+          <div class="fl-field">
+            <label>Bairro</label>
+            <input class="fl-input" id="fDistrict" placeholder="Bairro">
+          </div>
+        </div>
+      </fieldset>
+      <div class="fl-field" style="margin-top:var(--fl-space-lg);">
+        <label>Papéis</label>
+        <div class="fl-checkbox-group">
+          <label class="fl-checkbox"><input type="checkbox" value="customer" checked> Cliente</label>
+          <label class="fl-checkbox"><input type="checkbox" value="supplier"> Fornecedor</label>
+          <label class="fl-checkbox"><input type="checkbox" value="employee"> Funcionário</label>
+          <label class="fl-checkbox"><input type="checkbox" value="carrier"> Transportadora</label>
+        </div>
+      </div>
+      <input type="hidden" id="editingId" value="">
+    </div>
+    <div class="fl-modal-footer">
+      <button class="fl-btn" onclick="closeForm()">Cancelar</button>
+      <button class="fl-btn fl-btn-primary" onclick="savePerson()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Detalhe -->
+<div class="fl-modal-backdrop" id="detailModal">
+  <div class="fl-modal" style="max-width:700px;">
+    <div class="fl-modal-header">
+      <h2 id="detailName">—</h2>
+      <button class="fl-btn fl-btn-ghost fl-btn-icon" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="fl-modal-body">
+      <div class="fl-tabs" id="detailTabs">
+        <button class="fl-tab active" data-tab="general" onclick="switchTab('general')">Geral</button>
+        <button class="fl-tab" data-tab="addresses" onclick="switchTab('addresses')">Endereços</button>
+        <button class="fl-tab" data-tab="contacts" onclick="switchTab('contacts')">Contatos</button>
+        <button class="fl-tab" data-tab="roles" onclick="switchTab('roles')">Papéis</button>
+      </div>
+      <div class="fl-tab-content active" id="tabGeneral"></div>
+      <div class="fl-tab-content" id="tabAddresses"></div>
+      <div class="fl-tab-content" id="tabContacts"></div>
+      <div class="fl-tab-content" id="tabRoles"></div>
+    </div>
+    <div class="fl-modal-footer">
+      <button class="fl-btn" onclick="closeDetail()">Fechar</button>
+      <button class="fl-btn" id="actionBtn" onclick="toggleStatus()">Suspender</button>
+      <button class="fl-btn fl-btn-danger" onclick="archivePerson()">Arquivar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8081/api/parties';
+let currentDetailId = null;
+
+async function api(path, method = 'GET', body = null) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(API + path, opts);
+  return r.json();
+}
+
+async function loadList() {
+  const q = document.getElementById('searchInput').value;
+  const s = document.getElementById('statusFilter').value;
+  const r = document.getElementById('roleFilter').value;
+  const params = new URLSearchParams({ query: q, status: s, role: r, party_type: 'person' });
+  const d = await api(`?${params}`);
+  const tbody = document.getElementById('tableBody');
+  const empty = document.getElementById('emptyState');
+  const table = document.getElementById('dataTable');
+
+  if (!d.data || d.data.length === 0) {
+    tbody.innerHTML = '';
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  table.style.display = '';
+  empty.style.display = 'none';
+  tbody.innerHTML = d.data.map(p => {
+    const doc = p.documents?.[0]?.value || '-';
+    const email = p.contacts?.[0]?.email || '';
+    const phone = p.contacts?.[0]?.phone || '';
+    const contact = email || phone || '-';
+    const city = p.addresses?.[0]?.address?.city || '-';
+    const roles = (p.roles || []).map(r =>
+      `<span class="fl-badge fl-badge-${r.role_type === 'customer' ? 'info' : r.role_type === 'supplier' ? 'warning' : r.role_type === 'employee' ? 'success' : 'neutral'}">${r.role_type}</span>`
+    ).join(' ') || '<span class="fl-badge fl-badge-neutral">—</span>';
+    const badgeClass = p.status === 'active' ? 'fl-badge-success' : p.status === 'suspended' ? 'fl-badge-warning' : 'fl-badge-danger';
+    return `<tr onclick="openDetail('${p.id}')">
+      <td class="fl-font-medium">${p.display_name}</td>
+      <td class="fl-text-muted fl-text-sm">${doc}</td>
+      <td class="fl-text-muted fl-text-sm">${contact}</td>
+      <td>${roles}</td>
+      <td class="fl-text-muted fl-text-sm">${city}</td>
+      <td><span class="fl-badge ${badgeClass}">${p.status}</span></td>
+      <td><button class="fl-btn fl-btn-ghost fl-btn-icon fl-btn-sm" onclick="event.stopPropagation();openEdit('${p.id}')">✎</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function openCreate() {
+  document.getElementById('formTitle').textContent = 'Nova Pessoa';
+  document.getElementById('editingId').value = '';
+  ['fGivenName','fFamilyName','fDocument','fBirthDate','fEmail','fPhone','fPostalCode','fCity','fStreet','fNumber','fComplement','fDistrict'].forEach(id => document.getElementById(id).value = '');
+  document.querySelectorAll('#formModal input[type="checkbox"]').forEach(cb => cb.checked = false);
+  document.querySelector('#formModal input[value="customer"]').checked = true;
+  document.getElementById('formModal').classList.add('open');
+}
+
+async function openEdit(id) {
+  document.getElementById('formTitle').textContent = 'Editar Pessoa';
+  document.getElementById('editingId').value = id;
+  const d = await api(`/${id}`);
+  const p = d.data;
+  document.getElementById('fGivenName').value = p.person_name?.given_name || '';
+  document.getElementById('fFamilyName').value = p.person_name?.family_name || '';
+  document.getElementById('fDocument').value = p.documents?.[0]?.value || '';
+  document.getElementById('fEmail').value = p.contacts?.[0]?.email || '';
+  document.getElementById('fPhone').value = p.contacts?.[0]?.phone || '';
+  const addr = p.addresses?.[0]?.address || {};
+  document.getElementById('fPostalCode').value = addr.postal_code || '';
+  document.getElementById('fCity').value = addr.city || '';
+  document.getElementById('fStreet').value = addr.street || '';
+  document.getElementById('fNumber').value = addr.number || '';
+  document.getElementById('fComplement').value = addr.complement || '';
+  document.getElementById('fDistrict').value = addr.district || '';
+  document.querySelectorAll('#formModal input[type="checkbox"]').forEach(cb => cb.checked = false);
+  (p.roles || []).forEach(r => {
+    const cb = document.querySelector(`#formModal input[value="${r.role_type}"]`);
+    if (cb) cb.checked = true;
+  });
+  document.getElementById('formModal').classList.add('open');
+}
+
+function closeForm() { document.getElementById('formModal').classList.remove('open'); }
+
+async function savePerson() {
+  const editingId = document.getElementById('editingId').value;
+  const payload = {
+    party_type: 'person',
+    given_name: document.getElementById('fGivenName').value,
+    family_name: document.getElementById('fFamilyName').value,
+    display_name: (document.getElementById('fGivenName').value + ' ' + document.getElementById('fFamilyName').value).trim()
+  };
+  payload.documents = [{ type: 'cpf', value: document.getElementById('fDocument').value, is_main: true }];
+  payload.contacts = [{ name: payload.display_name, phone: document.getElementById('fPhone').value, email: document.getElementById('fEmail').value, is_main: true }];
+  payload.addresses = [{
+    street: document.getElementById('fStreet').value, number: document.getElementById('fNumber').value,
+    complement: document.getElementById('fComplement').value, district: document.getElementById('fDistrict').value,
+    city: document.getElementById('fCity').value, postal_code: document.getElementById('fPostalCode').value, is_main: true
+  }];
+  const checked = [];
+  document.querySelectorAll('#formModal input[type="checkbox"]:checked').forEach(cb => checked.push(cb.value));
+  payload.roles = (checked.length ? checked : ['customer']).map(r => ({ type: r }));
+  if (editingId) { await api(`/${editingId}`, 'PUT', payload); }
+  else { await api('', 'POST', payload); }
+  closeForm();
+  loadList();
+}
+
+async function openDetail(id) {
+  currentDetailId = id;
+  const d = await api(`/${id}`);
+  const p = d.data;
+  document.getElementById('detailName').textContent = p.display_name;
+  const btn = document.getElementById('actionBtn');
+  const isSuspended = p.status === 'suspended';
+  btn.textContent = isSuspended ? 'Reativar' : 'Suspender';
+  btn.className = `fl-btn ${isSuspended ? 'fl-btn-success' : 'fl-btn-warning'}`;
+
+  document.getElementById('tabGeneral').innerHTML = `<div class="fl-detail-grid">
+    <div class="fl-detail-field"><label>Nome</label><div class="value">${p.display_name}</div></div>
+    <div class="fl-detail-field"><label>CPF</label><div class="value">${p.documents?.[0]?.value || '-'}</div></div>
+    <div class="fl-detail-field"><label>Email</label><div class="value">${p.contacts?.[0]?.email || '-'}</div></div>
+    <div class="fl-detail-field"><label>Telefone</label><div class="value">${p.contacts?.[0]?.phone || '-'}</div></div>
+    <div class="fl-detail-field"><label>Status</label><div class="value"><span class="fl-badge ${p.status === 'active' ? 'fl-badge-success' : p.status === 'suspended' ? 'fl-badge-warning' : 'fl-badge-danger'}">${p.status}</span></div></div>
+    <div class="fl-detail-field"><label>Cadastro</label><div class="value">${new Date(p.created_at).toLocaleString()}</div></div>
+  </div>`;
+
+  document.getElementById('tabAddresses').innerHTML = (p.addresses || []).map(a => {
+    const ad = a.address || a;
+    return `<div class="fl-sub-item"><div><strong>${ad.street || ''}, ${ad.number || ''}</strong>${ad.complement ? ' - ' + ad.complement : ''}<br><span class="fl-text-sm fl-text-muted">${ad.district ? ad.district + ' - ' : ''}${ad.city || ''}${ad.region ? '/' + ad.region : ''} ${ad.postal_code ? '· CEP ' + ad.postal_code : ''}</span></div>${a.is_main ? '<span class="fl-badge fl-badge-info">Principal</span>' : ''}</div>`;
+  }).join('') || '<div class="fl-sub-item">Nenhum endereço cadastrado.</div>';
+
+  document.getElementById('tabContacts').innerHTML = (p.contacts || []).map(c =>
+    `<div class="fl-sub-item"><div><strong>${c.name || ''}</strong><br><span class="fl-text-sm fl-text-muted">${c.email ? '✉ ' + c.email : ''}${c.phone && c.email ? ' · ' : ''}${c.phone ? '📞 ' + c.phone : ''}</span></div>${c.is_main ? '<span class="fl-badge fl-badge-info">Principal</span>' : ''}</div>`
+  ).join('') || '<div class="fl-sub-item">Nenhum contato cadastrado.</div>';
+
+  document.getElementById('tabRoles').innerHTML = (p.roles || []).map(r =>
+    `<div class="fl-sub-item"><span class="fl-font-medium">${r.role_type}</span><span class="fl-badge ${r.status === 'active' ? 'fl-badge-success' : 'fl-badge-neutral'}">${r.status}</span></div>`
+  ).join('') || '<div class="fl-sub-item">Nenhum papel atribuído.</div>';
+
+  switchTab('general');
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function closeDetail() { document.getElementById('detailModal').classList.remove('open'); currentDetailId = null; }
+
+async function toggleStatus() {
+  if (!currentDetailId) return;
+  const d = await api(`/${currentDetailId}`);
+  const isSuspended = d.data.status === 'suspended';
+  await api(`/${currentDetailId}/${isSuspended ? 'activate' : 'suspend'}`, 'POST');
+  closeDetail();
+  loadList();
+}
+
+async function archivePerson() {
+  if (!currentDetailId) return;
+  await api(`/${currentDetailId}/archive`, 'POST');
+  closeDetail();
+  loadList();
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.fl-tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.fl-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+}
+
+function closeForm() { document.getElementById('formModal').classList.remove('open'); }
+
+loadList();
+</script>
+</body>
+</html>

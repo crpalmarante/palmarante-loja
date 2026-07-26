@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palmarante - Permissões</title>
+<link rel="stylesheet" href="index.css">
+<link rel="stylesheet" href="style.css">
+<style>
+.container { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.header h1 { color: #1a237e; font-size: 1.4rem; }
+.header .voltar { color: #1a237e; cursor: pointer; font-size: .85rem; text-decoration: underline; }
+
+.contas-lista { display: flex; flex-direction: column; gap: 16px; }
+.conta-card {
+  background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  border: 1.5px solid #e2e8f0; overflow: hidden;
+}
+.conta-card.expanded { border-color: #1a237e; }
+
+.conta-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 20px; cursor: pointer; transition: .15s;
+}
+.conta-header:hover { background: #f8fafc; }
+.conta-info { display: flex; flex-direction: column; gap: 2px; }
+.conta-nome { font-weight: 600; font-size: .95rem; color: #1e293b; }
+.conta-usuario { font-size: .8rem; color: #64748b; }
+.conta-tipo { font-size: .7rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+.conta-tipo.usuario { background: #eef0f7; color: #1a237e; }
+.conta-tipo.funcionario { background: #f0fdf4; color: #16a34a; }
+.conta-seta { font-size: .75rem; color: #94a3b8; transition: transform .2s; }
+.conta-card.expanded .conta-seta { transform: rotate(180deg); }
+
+.conta-body { display: none; padding: 0 20px 20px; border-top: 1px solid #e2e8f0; }
+.conta-card.expanded .conta-body { display: block; }
+
+.modulos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px; margin-top: 12px; }
+.modulo-group { margin-top: 16px; }
+.modulo-group h3 { font-size: .85rem; color: #0f172a; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 2px solid #1a237e; }
+
+.modulo-item {
+  display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+  border-radius: 6px; cursor: pointer; font-size: .85rem; user-select: none;
+  color: #1e293b;
+}
+.modulo-item:hover { background: #e2e8f0; }
+.modulo-item input[type="checkbox"] { accent-color: #1a237e; cursor: pointer; width: 16px; height: 16px; }
+
+.acoes { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+.acoes button {
+  padding: 8px 20px; border: none; border-radius: 6px; font-weight: 600;
+  font-size: .85rem; cursor: pointer;
+}
+.btn-salvar { background: #1a237e; color: #fff; }
+.btn-salvar:hover { background: #283593; }
+.btn-salvar:disabled { opacity: .5; cursor: not-allowed; }
+.btn-sel-todos { background: #e2e8f0; color: #475569; }
+.btn-sel-todos:hover { background: #cbd5e1; }
+
+.salvo-msg { color: #16a34a; font-size: .8rem; display: none; margin-top: 8px; text-align: right; }
+
+.loading { text-align: center; color: #64748b; padding: 40px; font-size: .9rem; }
+.erro { text-align: center; color: #dc2626; padding: 40px; font-size: .9rem; }
+
+@media (max-width: 600px) {
+  .modulos-grid { grid-template-columns: 1fr 1fr; }
+  .container { padding: 16px 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Gerenciar Permissões</h1>
+    <span class="voltar" onclick="voltar()">← Voltar ao menu</span>
+  </div>
+
+  <div id="loading" class="loading">Carregando contas...</div>
+  <div id="erro" class="erro" style="display:none"></div>
+  <div id="contas-lista" class="contas-lista" style="display:none"></div>
+</div>
+
+<script>
+let token = localStorage.getItem('auth_token');
+if (!token) { window.location.href = 'login.html'; }
+
+const MODULOS = {
+  'principal': {
+    label: 'Módulos Principais',
+    itens: [
+      { id: 'ponto_vendas', label: 'Ponto de Vendas' },
+      { id: 'vendas', label: 'Vendas' },
+      { id: 'compras', label: 'Compras' },
+      { id: 'inventario', label: 'Inventário' },
+      { id: 'fiscal', label: 'Fiscal' },
+      { id: 'faturamento', label: 'Faturamento (menu)' },
+    ]
+  },
+  'faturamento': {
+    label: 'Faturamento',
+    itens: [
+      { id: 'orcamentos', label: 'Orçamentos' },
+      { id: 'pedidos-venda', label: 'Pedidos de Venda' },
+      { id: 'contratos', label: 'Contratos' },
+      { id: 'notas-fiscais', label: 'Notas Fiscais' },
+      { id: 'nfce', label: 'NFC-e' },
+      { id: 'nfse', label: 'NFS-e' },
+      { id: 'cte', label: 'CT-e' },
+      { id: 'mdfe', label: 'MDF-e' },
+      { id: 'eventos-fiscais', label: 'Eventos Fiscais' },
+      { id: 'faturas', label: 'Faturas' },
+      { id: 'boletos', label: 'Boletos' },
+      { id: 'cobrancas', label: 'Cobranças' },
+      { id: 'pagamentos', label: 'Pagamentos' },
+      { id: 'clientes', label: 'Clientes' },
+      { id: 'produtos', label: 'Produtos' },
+      { id: 'series', label: 'Séries' },
+      { id: 'naturezas-operacao', label: 'Naturezas de Op.' },
+      { id: 'regras-fiscais', label: 'Regras Fiscais' },
+      { id: 'emitir-documento', label: 'Emitir Documento' },
+      { id: 'importar-xml', label: 'Importar XML' },
+      { id: 'manifestacao-destinatario', label: 'Manifest. Destinatário' },
+      { id: 'download-sefaz', label: 'Download SEFAZ' },
+      { id: 'rel-vendas', label: 'Rel. Vendas' },
+      { id: 'rel-faturamento', label: 'Rel. Faturamento' },
+      { id: 'rel-documentos-emitidos', label: 'Rel. Docs. Emitidos' },
+      { id: 'rel-documentos-cancelados', label: 'Rel. Docs. Cancelados' },
+      { id: 'rel-estatisticas', label: 'Rel. Estatísticas' },
+      { id: 'config-empresas', label: 'Config. Empresas' },
+      { id: 'config-certificados', label: 'Config. Certificados' },
+      { id: 'config-csc', label: 'Config. CSC NFC-e' },
+      { id: 'config-parametros-fiscais', label: 'Config. Param. Fiscais' },
+      { id: 'config-integracoes', label: 'Config. Integrações' },
+    ]
+  },
+  'rh': {
+    label: 'RH / Departamento Pessoal',
+    itens: [
+      { id: 'funcionarios', label: 'Funcionários (menu)' },
+      { id: 'cadastro', label: 'Cadastro' },
+      { id: 'folha', label: 'Folha Pagto' },
+      { id: 'ponto', label: 'Ponto' },
+      { id: 'relatorios-rh', label: 'Relatórios RH' },
+      { id: 'portal-func', label: 'Portal Func.' },
+      { id: 'contabilidade', label: 'Contabilidade' },
+      { id: 'estrutura-salarial', label: 'Estrut. Salarial' },
+      { id: 'rh-dashboard', label: 'RH Dashboard' },
+      { id: 'directory', label: 'Diretório' },
+      { id: 'emprestimos', label: 'Empréstimos' },
+      { id: 'disciplinar', label: 'Disciplinar' },
+    ]
+  },
+  'sistema': {
+    label: 'Sistema',
+    itens: [
+      { id: 'configuracoes', label: 'Configurações' },
+    ]
+  }
+};
+
+function voltar() {
+  window.location.href = 'index.html';
+}
+
+function api(path, params) {
+  const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+  if (token) headers['X-Auth-Token'] = token;
+  return fetch(path, { method: 'POST', headers, body: params });
+}
+
+function apiGet(path) {
+  const headers = {};
+  if (token) headers['X-Auth-Token'] = token;
+  return fetch(path, { headers });
+}
+
+function toggleConta(id) {
+  const card = document.getElementById('conta-' + id);
+  card.classList.toggle('expanded');
+}
+
+function selecionarTodos(id, grupo) {
+  const checks = document.querySelectorAll('#conta-' + id + ' .modulo-' + grupo + ' input');
+  const allChecked = Array.from(checks).every(c => c.checked);
+  checks.forEach(c => c.checked = !allChecked);
+}
+
+function getPermissoes(id) {
+  const checks = document.querySelectorAll('#conta-' + id + ' .modulo-item input:checked');
+  return Array.from(checks).map(c => c.value).join(',');
+}
+
+function salvar(id) {
+  const permissoes = getPermissoes(id);
+  const btn = document.querySelector('#conta-' + id + ' .btn-salvar');
+  const msg = document.querySelector('#conta-' + id + ' .salvo-msg');
+
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+  msg.style.display = 'none';
+
+  const params = new URLSearchParams();
+  params.set('id', id);
+  params.set('permissoes', permissoes);
+
+  api('/api/conta/permissoes', params)
+    .then(r => r.json())
+    .then(data => {
+      btn.disabled = false;
+      btn.textContent = 'Salvar';
+      if (data.status === 'ok') {
+        msg.textContent = 'Permissões salvas!';
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 2500);
+      } else {
+        alert('Erro: ' + (data.mensagem || 'desconhecido'));
+      }
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.textContent = 'Salvar';
+      alert('Erro de conexão');
+    });
+}
+
+function renderConta(c) {
+  const div = document.createElement('div');
+  div.className = 'conta-card';
+  div.id = 'conta-' + c.id;
+
+  const tipoLabel = c.tipo === 'usuario' ? 'Administrador' : 'Funcionário';
+  const tipoClass = c.tipo === 'usuario' ? 'usuario' : 'funcionario';
+
+  let modulosHTML = '';
+  for (const [key, grupo] of Object.entries(MODULOS)) {
+    modulosHTML += '<div class="modulo-group">';
+    modulosHTML += '<h3>' + grupo.label + '</h3>';
+    modulosHTML += '<div class="modulos-grid">';
+    for (const item of grupo.itens) {
+      const checked = c.permissoes.split(',').map(s => s.trim()).includes(item.id) ? 'checked' : '';
+      modulosHTML += '<label class="modulo-item">';
+      modulosHTML += '<input type="checkbox" class="modulo-' + key + '" value="' + item.id + '" ' + checked + '>';
+      modulosHTML += item.label;
+      modulosHTML += '</label>';
+    }
+    modulosHTML += '</div>';
+    if (c.tipo !== 'usuario') {
+      modulosHTML += '<div style="margin-top:4px"><span class="link" style="font-size:.75rem;color:#64748b;cursor:pointer" onclick="selecionarTodos(\'' + c.id + '\',\'' + key + '\')">Selecionar/limpar grupo</span></div>';
+    }
+    modulosHTML += '</div>';
+  }
+
+  div.innerHTML =
+    '<div class="conta-header" onclick="toggleConta(' + c.id + ')">' +
+      '<div class="conta-info">' +
+        '<div class="conta-nome">' + c.nome + '</div>' +
+        '<div class="conta-usuario">@' + c.usuario + (c.email ? ' · ' + c.email : '') + '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<span class="conta-tipo ' + tipoClass + '">' + tipoLabel + '</span>' +
+        '<span class="conta-seta">▼</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="conta-body">' +
+      (c.tipo === 'usuario'
+        ? '<p style="color:#64748b;font-size:.85rem;margin-top:12px">Administradores têm acesso a todos os módulos automaticamente.</p>'
+        : modulosHTML +
+          '<div class="acoes">' +
+            '<button class="btn-salvar" onclick="salvar(' + c.id + ')">Salvar</button>' +
+          '</div>' +
+          '<div class="salvo-msg"></div>'
+      ) +
+    '</div>';
+
+  return div;
+}
+
+apiGet('/api/contas')
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById('loading').style.display = 'none';
+    if (data.status === 'ok') {
+      const lista = document.getElementById('contas-lista');
+      lista.style.display = 'flex';
+      for (const c of data.contas) {
+        lista.appendChild(renderConta(c));
+      }
+    } else {
+      const erro = document.getElementById('erro');
+      erro.textContent = data.mensagem || 'Erro ao carregar contas';
+      erro.style.display = 'block';
+    }
+  })
+  .catch(() => {
+    document.getElementById('loading').style.display = 'none';
+    const erro = document.getElementById('erro');
+    erro.textContent = 'Erro de conexão';
+    erro.style.display = 'block';
+  });
+</script>
+
+</body>
+</html>

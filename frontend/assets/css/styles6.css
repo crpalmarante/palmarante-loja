@@ -1,0 +1,542 @@
+/* =========================
+   LIQUID GLASS THEME
+   ========================= */
+
+
+* {
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+
+body {
+
+    min-height:100vh;
+
+    font-family:
+    "Inter",
+    "Segoe UI",
+    sans-serif;
+
+    background:
+    linear-gradient(
+        135deg,
+        #eef2ff,
+        #fdf2f8,
+        #ecfeff
+    );
+
+    color:#1f2937;
+
+}
+
+
+
+/* APP */
+
+.app {
+
+    display:flex;
+
+    min-height:100vh;
+
+    padding:20px;
+
+    gap:20px;
+
+}
+
+
+
+/* SIDEBAR GLASS */
+
+
+.sidebar {
+
+    width:260px;
+
+    background:
+
+    rgba(255,255,255,.55);
+
+
+    backdrop-filter:
+
+    blur(18px);
+
+
+    -webkit-backdrop-filter:
+
+    blur(18px);
+
+
+    border:
+
+    1px solid rgba(255,255,255,.7);
+
+
+    border-radius:24px;
+
+
+    padding:25px;
+
+
+    box-shadow:
+
+    0 20px 40px rgba(0,0,0,.08);
+
+}
+
+
+
+/* LOGO */
+
+
+.logo {
+
+    font-size:24px;
+
+    font-weight:700;
+
+    margin-bottom:40px;
+
+}
+
+
+.logo span {
+
+    color:#714B67;
+
+}
+
+
+
+/* MENU */
+
+
+nav a {
+
+    display:flex;
+
+    align-items:center;
+
+
+    padding:14px 16px;
+
+
+    margin-bottom:10px;
+
+
+    border-radius:14px;
+
+
+    text-decoration:none;
+
+
+    color:#4b5563;
+
+
+    transition:.25s;
+
+
+}
+
+
+
+nav a:hover {
+
+
+    background:
+
+    rgba(255,255,255,.65);
+
+
+    transform:
+
+    translateX(5px);
+
+
+}
+
+
+
+nav .active {
+
+
+    background:
+
+    linear-gradient(
+        135deg,
+        rgba(113,75,103,.9),
+        rgba(160,120,150,.9)
+    );
+
+
+    color:white;
+
+
+    box-shadow:
+
+    0 10px 25px rgba(113,75,103,.25);
+
+
+}
+
+
+
+
+/* CONTENT */
+
+
+.content {
+
+    flex:1;
+
+}
+
+
+
+/* TOPBAR */
+
+
+.topbar {
+
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+
+    background:
+
+    rgba(255,255,255,.45);
+
+
+    backdrop-filter:
+
+    blur(15px);
+
+
+    padding:20px 25px;
+
+
+    border-radius:22px;
+
+
+    border:
+
+    1px solid rgba(255,255,255,.6);
+
+
+    margin-bottom:25px;
+
+
+}
+
+
+
+h1 {
+
+    font-size:30px;
+
+}
+
+
+
+p {
+
+    color:#6b7280;
+
+}
+
+
+
+/* CARDS */
+
+
+.cards {
+
+
+    display:grid;
+
+
+    grid-template-columns:
+
+    repeat(4,1fr);
+
+
+    gap:20px;
+
+
+}
+
+
+
+.card {
+
+
+    background:
+
+    rgba(255,255,255,.55);
+
+
+    backdrop-filter:
+
+    blur(18px);
+
+
+
+    border-radius:22px;
+
+
+    padding:25px;
+
+
+
+    border:
+
+    1px solid rgba(255,255,255,.7);
+
+
+
+    box-shadow:
+
+
+    0 15px 35px rgba(0,0,0,.08);
+
+
+
+    transition:.3s;
+
+
+}
+
+
+
+.card:hover {
+
+
+    transform:
+
+    translateY(-8px);
+
+
+    box-shadow:
+
+    0 25px 45px rgba(0,0,0,.12);
+
+
+}
+
+
+
+.card span {
+
+
+    color:#6b7280;
+
+
+}
+
+
+.card strong {
+
+
+    display:block;
+
+
+    margin-top:12px;
+
+
+    font-size:36px;
+
+
+    font-weight:700;
+
+
+}
+
+
+
+/* PANEL */
+
+
+.panel {
+
+
+    margin-top:25px;
+
+
+    background:
+
+    rgba(255,255,255,.55);
+
+
+
+    backdrop-filter:
+
+    blur(18px);
+
+
+
+    border-radius:22px;
+
+
+    padding:25px;
+
+
+
+    border:
+
+    1px solid rgba(255,255,255,.7);
+
+
+}
+
+
+
+/* TABLE */
+
+
+table {
+
+
+    width:100%;
+
+
+    border-collapse:collapse;
+
+
+}
+
+
+
+th {
+
+
+    color:#6b7280;
+
+}
+
+
+
+td,th {
+
+
+    padding:15px;
+
+
+    border-bottom:
+
+    1px solid rgba(0,0,0,.05);
+
+
+}
+
+
+
+/* BADGES */
+
+
+.badge {
+
+
+    padding:
+
+    6px 14px;
+
+
+    border-radius:30px;
+
+
+}
+
+
+
+.success {
+
+
+    background:
+
+    rgba(16,185,129,.15);
+
+
+    color:#047857;
+
+
+}
+
+
+
+.warning {
+
+
+    background:
+
+    rgba(245,158,11,.15);
+
+
+    color:#b45309;
+
+
+}
+
+
+
+/* RESPONSIVO */
+
+
+@media(max-width:1000px){
+
+
+.cards {
+
+    grid-template-columns:
+
+    repeat(2,1fr);
+
+}
+
+
+}
+
+
+
+@media(max-width:600px){
+
+
+.app {
+
+    padding:10px;
+
+}
+
+
+
+.sidebar {
+
+    display:none;
+
+}
+
+
+.cards {
+
+    grid-template-columns:
+
+    1fr;
+
+}
+
+
+.topbar {
+
+    border-radius:16px;
+
+}
+
+
+}
